@@ -8,6 +8,7 @@ import type { ComputedRef, VNode } from "vue";
 import { onMounted, computed, ref, getCurrentInstance } from "vue";
 import type { ITree, IWorkshopMenuItem } from "@/interfaces/workshop";
 import router from '@/router'
+import { slash } from "@antfu/utils";
  
 const route = useRoute();
 
@@ -22,30 +23,22 @@ const wsMenu = computed(
   () => wStore.getWorkshopMenu.length > 0 && wStore.getWorkshopMenu[0].menus
 );
 
-const wsId = route.params.id.toString()
-wStore.loadWorkshop(wsId);
+var urlParam = route.params.all.toString()
+const slashIdx = urlParam.indexOf('/')
+const wsId = urlParam.split('/')[0]
+urlParam = urlParam.substr(slashIdx+1) 
 
-var startIndex = [] as number[]
-route.params.all.toString().split('/').forEach(el=>startIndex.push(parseInt(el)))
-wStore.setTreeIndex(startIndex);
+
+wStore.loadWorkshop(wsId).then(()=>{
+    wStore.setTreeIndexByPath(urlParam);
+    tree.value!.setCurrentKey(wStore.getTreeKey, true); 
+});
 
 const mdProps = { html: true };
 
 const tree = ref()
 
 onMounted(() => {    
-  setTimeout(()=>{
-    let srcTree = wStore.getWorkshopTree
-    let content = srcTree || [] as ITree[]
-    let key = 0 
-    startIndex.forEach(index => {
-        if (content.length > index) {
-          key = content[index].id 
-          content = content[index].children || []
-        }
-      })
-
-    tree.value!.setCurrentKey(key, true); }, 500);  
 });
 
 const treeChange = (node: ITree) => {
@@ -53,10 +46,8 @@ const treeChange = (node: ITree) => {
   var path = ''
   treeIndex.forEach(idx=>path += idx + '/')
   wStore.setTreeIndex(treeIndex);
-  router.push(`/workshops/${wsId}/${path}`)
+  router.push(`/workshops/${wsId}/${node.path}`)
 };
-
-const defaultExpanded = ref(startIndex);
 
 const treeData: ComputedRef<ITree[]> = computed(
   () => wStore.getWorkshopTree || []
@@ -87,7 +78,6 @@ const treeData: ComputedRef<ITree[]> = computed(
                       ref="tree"
                       node-key="id"
                       accordion
-                      :default-expanded-keys="startIndex"
                       :data="treeData"
                       @current-change="treeChange"
                     />

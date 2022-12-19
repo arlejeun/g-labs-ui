@@ -35,7 +35,14 @@ function buildMenu(submenu: IWorkshopMenuItem[]): any {
   return result
 }
 
+type IPathMap = {
+  path: string,
+  index: number[],
+  key: number
+}
 var treeIndex = 0
+var pathMap = [] as IPathMap[]
+
 const buildTree = (ws: IWorkshopMenuItem[], index?: number[]): ITree[] => {
 
   if (typeof ws?.forEach !== 'function') {
@@ -50,12 +57,18 @@ const buildTree = (ws: IWorkshopMenuItem[], index?: number[]): ITree[] => {
   ws.forEach((item: IWorkshopMenuItem) => {
     branch.index = [...index || []]
     branch.label = item.name
+    branch.path = item.path.substr(0, item.path.lastIndexOf('.'))
     branch.id = treeIndex
     treeIndex++
     branch.index.push(i)
     if (item.menus && item.menus.length > 0) {
       branch.children = [...buildTree(item.menus, branch.index)]
     }
+    pathMap.push({
+      path: branch.path,
+      index: [...branch.index],
+      key: branch.id
+    })
     result.push({ ...branch })
     delete branch.children
     i++
@@ -69,6 +82,8 @@ export const useWorkshopStore = defineStore({
   state: () => ({
     workshops: [] as IWorkshop[],
     workshopTree: [] as ITree[],
+    workshopTreeKey: 0,
+    workShopPathMap: [] as IPathMap[],
     workshopName: '',
     workshop: [] as IWorkshopMenuItem[],
     page_index: [0, 0] as number[], // acces to ws page: menus[1].menus[2] -> page_index is [1,2]
@@ -102,6 +117,9 @@ export const useWorkshopStore = defineStore({
     getWorkshopTree(): any {
       return this.workshopTree
     },
+    getTreeKey(): any {
+      return this.workshopTreeKey
+    },
     getWorkshopPage(): string {
 
       if (this.workshop.length === 0) {
@@ -131,10 +149,24 @@ export const useWorkshopStore = defineStore({
   actions: {
     async loadWorkshop(id: string) {
       // getting manifest
+
+      let wsId
+      this.workshops.forEach((ws => {
+        if (ws.name == id) {
+          wsId = ws.id
+        }
+      }))
+
+      if (!wsId) {
+        console.error('Could not get Workshop ID!')
+        // return
+      }
+
+      wsId = 2
       try {
 
         const { execute } = useAxios(GLabsApiClient)
-        const result = await execute(`/workshops/${id}`)
+        const result = await execute(`/workshops/${wsId}`)
 
         const resData = result.data.value
         this.workshopName = resData.name
@@ -148,6 +180,7 @@ export const useWorkshopStore = defineStore({
 
         treeIndex = 0
         this.workshopTree = buildTree(this.workshop[0]?.menus || [])
+        this.workShopPathMap = [...pathMap]
 
       } catch (error) {
         console.error(`Workshop #${id} - manifest cannot be loaded and parsed!\n`, error)
@@ -168,6 +201,12 @@ export const useWorkshopStore = defineStore({
 
     setTreeIndex(ind: number[]) {
       this.page_index = [...ind]
+    },
+    setTreeIndexByPath(path: string) {
+      const brunches = this.workShopPathMap.filter((item) => { return item.path.substr(2) === path })
+      const brunch = brunches[0] || this.workShopPathMap[0]
+      this.page_index = brunch.index
+      this.workshopTreeKey = brunch.key
     }
   },
 })

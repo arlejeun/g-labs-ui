@@ -13,8 +13,6 @@ const props = defineProps({
 
 function workshopDefaultName(workshop: IWorkshop) {
 
-  return workshop.id + '/0'
-  
   if (workshop.name && workshop.name.length > 0) {
       return workshop.name;
   } else {
