@@ -14,6 +14,9 @@ const routeHash = useRouteHash()
 const GLABS_APP_URL = import.meta.env.VITE_GLABS_APP_URL
 
 const wStore = useWorkshopStore()
+const { workshops } = storeToRefs(wStore)
+
+
 const formatter = 'YYYY-MM-DD HH:mm:ss:SSS'
 const formatted = useDateFormat(useNow(), formatter)
 const config = {
@@ -26,8 +29,8 @@ const { width } = useWindowSize()
 const isMobile = computed(() => width.value < 1200)
 const drawerSize = ref('45%')
 drawerSize.value = isMobile.value ? '85%':'45%'
-//const url = `${GLABS_APP_URL}/demo/api/workshops.json`;
 const connectCloudPanel = ref(false)
+
 //const { data, isLoading, isFinished: isWorkshopsLoaded, error } = useAxios(url, config)
 // const url = `http://localhost:5173/demo/api/workshops.json`;
 // const { data, isLoading, isFinished: isWorkshopsLoaded, error } = useAxios(url, config)
@@ -50,7 +53,7 @@ watchEffect(async () => {
 })
 
 const availableWorkshops = computed(() => {
-	return wStore.getAllWorkshops
+	return workshops.value
 })
 
 const connectToCloud = () => {
@@ -127,7 +130,7 @@ Hotel grid START -->
 	<section class="pt-0">
 		<div class="container">
 			<div class="row g-4">
-				<template v-for="item in availableWorkshops">
+				<template v-for="item in workshops">
 					<WorkshopCard :workshop="item"></WorkshopCard>
 				</template>
 			</div>

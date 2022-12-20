@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { PropType } from 'vue'
-import type { IWorkshop } from '@/interfaces'
+import type { IWorkshop } from '@/interfaces/workshop'
 import router from '@/router';
 import { computed } from '@vue/reactivity';
 
@@ -26,7 +26,7 @@ function workshopDefaultName(workshop: IWorkshop) {
 
 function goToWorkshop(workshop: IWorkshop) {
   if (workshop.id && workshop.manifest) {
-    router.replace(`/workshops/${workshopDefaultName(workshop)}`);
+    router.replace({path: `/workshops/${workshopDefaultName(workshop)}`});
   }
 }
 

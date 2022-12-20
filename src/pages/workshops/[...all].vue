@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useWorkshopStore } from "@/stores/workshop";
-import type { IWorkshop } from "@/interfaces";
 import VueMarkdown from "vue-markdown-render";
 import { useRoute } from "vue-router";
 import { useDateFormat, useNow } from "@vueuse/core";
@@ -13,14 +12,16 @@ import { slash } from "@antfu/utils";
 const route = useRoute();
 
 const wStore = useWorkshopStore();
+const {workshopTreeKey, workshopTree, getWorkshopMenu, } = storeToRefs(wStore)
+
 
 const searchValue = ref("");
 const wsName = computed(
   () =>
-    (wStore.getWorkshopMenu.length > 0 && wStore.getWorkshopMenu[0].name) || ""
+    (getWorkshopMenu.value.length > 0 && getWorkshopMenu.value[0].name) || ""
 );
 const wsMenu = computed(
-  () => wStore.getWorkshopMenu.length > 0 && wStore.getWorkshopMenu[0].menus
+  () => getWorkshopMenu.value.length > 0 && getWorkshopMenu.value[0].menus
 );
 
 var urlParam = route.params.all.toString()
@@ -36,7 +37,7 @@ const tree = ref()
 onMounted(() => {    
   wStore.loadWorkshop(wsId).then(()=>{
     wStore.setTreeIndexByPath(urlParam);
-    tree.value!.setCurrentKey(wStore.getTreeKey, true); 
+    tree.value!.setCurrentKey(workshopTreeKey.value, true); 
   });
 });
 
@@ -49,7 +50,7 @@ const treeChange = (node: ITree) => {
 };
 
 const treeData: ComputedRef<ITree[]> = computed(
-  () => wStore.getWorkshopTree || []
+  () => workshopTree.value || []
 );
 </script>
 
@@ -103,24 +104,28 @@ const treeData: ComputedRef<ITree[]> = computed(
 
         <div class="col-12 col-md-4 px-0">
           <div class="right-side">
-            <div class="workshop-layout">
-              <div class="container-fluid my-5">
-                <div class="row mt-5">
-                  <div class="col-12">
-                    <div
-                      class="text-3xl font-semibold text-gray-9000 pb-2 mr-2"
-                    >
-                      <div class="row">
-                        <div class="col">
-                          <h1 class="mb-4 p-1 text-left">Environments</h1>
-                        </div>
-                        <div class="col-auto"></div>
+            <div class="right-side">
+          <div class="workshop-layout">
+            <div class="container-fluid my-5">
+              <div class="row mt-5">
+                <div class="col-12">
+                  <div class="text-3xl font-semibold text-gray-9000 pb-2 mr-2">
+                    <div class="row">
+                      <div class="col">
+                        <ConnectOrganization></ConnectOrganization>
+                      </div>
+                      <div class="col-auto">
                       </div>
                     </div>
+
+                  
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
           </div>
         </div>
       </div>
