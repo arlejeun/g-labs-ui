@@ -2,12 +2,13 @@ import { LogLevel, PublicClientApplication } from '@azure/msal-browser';
 
 const GLABS_APP_URL = import.meta.env.VITE_GLABS_APP_URL
 const GLABS_API_URL = import.meta.env.VITE_GLABS_API_URL
+const GLABS_AB2C_APP_CLIENT_ID = import.meta.env.VITE_GLABS_AB2C_APP_CLIENT_ID
 
 // Config object to be passed to Msal on creation
 export const msalConfig = {
 
 auth: {
-    clientId: '9bb9430a-d8f2-4ce1-b1b5-5025e333958a',
+    clientId: GLABS_AB2C_APP_CLIENT_ID || '9bb9430a-d8f2-4ce1-b1b5-5025e333958a',
     authority: 'https://glabsdev.b2clogin.com/glabsdev.onmicrosoft.com/B2C_1_GLabs_SignUpSignIn',
     knownAuthorities: ['glabsdev.b2clogin.com'],
     redirectUri: `${GLABS_APP_URL}/auth/`, // Must be registered as a SPA redirectURI on your app registration
