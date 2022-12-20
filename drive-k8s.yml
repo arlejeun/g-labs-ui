@@ -23,30 +23,6 @@ spec:
             readOnly: true
           ports:
             - containerPort: 80
-          env:
-          - name: VITE_GLABS_API_URLQUERY_BATCH_SIZE
-            value: "https://drive-api.demo.genesys.com"
-          - name: VITE_JIRA_MIDDLEWARE_API_URL
-            value: "https://api.demo.genesys.com/atlassian"
-          - name: VITE_JIRA_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: glabs-env
-                key: jiratoken
-          - name: VITE_GLABS_APP_URL
-            value: "https://drive.demo.genesys.com"
-          - name: VITE_GENESYS_CLOUD_OAUTH_CLIENT_ID
-            valueFrom:
-              secretKeyRef:
-                name: glabs-env
-                key: gcoauth
-          - name: VITE_GOOGLE_ANALYTICS_4_MEASUREMENT_ID
-            valueFrom:
-              secretKeyRef:
-                name: glabs-env
-                key: gcoauth
-          - name: SERVER_HTTPS
-            value: "true"
       imagePullSecrets:
         - name: pullsecret
       volumes:

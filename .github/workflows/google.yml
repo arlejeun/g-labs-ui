@@ -65,6 +65,14 @@ jobs:
         cluster_name: ${{ env.GKE_CLUSTER }}
         location: ${{ env.GAR_LOCATION }}
 
+    # Create Env Variables from Kubernetes Secrets
+    - name: Env Secrets
+      run: |-
+        echo "Creating Kubernetes Secret for the glabs frontend"
+        sed -i "s|INSERT_VITE_JIRA_TOKEN|${{ steps.secrets.outputs.glabs-jira-token }}|g" ".env"
+        sed -i "s|INSERT_OAUTH_ID|${{ steps.secrets.outputs.glabs-gc-oauth-client-id }}|g" ".env"
+        sed -i "s|INSERT_ANALYTICS_ID|${{ steps.secrets.outputs.glabs-google-analytics }}|g" ".env"
+
     # Build the Docker image
     - name: Build
       run: |-
@@ -109,14 +117,6 @@ jobs:
           echo "Certificate Secret already exists. Will use it."
         fi
  
-    # Create Env Variables from Kubernetes Secrets
-    - name: Env Secrets
-      run: |-
-        echo "Creating Kubernetes Secret for the glabs frontend"
-        sed -i "s|INSERT_VITE_JIRA_TOKEN|${{ steps.secrets.outputs.glabs-jira-token }}|g" ".env"
-        sed -i "s|INSERT_OAUTH_ID|${{ steps.secrets.outputs.glabs-gc-oauth-client-id }}|g" ".env"
-        sed -i "s|INSERT_ANALYTICS_ID|${{ steps.secrets.outputs.glabs-google-analytics }}|g" ".env"
-
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
       run: |-
