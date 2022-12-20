@@ -29,16 +29,15 @@ const wsId = urlParam.split('/')[0]
 urlParam = urlParam.substr(slashIdx+1) 
 
 
-wStore.loadWorkshop(wsId).then(()=>{
-    wStore.setTreeIndexByPath(urlParam);
-    tree.value!.setCurrentKey(wStore.getTreeKey, true); 
-});
-
 const mdProps = { html: true };
 
 const tree = ref()
 
 onMounted(() => {    
+  wStore.loadWorkshop(wsId).then(()=>{
+    wStore.setTreeIndexByPath(urlParam);
+    tree.value!.setCurrentKey(wStore.getTreeKey, true); 
+  });
 });
 
 const treeChange = (node: ITree) => {

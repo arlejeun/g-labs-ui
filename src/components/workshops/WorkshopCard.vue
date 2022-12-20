@@ -24,7 +24,7 @@ function workshopDefaultName(workshop: IWorkshop) {
 
 function goToWorkshop(workshop: IWorkshop) { 
   if (workshop.id && workshop.manifest) {
-    router.push(`/workshops/${workshopDefaultName(workshop)}`);
+    router.replace(`/workshops/${workshopDefaultName(workshop)}`);
   }
 }
 
