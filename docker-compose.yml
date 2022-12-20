@@ -1,0 +1,11 @@
+version: '3.4'
+services:
+  drive-backend:
+    image: 'drive-frontend:latest'
+    restart: always
+    networks:
+      - glabs-frontend-local
+    ports:
+      - 3001:80
+networks:
+    glabs-frontend-local: {}
