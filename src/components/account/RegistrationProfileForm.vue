@@ -10,7 +10,7 @@ const myUser = ref(props.account)
 
 const userStore = useUserStore()
 const { status, registrationStep } = storeToRefs(userStore)
-const { setUserRegistration } = userStore
+const { setUserRegistration, createUserProfile } = userStore
 
 const countryStore = useCountryStore()
 const { countries } = storeToRefs(countryStore)
@@ -70,12 +70,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       myUser.value.country = {connect: {"id": myUser.value.country_id}}
       myUser.value.settings = {create: {"id_provider": myUser.value.idp}}
       const {country_id, idp, ...userForm} = myUser.value
-      setUserRegistration(userForm)
-     // createUserProfile(userForm)
-     
-      registrationStep.value = 1
-      status.value = 'Registration - Customer'
-      console.log('submit!')
+      createUserProfile(userForm)
     } else {
       console.log('error submit!', fields)
     }

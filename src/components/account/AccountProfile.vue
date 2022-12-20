@@ -27,8 +27,9 @@ const loginDate = computed(() => {
 })
 
 const profileScoreProgress = computed(() => {
-  return [{ val: 25, status: isStatusActive.value }, { val: 25, status: isCustomerProfileReady.value }, { val: 25, status: isOrgProvisionned.value }, { val: 25, status: isAlreadyLoggedIn.value }].reduce((res, item) => item.status ? res + item.val : res, 0)
+  return [{ val: 25, status: isStatusActive.value }, { val: 25, status: isCustomerProfileReady.value }, { val: 25, status: isOrgProvisionned.value }].reduce((res, item) => item.status ? res + item.val : res, 25)
 })
+
 
 </script>
 
@@ -47,11 +48,11 @@ const profileScoreProgress = computed(() => {
 
     <div class="vstack gap-4">
       <!-- Verified message -->
-      <div class="bg-light rounded p-3" v-show="(profileScoreProgress>0)">
+      <div class="rounded p-3" v-show="(profileScoreProgress>0)">
         <!-- Progress bar -->
         <div class="overflow-hidden">
           <h6 class="text-primary">Complete Your Profile</h6>
-          <div class="progress progress-sm bg-success bg-opacity-10">
+          <div class="">
             <!-- 
             <div class="progress-bar bg-success aos" role="progressbar" data-aos="slide-right" data-aos-delay="200"
               data-aos-duration="1000" data-aos-easing="ease-in-out" style="width: 85%" aria-valuenow="85"
@@ -61,11 +62,11 @@ const profileScoreProgress = computed(() => {
           </div>
 
           <!-- <div class="demo-progress"> -->
-          <el-progress v-if="profileScoreProgress == 75" :text-inside="true" :stroke-width="26" :percentage="profileScoreProgress" />
-          <el-progress v-if="profileScoreProgress == 100" :text-inside="true" :stroke-width="24" :percentage="profileScoreProgress" status="success" />
-          <el-progress v-if="profileScoreProgress == 50" :text-inside="true" :stroke-width="22" :percentage="profileScoreProgress" status="warning" />
+          <el-progress v-if="profileScoreProgress == 75" :text-inside="true" :stroke-width="25" :percentage="profileScoreProgress" />
+          <el-progress v-if="profileScoreProgress == 100" :text-inside="true" :stroke-width="25" :percentage="profileScoreProgress" status="success" :duration="5"/>
+          <el-progress v-if="profileScoreProgress == 50" :text-inside="true" :stroke-width="25" :percentage="profileScoreProgress" status="warning" :duration="5"/>
           <el-progress v-if="profileScoreProgress == 25" :text-inside="true" :stroke-width="profileScoreProgress"
-            :percentage="25" status="exception" />
+            :percentage="25" status="exception" :duration="5" />
           <!-- </div> -->
 
 
@@ -76,13 +77,13 @@ const profileScoreProgress = computed(() => {
             <li class="list-inline-item h6 fw-normal mb-0"><a href="#"><i class="bi bi-check-circle-fill me-2"
                   :class="[isStatusActive ? 'text-success' : 'text-danger']"></i>Active Status</a></li>
             <li class="list-inline-item h6 fw-normal mb-0"><a href="#"><i class="bi bi-check-circle-fill me-2"
-                  :class="[isStatusActive ? 'text-success' : 'text-danger']"></i>Customer Profile</a></li>
+                  :class="[isCustomerProfileReady ? 'text-success' : 'text-danger']"></i>Customer Profile</a></li>
             <li class="list-inline-item h6 fw-normal mb-0"><a href="#" class="text-primary"><i
             class="bi bi-check-circle-fill me-2"
-            :class="[isAlreadyLoggedIn ? 'text-success' : 'text-danger']"></i>Active Organization</a></li>
-            <li class="list-inline-item h6 fw-normal mb-0"><a href="#" class="text-primary"><i
+            :class="[isOrgProvisionned ? 'text-success' : 'text-danger']"></i>Active Organization</a></li>
+            <!-- <li class="list-inline-item h6 fw-normal mb-0"><a href="#" class="text-primary"><i
               class="bi bi-check-circle-fill me-2"
-              :class="[isAlreadyLoggedIn ? 'text-success' : 'text-danger']"></i>Already LoggedIn</a></li>
+              :class="[isAlreadyLoggedIn ? 'text-success' : 'text-danger']"></i>Already LoggedIn</a></li> -->
           </ul>
         </div>
       </div>

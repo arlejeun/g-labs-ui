@@ -48,7 +48,7 @@ const workThumbnail = computed(() => `https://gdemo.demo.genesys.com/api/gdemo-a
 <template>
 
   <!-- Card item START -->
-  <div class="col-md-6 col-xl-4">
+  <div class="col-md-4 col-xl-4">
     <div class="card shadow p-2 pb-0 h-100">
       <!-- Image -->
       <!--<img :src="`https://gdemo.demo.genesys.com/api/gdemo-assets/${workshop.image}`" class="rounded-2" alt="Card image">-->

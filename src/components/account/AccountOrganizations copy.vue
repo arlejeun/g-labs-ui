@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import AccountOrganizationSummary from '../organizations/AccountOrganizationSummary.vue'
 import { useUserStore } from '@/stores/user'
-import type { IDriveCustomerOrg } from '@/interfaces'
+import type { IDriveOrg } from '@/interfaces'
 
 const userStore = useUserStore()
 const { customer, orgs } = storeToRefs(userStore)
 const selfManagedOrgs = computed(() => orgs.value.filter((organization) => organization.is_owned_by_gts))
 const customOrgs = computed(() => orgs.value.filter((organization) => !organization.is_owned_by_gts))
 
-function isOrgActive(org: IDriveCustomerOrg): boolean {
+function isOrgActive(org: IDriveOrg): boolean {
   return true
 }
 

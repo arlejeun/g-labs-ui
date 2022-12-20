@@ -64,7 +64,7 @@ function workshopDefaultName(workshop: IWorkshop) {
                     <div class="row">
                       <div class="col">
                         <h1 class="mb-4 p-1 text-left">Environments</h1>
-                        <EnviromentOrganization></EnviromentOrganization>
+                        <ConnectOrganization></ConnectOrganization>
                       </div>
                       <div class="col-auto">
                       </div>

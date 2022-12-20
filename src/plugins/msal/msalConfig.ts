@@ -1,20 +1,17 @@
 import { LogLevel, PublicClientApplication } from '@azure/msal-browser';
 
+const GLABS_APP_URL = import.meta.env.VITE_GLABS_APP_URL
+const GLABS_API_URL = import.meta.env.VITE_GLABS_API_URL
+
 // Config object to be passed to Msal on creation
 export const msalConfig = {
-//   auth: {
-//     clientId: '9bb9430a-d8f2-4ce1-b1b5-5025e333958a',
-//     authority: 'https://glabsdev.b2clogin.com/glabsdev.onmicrosoft.com/B2C_1_GLabs_SignUpSignIn',
-//     knownAuthorities: ['glabsdev.b2clogin.com'],
-//     redirectUri: 'http://localhost:3000/', // Must be registered as a SPA redirectURI on your app registration
-//     postLogoutRedirectUri: '/' // Must be registered as a SPA redirectURI on your app registration
-//   },
+
 auth: {
     clientId: '9bb9430a-d8f2-4ce1-b1b5-5025e333958a',
     authority: 'https://glabsdev.b2clogin.com/glabsdev.onmicrosoft.com/B2C_1_GLabs_SignUpSignIn',
     knownAuthorities: ['glabsdev.b2clogin.com'],
-    redirectUri: 'http://localhost:5173/auth/', // Must be registered as a SPA redirectURI on your app registration
-    postLogoutRedirectUri: 'http://localhost:5173/' // Must be registered as a SPA redirectURI on your app registration
+    redirectUri: `${GLABS_APP_URL}/auth/`, // Must be registered as a SPA redirectURI on your app registration
+    postLogoutRedirectUri: `${GLABS_APP_URL}/` // Must be registered as a SPA redirectURI on your app registration
   },
   cache: {
     cacheLocation: 'localStorage'
@@ -57,5 +54,5 @@ export const loginRequest = {
 
 // Add here the endpoints for MS Graph API services you would like to use.
 export const graphConfig = {
-  userProfileEndpoint: 'http://localhost:3000/users/me',
+  userProfileEndpoint: `${GLABS_API_URL}/users/me`
 };

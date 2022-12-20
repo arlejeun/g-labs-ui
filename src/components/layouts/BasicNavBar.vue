@@ -7,7 +7,7 @@ import { loginRequest } from '@/plugins/msal/msalConfig'
 const { instance } = useMsal();
 
 const store = useUserStore()
-const  { avatarUrl, username, userEmail } = storeToRefs(store)
+const  { avatarUrl, username, userEmail, isRegistering, isActive } = storeToRefs(store)
 const isAuthenticated = useIsAuthenticated();
 const {logout} = store
 
@@ -16,15 +16,15 @@ const isMobile = computed(() => width.value < 1200)
 const isDark = useDark({valueDark: 'dark-mode', valueLight: 'light-mode'})
 const toggleDark = useToggle(isDark)
 
-
+const isRegistrationPending = computed(() => isRegistering && isAuthenticated.value)
 
 function mockSignIn() {
   instance.loginRedirect(loginRequest);
   //fetchUser()
 }
 
-function mockSignOut() {
-  logout()
+async function mockSignOut() {
+  await logout()
   //router.push('/')
   instance.logoutRedirect();
 }
@@ -79,7 +79,7 @@ function mockSignOut() {
           <ul
             class="navbar-nav navbar-nav-scroll"
             :class="{ 'bg-secondary': isMobile }"
-            v-show="isAuthenticated"
+            v-show="isActive"
           >
             <!-- Nav item Listing -->
             <li class="nav-item dropdown">
@@ -118,20 +118,100 @@ function mockSignOut() {
             <li class="nav-item dropdown">
               <router-link
                 class="nav-link text-white fw-bolder"
-                to="/environments"
+                to="/admin"
               >
                 Administration
               </router-link>
+              
             </li>
+
+
+            <li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="listingMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Listings</a>
+						<ul class="dropdown-menu" aria-labelledby="listingMenu">
+							<!-- Dropdown submenu -->
+							<li class="dropdown-submenu dropend">
+								<a class="dropdown-item dropdown-toggle" href="#">Hotel</a>
+								<ul class="dropdown-menu" data-bs-popper="none">
+									<li> <a class="dropdown-item" href="index.html">Hotel Home</a></li>
+									<li> <a class="dropdown-item" href="index-hotel-chain.html">Hotel Chain</a></li>
+									<li> <a class="dropdown-item" href="index-resort.html">Hotel Resort</a></li>
+									<li> <a class="dropdown-item" href="hotel-grid.html">Hotel Grid</a></li>
+									<li> <a class="dropdown-item" href="hotel-list.html">Hotel List</a></li>
+									<li> <a class="dropdown-item" href="hotel-detail.html">Hotel Detail</a></li>
+									<li> <a class="dropdown-item" href="room-detail.html">Room Detail</a></li>
+									<li> <a class="dropdown-item" href="hotel-booking.html">Hotel Booking</a></li>
+								</ul>
+							</li>
+
+							<!-- Dropdown submenu -->
+							<li class="dropdown-submenu dropend">
+								<a class="dropdown-item dropdown-toggle" href="#">Flight</a>
+								<ul class="dropdown-menu" data-bs-popper="none">
+									<li> <a class="dropdown-item" href="index-flight.html">Flight Home</a></li>
+									<li> <a class="dropdown-item" href="flight-list.html">Flight List</a></li>
+									<li> <a class="dropdown-item" href="flight-detail.html">Flight Detail</a></li>
+									<li> <a class="dropdown-item" href="flight-booking.html">Flight Booking</a></li>
+								</ul>
+							</li>
+
+							<!-- Dropdown submenu -->
+							<li class="dropdown-submenu dropend">
+								<a class="dropdown-item dropdown-toggle" href="#">Tour</a>
+								<ul class="dropdown-menu" data-bs-popper="none">
+									<li> <a class="dropdown-item" href="index-tour.html">Tour Home</a></li>
+									<li> <a class="dropdown-item" href="tour-grid.html">Tour Grid</a></li>
+									<li> <a class="dropdown-item" href="tour-detail.html">Tour Detail</a></li>
+									<li> <a class="dropdown-item" href="tour-booking.html">Tour Booking</a></li>
+								</ul>
+							</li>
+
+							<!-- Dropdown submenu -->
+							<li class="dropdown-submenu dropend">
+								<a class="dropdown-item dropdown-toggle" href="#">Cab</a>
+								<ul class="dropdown-menu" data-bs-popper="none">
+									<li> <a class="dropdown-item" href="index-cab.html">Cab Home</a></li>
+									<li> <a class="dropdown-item" href="cab-list.html">Cab List</a></li>
+									<li> <a class="dropdown-item" href="cab-detail.html">Cab Detail</a></li>
+									<li> <a class="dropdown-item" href="cab-booking.html">Cab Booking</a></li>
+								</ul>
+							</li>
+
+							<!-- Dropdown submenu -->
+							<li class="dropdown-submenu dropend">
+								<a class="dropdown-item dropdown-toggle" href="#">Add Listing</a>
+								<ul class="dropdown-menu" data-bs-popper="none">
+									<li> <a class="dropdown-item" href="join-us.html">Join us</a></li>
+									<li> <a class="dropdown-item" href="add-listing.html">Add Listing</a></li>
+									<li> <a class="dropdown-item" href="add-listing-minimal.html">Add Listing Minimal</a></li>
+									<li> <a class="dropdown-item" href="listing-added.html">Listing Added</a></li>
+								</ul>
+							</li>
+
+							<!-- Dropdown submenu -->
+							<li class="dropdown-submenu dropend">
+								<a class="dropdown-item dropdown-toggle" href="#">Hero</a>
+								<ul class="dropdown-menu" data-bs-popper="none">
+									<li> <a class="dropdown-item" href="hero-inline-form.html">Hero Inline Form</a></li>
+									<li> <a class="dropdown-item" href="hero-multiple-search.html">Hero Multiple Search</a></li>
+									<li> <a class="dropdown-item" href="hero-image-gallery.html">Hero Image Gallery</a></li>
+									<li> <a class="dropdown-item" href="hero-split.html">Hero Split</a></li>
+								</ul>
+							</li>
+
+							<li> <a class="dropdown-item" href="booking-confirm.html">Booking Confirmed</a></li>
+							<li> <a class="dropdown-item" href="compare-listing.html">Compare Listing</a></li>
+							<li> <a class="dropdown-item" href="offer-detail.html">Offer Detail</a></li>
+						</ul>
+					</li>
           </ul>
         </div>
         <!-- Main navbar END -->
 
         <!-- Profile and Notification START -->
-        <ul v-if="isAuthenticated" class="nav flex-row align-items-center list-unstyled ms-xl-auto">
+        <ul v-if="isActive" class="nav flex-row align-items-center list-unstyled ms-xl-auto">
           <!-- Notification dropdown START -->
-          <li class="nav-item ms-0 ms-md-3 dropdown">
-            <!-- Notification button -->
+          <!-- <li class="nav-item ms-0 ms-md-3 dropdown">
             <a
               class="nav-link p-0"
               href="#"
@@ -142,13 +222,10 @@ function mockSignOut() {
             >
               <i class="bi bi-bell fa-fw fs-5 text-white" />
             </a>
-            <!-- Notification dote -->
             <span class="notif-badge animation-blink" />
 
-            <!-- Notification dropdown menu START -->
             <div class="dropdown-menu dropdown-animation dropdown-menu-end dropdown-menu-size-md p-0 shadow-lg">
               <div class="card bg-transparent">
-                <!-- Card header -->
                 <div class="card-header bg-transparent d-flex justify-content-between align-items-center border-bottom">
                   <h6 class="m-0">
                     Notifications <span class="badge bg-danger bg-opacity-10 text-danger ms-2">4
@@ -160,10 +237,8 @@ function mockSignOut() {
                   >Clear all</a>
                 </div>
 
-                <!-- Card body START -->
                 <div class="card-body p-0">
                   <ul class="list-group list-group-flush list-unstyled p-2">
-                    <!-- Notification item -->
                     <li>
                       <a
                         href="#"
@@ -175,7 +250,6 @@ function mockSignOut() {
                         <span>Wednesday</span>
                       </a>
                     </li>
-                    <!-- Notification item -->
                     <li>
                       <a
                         href="#"
@@ -187,9 +261,7 @@ function mockSignOut() {
                     </li>
                   </ul>
                 </div>
-                <!-- Card body END -->
 
-                <!-- Card footer -->
                 <div class="card-footer bg-transparent text-center border-top">
                   <a
                     href="#"
@@ -198,8 +270,7 @@ function mockSignOut() {
                 </div>
               </div>
             </div>
-            <!-- Notification dropdown menu END -->
-          </li>
+          </li> -->
           <!-- Notification dropdown END -->
 
           <!-- Profile dropdown START -->
@@ -243,9 +314,9 @@ function mockSignOut() {
                       class="h6 mt-2 mt-sm-0"
                       href="#"
                     >{{ username }}</a>
-                    <p class="small m-0">
+                    <!-- <p class="small m-0">
                       {{userEmail}}
-                    </p>
+                    </p> -->
                   </div>
                 </div>
               </li>
@@ -323,10 +394,15 @@ function mockSignOut() {
         <!-- Profile and Notification START -->
 
         <ul v-if="!isAuthenticated" class="nav flex-row align-items-center list-unstyled ms-xl-auto">
-
-          
           <li @click.stop.prevent="mockSignIn" class="nav-item"> <a class="nav-link text-white fw-bolder"><i class="bi bi-box-arrow-in-right me-2"></i>Sign In</a></li>
+          <!-- Button -->
+          <!-- <li class="nav-item ms-3 d-none d-sm-block">
+            <a class="btn btn-sm btn-primary-soft mb-0" href="#"><i class="bi bi-lightning-charge"></i> Upgrade now</a>
+          </li> -->
+        </ul>
 
+        <ul v-if="isAuthenticated && !isActive" class="nav flex-row align-items-center list-unstyled ms-xl-auto">
+          <li @click.stop.prevent="mockSignOut" class="nav-item"> <a class="nav-link text-white fw-bolder"><i class="bi bi-box-arrow-in-right me-2"></i>Sign Out</a></li>
           <!-- Button -->
           <!-- <li class="nav-item ms-3 d-none d-sm-block">
             <a class="btn btn-sm btn-primary-soft mb-0" href="#"><i class="bi bi-lightning-charge"></i> Upgrade now</a>

@@ -64,14 +64,14 @@ export interface IDriveGenericUser {
   date_approved: string,
   date_lastLogin: string,
   date_expired: string,
-  [x: string]: string | number | IDriveCustomerOrg[] | IDriveUserSettings | IDriveUserSettingsDTO | IDriveCustomer | ITag[] | IDriveCustomerRegistration
+  [x: string]: string | number | IDriveOrg[] | IDriveUserSettings | IDriveUserSettingsDTO | IDriveCustomer | ITag[] | IDriveCustomerRegistration
 }
 
 export interface IDriveRegistrationUser extends IDriveGenericUser {
-  orgs: IDriveCustomerOrg[],
+  orgs: IDriveOrg[],
   settings: IDriveUserSettingsDTO,
   groups: ITag[],
-  customer: IDriveCustomerRegistration
+ // customer: IDriveCustomerRegistration
 }
 
 export interface IDriveCustomerRegistration {
@@ -98,9 +98,11 @@ export interface ICustomerBase {
 export interface ICustomerRegistration extends ICustomerBase {
   "identifiers": IDriveIdentifier[]
 }
-
 export interface ICustomerRegistrationDTO extends ICustomerBase {
   "identifiers": IDriveIdentifierDTO
+}
+export interface ICustomerRegistrationCreate extends ICustomerRegistrationDTO {
+  "user_id": number
 }
 
 export interface ICustomerRegistrationForm extends ICustomerRegistration {
@@ -109,9 +111,9 @@ export interface ICustomerRegistrationForm extends ICustomerRegistration {
   messengers: IDriveIdentifier[]
 }
 
-export interface ICustomerCreate {
-  create: ICustomerRegistrationDTO
-}
+// export interface ICustomerCreate {
+//   create: ICustomerRegistrationDTO
+// }
 
 export interface ISettingsCreate {
   create: {
@@ -121,6 +123,7 @@ export interface ISettingsCreate {
 
 
 export interface IDriveUserRegistration {
+  user_id: number,
   first_name: string,
   last_name: string,
   email: string,
@@ -133,7 +136,7 @@ export interface IDriveUserRegistration {
   date_lastLogin: string,
   date_expired: string
   country: ICountryConnect,
-  customer: ICustomerCreate,
+  //customer: ICustomerCreate,
   settings: ISettingsCreate
 }
 
@@ -144,14 +147,14 @@ export interface IDriveBaseUser extends IDriveGenericUser {
   groups: ITag[]
 }
 export interface IDriveUser extends IDriveBaseUser {
-  orgs: IDriveCustomerOrg[],
-  settings: IDriveUserSettings,
-}
+    orgs: IDriveOrg[],
+    settings: IDriveUserSettings,
+  }
 
-export interface IDriveUserDTO extends IDriveBaseUser {
-  orgs: IDriveCustomerOrg[],
-  settings: IDriveUserSettingsDTO,
-}
+  export interface IDriveUserDTO extends IDriveBaseUser {
+    orgs: IDriveOrg[],
+    settings: IDriveUserSettingsDTO,
+  }
 
 export interface IDriveUserSettings {
   [x: string]: string,
@@ -174,18 +177,30 @@ export interface IDriveCustomerForm extends IDriveCustomer {
   messengers: IDriveIdentifier[]
 }
 
-export interface IDriveCustomerRegistration {
-  emails: IDriveIdentifier[],
-  phones: IDriveIdentifier[],
-  messengers: IDriveIdentifier[]
+  export interface IDriveCustomerRegistration {
+    emails: IDriveIdentifier[],
+    phones: IDriveIdentifier[],
+    messengers: IDriveIdentifier[]
+  }
+
+
+  export interface IDriveBaseOrg {
+    id: number,
+    name: string,
+    org_uuid: string,
+    region: string,
+    is_owned_by_gts:boolean,
+    user_id: number
+  }
+
+export interface IDriveOrg extends IDriveBaseOrg {
+  org_user_settings: IDriveCustomerOrgSettings,
+  org_custom_settings: IDriveCustomerOrgSettings
 }
 
-export interface IDriveCustomerOrg {
-  id: number,
-  is_owned_by_gts: boolean,
-  user_id: number,
-  [x: string]: string | IDriveCustomerOrgSettings | number | boolean,
-  org_user_settings: IDriveCustomerOrgSettings
+export interface IDriveOrgDTO extends IDriveBaseOrg {
+  org_user_settings: {"create": IDriveCustomerOrgSettings},
+  org_custom_settings: {"create": IDriveCustomerOrgSettings}
 }
 
 export interface IDriveIdentifier {

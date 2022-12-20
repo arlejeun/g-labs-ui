@@ -11,8 +11,8 @@ const GLABS_STORAGE = useStorage('glabs', {
 
 const GLABS_TOKEN = ref(GLABS_STORAGE.value.token as string | undefined)
 
+//const jira_access_token = ref(JIRA_TOKEN)
 
-const jira_access_token = ref(JIRA_TOKEN)
 
 
 const GDEMO_BASE_URL = import.meta.env.VITE_GLABS_API_URL || 'http://localhost:3000/' || 'https://api.GitHub.com/'
@@ -26,26 +26,23 @@ const GLabsApiClient = axios.create({
   }
 });
 
-GLabsApiClient.interceptors.request.use((config: AxiosRequestConfig<any>) => {
-  const headers = {
-    'Accept': 'application/json',
-    'Authorization': 'Bearer ' + GLABS_TOKEN.value
-  }
-  config.headers = { ...headers }
-  // console.log(config)
-  return config
-})
+  GLabsApiClient.interceptors.request.use((config: AxiosRequestConfig<any>) => {
+    const headers =  {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer ' + GLABS_TOKEN.value
+    }
+    config.headers = {...headers}
+    return config
+  })
 
-const JiraMiddlewareApiClient = axios.create({
-  baseURL: JIRA_MIDDLEWARE_API_URL,
-  timeout: 1000,
-  headers: {
-    'Accept': 'application/json',
-    'Authorization': jira_access_token.value
-  }
-});
-
-
+  const JiraMiddlewareApiClient = axios.create({
+    baseURL: JIRA_MIDDLEWARE_API_URL,
+    timeout: 1000,
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': JIRA_TOKEN
+    }
+  });
 
 
 export { GLabsApiClient, GLABS_STORAGE, GLABS_TOKEN, JiraMiddlewareApiClient }
