@@ -4,6 +4,7 @@ import { useWorkshopStore } from '@/stores/workshop'
 import { useWorkspaceStore } from '@/stores/workspace';
 import { getParameterByName } from '@/utils/string'
 import { useRouteHash } from '@vueuse/router';
+import { GLabsApiClient } from '@/apis/glabs';
 
 const workspaceStore = useWorkspaceStore()
 const { isTokenActive, gsysCloudClient } = storeToRefs(workspaceStore)
@@ -25,13 +26,18 @@ const { width } = useWindowSize()
 const isMobile = computed(() => width.value < 1200)
 const drawerSize = ref('45%')
 drawerSize.value = isMobile.value ? '85%':'45%'
-const url = `${GLABS_APP_URL}/demo/api/workshops.json`;
+//const url = `${GLABS_APP_URL}/demo/api/workshops.json`;
 const connectCloudPanel = ref(false)
-const { data, isLoading, isFinished: isWorkshopsLoaded, error } = useAxios(url, config)
+//const { data, isLoading, isFinished: isWorkshopsLoaded, error } = useAxios(url, config)
+// const url = `http://localhost:5173/demo/api/workshops.json`;
+// const { data, isLoading, isFinished: isWorkshopsLoaded, error } = useAxios(url, config)
+
+const { data, isLoading, isFinished: isWorkshopsLoaded, error } = useAxios('/workshops', config, GLabsApiClient)
 
 watch(isWorkshopsLoaded, () => {
-	wStore.setWorkshops(data.value?.data);
+  wStore.setWorkshops(data.value);
 })
+
 
 watchEffect(async () => {
   //Token parameters must be read from the the oauth client redirects uri

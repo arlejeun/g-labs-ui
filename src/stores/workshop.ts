@@ -6,7 +6,7 @@ import type { IWorkshopMenuItem, ITree } from '@/interfaces/workshop'
 import { useAxios } from '@vueuse/integrations/useAxios'
 import { GLabsApiClient } from '@/apis/glabs'
 
-const WORKSHOPS_BASE = 'https://storage.googleapis.com/genesys-drive-test/'
+const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT
 
 function buildMenu(submenu: IWorkshopMenuItem[]): any {
   if (typeof submenu.forEach !== 'function') {
