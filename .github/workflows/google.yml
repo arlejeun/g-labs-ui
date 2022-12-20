@@ -112,12 +112,10 @@ jobs:
     # Create Env Variables from Kubernetes Secrets
     - name: Env Secrets
       run: |-
-        if ! kubectl get secret glabs-env -n drive; then
-          echo "Creating Kubernetes Secret for the glabs frontend"
-          kubectl create secret generic glabs-env --namespace=drive --from-literal=jiratoken=${{ steps.secrets.outputs.glabs-jira-token }} --from-literal=gcoauth=${{ steps.secrets.outputs.glabs-gc-oauth-client-id }} --from-literal=ganalytics=${{ steps.secrets.outputs.glabs-google-analytics }}
-        else
-          echo "Glabs Frontend Secrets already exist. Will use it."
-        fi
+        echo "Creating Kubernetes Secret for the glabs frontend"
+        sed -i "s|INSERT_VITE_JIRA_TOKEN|${{ steps.secrets.outputs.glabs-jira-token }}|g" ".env"
+        sed -i "s|INSERT_OAUTH_ID|${{ steps.secrets.outputs.glabs-gc-oauth-client-id }}|g" ".env"
+        sed -i "s|INSERT_ANALYTICS_ID|${{ steps.secrets.outputs.glabs-google-analytics }}|g" ".env"
 
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
