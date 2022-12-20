@@ -77,31 +77,32 @@ const activities = computed(() => {
 
     {
       content: 'User expired - ' + expiredAgo.value,
-      timestamp: expiredDate.value,
-      type: 'danger',
+      timestamp: expiredDate.value as string,
+      type: 'warning' as "primary" | "success" | "warning" | "info",
       hollow: true
     },
     {
       content: 'Last Login - ' + loginAgo.value,
-      timestamp: loginDate.value,
+      timestamp: loginDate.value as string,
       color: '#0bbd87',
+      type: undefined
     },
     {
       content: 'User updated - ' + updatedAgo.value,
-      timestamp: updatedDate.value,
-      type: 'primary',
+      timestamp: updatedDate.value as string,
+      type: 'primary' as "primary" | "success" | "warning" | "info",
       hollow: true,
     },
     {
       content: 'User approved - ' + approvedAgo.value,
-      timestamp: approvedDate.value,
-      type: 'primary',
+      timestamp: approvedDate.value as string,
+      type: 'primary' as "primary" | "success" | "warning" | "info",
       hollow: true,
     },
     {
       content: 'User created - ' + createdAgo.value,
-      timestamp: createdDate.value,
-      type: 'primary',
+      timestamp: createdDate.value as string,
+      type: 'primary' as "primary" | "success" | "warning" | "info",
       hollow: true,
     }
   ]
@@ -123,7 +124,6 @@ const typeOptions = [
   { value: 4, label: 'Customer' },
   { value: 5, label: 'Prospect' },
 ]
-const formSize = ref('')
 const restrictedFormRef = ref<FormInstance>()
 
 
@@ -163,7 +163,7 @@ const resetForm = (formEl: FormInstance | undefined) => {
               <!-- Form START -->
 
               <el-form ref="restrictedFormRef" :model="user" label-width="120px" label-position="top" class="card-body demo-ruleForm"
-            :size="formSize" status-icon>
+            status-icon>
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="Status" prop="">

@@ -58,6 +58,8 @@ export interface IDriveGenericUser {
   email: string,
   phone_number: string,
   avatar_url: string,
+  job_function: string,
+  company: string,
   date_created: string,
   country_id: number,
   date_updated: string,
@@ -157,7 +159,9 @@ export interface IDriveUser extends IDriveBaseUser {
   }
 
 export interface IDriveUserSettings {
-  [x: string]: string,
+  notifications_channels: string[],
+  notifications: boolean,
+  [x: string]: string | string[] | boolean,
 }
 export interface IDriveUserSettingsDTO {
   create?: IDriveUserSettings

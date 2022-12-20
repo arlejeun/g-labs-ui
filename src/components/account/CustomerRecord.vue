@@ -221,7 +221,7 @@ const removeIdentifier = ((identifier: IDriveIdentifier, idx: number) => {
         <div class="card-body">
 
           <el-form ref="customerFormRef" :model="customerForm" :rules="rules" label-width="120px" label-position="top"
-            class="demo-ruleForm" :size="formSize" status-icon>
+            class="demo-ruleForm" status-icon>
             <el-row :gutter="20">
               <el-col :xs="24" :span="12">
                 <el-form-item label="First Name" prop="first_name">

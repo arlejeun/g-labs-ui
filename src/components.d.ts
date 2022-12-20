@@ -74,7 +74,6 @@ declare module '@vue/runtime-core' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SidebarAccount: typeof import('./components/layouts/SidebarAccount.vue')['default']
-    TestForm: typeof import('./components/account/testForm.vue')['default']
     TheWelcome: typeof import('./components/TheWelcome.vue')['default']
     WelcomeItem: typeof import('./components/WelcomeItem.vue')['default']
     WorkshopCard: typeof import('./components/workshops/WorkshopCard.vue')['default']
