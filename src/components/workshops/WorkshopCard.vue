@@ -13,8 +13,6 @@ const props = defineProps({
 
 function workshopDefaultName(workshop: IWorkshop) {
 
-  return workshop.id + '/0'
-  
   if (workshop.name && workshop.name.length > 0) {
       return workshop.name;
   } else {
@@ -26,7 +24,7 @@ function workshopDefaultName(workshop: IWorkshop) {
 
 function goToWorkshop(workshop: IWorkshop) { 
   if (workshop.id && workshop.manifest) {
-    router.push(`/workshops/${workshopDefaultName(workshop)}`);
+    router.replace(`/workshops/${workshopDefaultName(workshop)}`);
   }
 }
 
