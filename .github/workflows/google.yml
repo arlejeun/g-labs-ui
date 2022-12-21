@@ -57,6 +57,7 @@ jobs:
           glabs-jira-token:${{ env.PROJECT_ID }}/glabs-jira-token
           glabs-gc-oauth-client-id:${{ env.PROJECT_ID }}/glabs-gc-oauth-client-id
           glabs-google-analytics:${{ env.PROJECT_ID }}/glabs-google-analytics
+          glabs-ab2c-client-id:${{ env.PROJECT_ID }}/glabs-ab2c-client-id
 
     - name: Docker configuration
       run: |-
@@ -75,6 +76,7 @@ jobs:
         sed -i "s|INSERT_VITE_JIRA_TOKEN|${{ steps.secrets.outputs.glabs-jira-token }}|g" ".env"
         sed -i "s|INSERT_OAUTH_ID|${{ steps.secrets.outputs.glabs-gc-oauth-client-id }}|g" ".env"
         sed -i "s|INSERT_ANALYTICS_ID|${{ steps.secrets.outputs.glabs-google-analytics }}|g" ".env"
+        sed -i "s|INSERT_AB2C_APP_CLIENT_ID|${{ steps.secrets.outputs.glabs-ab2c-client-id }}|g" ".env"
         cat ".env"
 
     # Build the Docker image
