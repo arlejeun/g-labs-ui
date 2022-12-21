@@ -9,7 +9,7 @@ import { generateCustomerPayload } from '@/utils/axios';
 
 const userStore = useUserStore()
 const { registrationUser: myRegistrationUser, status, registrationStep } = storeToRefs(userStore)
-const { createUserProfile } = userStore
+const { createCustomerProfile } = userStore
 
 const customerDTO = ref({
         "first_name": myRegistrationUser.value.first_name,
@@ -101,9 +101,13 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   await formEl.validate((valid, fields) => {
     if (valid) {
       const {emails, phones, messengers, ...customerFormDTO} = customerForm.value
-      const customerPayload = {'create': generateCustomerPayload(customerFormDTO)}
-      myRegistrationUser.value.customer = customerPayload
-      createUserProfile(myRegistrationUser.value)
+      const customerPayload = { user_id: myRegistrationUser.value.user_id, ...generateCustomerPayload(customerFormDTO)}
+      
+      //const customerPayload = {'create': generateCustomerPayload(customerFormDTO)}
+      //myRegistrationUser.value.customer = customerPayload
+      // createUserProfile(myRegistrationUser.value)
+      createCustomerProfile(customerPayload)
+      
     } else {
       console.log('error submit!', fields)
     }

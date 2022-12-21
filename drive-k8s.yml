@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: drive
+  name: drive-frontend
   namespace: drive
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: drive
+      name: drive-frontend
   template:
     metadata:
       labels:
-        name: drive
+        name: drive-frontend
     spec:
       containers:
-        - name: drive
-          image: us-west1-docker.pkg.dev/techacc-platform-dev/drive/drive-web:development
+        - name: drive-frontend
+          image: us-west1-docker.pkg.dev/techacc-platform-dev/drive/drive-frontend:development
           imagePullPolicy: Always
           volumeMounts:
           - mountPath: "/mnt/certs/"
@@ -23,6 +23,30 @@ spec:
             readOnly: true
           ports:
             - containerPort: 80
+          env:
+          - name: VITE_GLABS_API_URLQUERY_BATCH_SIZE
+            value: "https://drive-api.demo.genesys.com"
+          - name: VITE_JIRA_MIDDLEWARE_API_URL
+            value: "https://api.demo.genesys.com/atlassian"
+          - name: VITE_JIRA_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: glabs-env
+                key: jiratoken
+          - name: VITE_GLABS_APP_URL
+            value: "https://drive.demo.genesys.com"
+          - name: VITE_GENESYS_CLOUD_OAUTH_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: glabs-env
+                key: gcoauth
+          - name: VITE_GOOGLE_ANALYTICS_4_MEASUREMENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: glabs-env
+                key: gcoauth
+          - name: SERVER_HTTPS
+            value: "true"
       imagePullSecrets:
         - name: pullsecret
       volumes:
@@ -35,21 +59,21 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: drive
+  name: drive-frontend
   namespace: drive
 spec:
   ports:
     - port: 80
       targetPort: 80
   selector:
-    name: drive
+    name: drive-frontend
 
 ---
 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: drive
+  name: drive-frontend
   namespace: drive
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
@@ -67,6 +91,6 @@ spec:
         path: "/"
         backend:
           service:
-            name: drive
+            name: drive-frontend
             port: 
               number: 80

@@ -10,12 +10,6 @@ const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
 const { updateUserProfile } = userStore
 
-const countryStore = useCountryStore()
-const {countries, getCountryCode} = storeToRefs(countryStore)
-const { fetchCountries, selectCountry } = countryStore
-
-//Initialize countries only at the beginning
-if (countries.value?.length == 0) fetchCountries()
 
 const createdDate = computed(() => {
   return user.value?.date_created ?
@@ -83,31 +77,32 @@ const activities = computed(() => {
 
     {
       content: 'User expired - ' + expiredAgo.value,
-      timestamp: expiredDate.value,
-      type: 'danger',
+      timestamp: expiredDate.value as string,
+      type: 'warning' as "primary" | "success" | "warning" | "info",
       hollow: true
     },
     {
       content: 'Last Login - ' + loginAgo.value,
-      timestamp: loginDate.value,
+      timestamp: loginDate.value as string,
       color: '#0bbd87',
+      type: undefined
     },
     {
       content: 'User updated - ' + updatedAgo.value,
-      timestamp: updatedDate.value,
-      type: 'primary',
+      timestamp: updatedDate.value as string,
+      type: 'primary' as "primary" | "success" | "warning" | "info",
       hollow: true,
     },
     {
       content: 'User approved - ' + approvedAgo.value,
-      timestamp: approvedDate.value,
-      type: 'primary',
+      timestamp: approvedDate.value as string,
+      type: 'primary' as "primary" | "success" | "warning" | "info",
       hollow: true,
     },
     {
       content: 'User created - ' + createdAgo.value,
-      timestamp: createdDate.value,
-      type: 'primary',
+      timestamp: createdDate.value as string,
+      type: 'primary' as "primary" | "success" | "warning" | "info",
       hollow: true,
     }
   ]
@@ -129,60 +124,14 @@ const typeOptions = [
   { value: 4, label: 'Customer' },
   { value: 5, label: 'Prospect' },
 ]
-const formSize = ref('large')
-const personalFormRef = ref<FormInstance>()
 const restrictedFormRef = ref<FormInstance>()
-const rules = reactive<FormRules>({
-  first_name: [
-    { required: true, message: 'Please input first name', trigger: 'blur' },
-    { min: 2, max: 30, message: 'Length should be 2 to 30', trigger: 'blur' },
-  ],
-  last_name: [
-    { required: true, message: 'Please input last name', trigger: 'blur' },
-    { min: 2, max: 30, message: 'Length should be 2 to 30', trigger: 'blur' },
-  ],
-  email: [
-    {
-      type: 'string',
-      required: true,
-      pattern:
-        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-      message: 'Please enter email address',
-      trigger: 'blur',
-    },
-    { min: 3, message: 'Please enter email', trigger: 'blur' },
-  ],
-  phone_number: [
-    {
-      required: true,
-      pattern: /^\+?\d{10,14}$/,
-      message: 'Please enter Phone number e.164 format',
-      trigger: 'blur'
-    },
-    { min: 3, message: 'Please enter email', trigger: 'blur' },
-  ],
-  company: [
-    { required: true, message: 'Please input last name', trigger: 'blur' },
-    { min: 2, max: 30, message: 'Length should be 2 to 30', trigger: 'blur' },
-  ],
-  country_id: [
-    {
-      required: true,
-      message: 'Please select Country',
-      trigger: 'change',  
-    },
-  ]
-})
+
 
 //TODO: Check country code matches with phone number
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      //userStore.updatePersonalProfile(user)
-      updateCountryUser()
-      updateUserProfile()
-      console.log('submit!')
     } else {
       console.log('error submit!', fields)
     }
@@ -192,12 +141,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.resetFields()
-}
-
-const updateCountryUser = () => {
-  console.log(user.value?.country_id);
-  selectCountry(user.value?.country_id)
-
 }
 
 </script>
@@ -220,7 +163,7 @@ const updateCountryUser = () => {
               <!-- Form START -->
 
               <el-form ref="restrictedFormRef" :model="user" label-width="120px" label-position="top" class="card-body demo-ruleForm"
-            :size="formSize" status-icon>
+            status-icon>
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="Status" prop="">
@@ -249,10 +192,14 @@ const updateCountryUser = () => {
             </el-row>
 
 
-            <el-form-item>
+            <div class="pt-2 d-sm-flex justify-content-end">
+              <el-form-item>
               <el-button type="primary" @click="submitForm(restrictedFormRef)">Save</el-button>
               <el-button @click="resetForm(restrictedFormRef)">Reset</el-button>
             </el-form-item>
+          </div>
+
+          
           </el-form>
 
               <!-- Form END -->

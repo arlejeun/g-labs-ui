@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import type { IDriveCustomerOrg } from '@/interfaces'
+import type { IDriveOrg } from '@/interfaces'
 import type { FormInstance, FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 
 const userStore = useUserStore()  
 const  { isAdmin } = storeToRefs(userStore)
 
-
-const props = defineProps<{ org: IDriveCustomerOrg, active: boolean }>()
+const props = defineProps<{ org: IDriveOrg, active: boolean }>()
 
 const showSettings = ref(false)
 

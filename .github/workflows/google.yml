@@ -23,7 +23,7 @@ env:
   GKE_ZONE: us-west1-a   # TODO: update to cluster zone
   DEPLOYMENT_NAME: gke-test # TODO: update to deployment name
   REPOSITORY: drive # TODO: update to Artifact Registry docker repository
-  IMAGE: drive-web
+  IMAGE: drive-frontend
 
 jobs:
   setup-build-publish-deploy:
@@ -38,8 +38,11 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
+        ref: development     # Force to latest commit on main branch
 
-    # Configure Access Token 
+    # Configure Access Token
     - id: 'auth'
       name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v1'
@@ -47,15 +50,34 @@ jobs:
         credentials_json: '${{ secrets.GAR_USER }}'
         token_format: 'access_token'
 
+    - id: 'secrets'
+      uses: 'google-github-actions/get-secretmanager-secrets@v1'
+      with:
+        secrets: |-
+          glabs-jira-token:${{ env.PROJECT_ID }}/glabs-jira-token
+          glabs-gc-oauth-client-id:${{ env.PROJECT_ID }}/glabs-gc-oauth-client-id
+          glabs-google-analytics:${{ env.PROJECT_ID }}/glabs-google-analytics
+          glabs-ab2c-client-id:${{ env.PROJECT_ID }}/glabs-ab2c-client-id
+
     - name: Docker configuration
       run: |-
         echo ${{steps.auth.outputs.access_token}} | docker login -u oauth2accesstoken --password-stdin "https://$GAR_LOCATION-docker.pkg.dev"
-    # Get the GKE credentials so we can deploy to the cluster
+    # Get the GKE credentials so we can deploy to the cluster 
     - name: Set up GKE credentials
       uses: google-github-actions/get-gke-credentials@v0
       with:
         cluster_name: ${{ env.GKE_CLUSTER }}
         location: ${{ env.GAR_LOCATION }}
+
+    # Create Env Variables from Kubernetes Secrets
+    - name: Env Secrets
+      run: |-
+        echo "Creating Kubernetes Secret for the glabs frontend"
+        sed -i "s|INSERT_VITE_JIRA_TOKEN|${{ steps.secrets.outputs.glabs-jira-token }}|g" ".env"
+        sed -i "s|INSERT_OAUTH_ID|${{ steps.secrets.outputs.glabs-gc-oauth-client-id }}|g" ".env"
+        sed -i "s|INSERT_ANALYTICS_ID|${{ steps.secrets.outputs.glabs-google-analytics }}|g" ".env"
+        sed -i "s|INSERT_AB2C_APP_CLIENT_ID|${{ steps.secrets.outputs.glabs-ab2c-client-id }}|g" ".env"
+        cat ".env"
 
     # Build the Docker image
     - name: Build
@@ -85,7 +107,7 @@ jobs:
       run: |-
         if ! kubectl get secret pullsecret -n drive; then
           echo "Creating Kubernetes Secret for the Pullsecret"
-          echo ${{ secrets.GAR_USER }} >> "./key.json"
+          echo ${{ secrets.GAR_USER }}>> "./key.json"
           kubectl create secret docker-registry pullsecret -n drive --docker-server=$GAR_LOCATION-docker.pkg.dev --docker-username=_json_key --docker-password="$(cat ./key.json)" --docker-email=gtsadmin@genesys.com
         else
           echo "Pullsecret already exists. Will use it."
@@ -106,3 +128,7 @@ jobs:
       run: |-
         kubectl apply -f ./drive-k8s.yml
     
+    # Re-Deploy for clean image
+    - name: Restart
+      run: |-
+        kubectl rollout restart deployment/drive-frontend -n drive

@@ -31,4 +31,3 @@ coverage
 public/ws/
 
 *.pem
-*.env*

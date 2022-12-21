@@ -11,7 +11,7 @@ const redirectTest = () => {
 
 onMounted(() => {
     console.log('id : ' + id.value)
-    redirectTest()
+    //redirectTest()
   })
 
 

@@ -1,8 +1,8 @@
-//import { platformClient } from 'purecloud-platform-client-v2'
+import { handleAxiosError } from '@/utils/axios'
+import { notify } from '@kyvg/vue3-notification'
 import platformClient from 'purecloud-platform-client-v2'
-const routingApi = new platformClient.RoutingApi()
 const authorizationApi = new platformClient.AuthorizationApi()
-const notificationsApi = new platformClient.NotificationsApi()
+const organizationApi = new platformClient.OrganizationApi()
 const usersApi = new platformClient.UsersApi();
 const client = platformClient.ApiClient.instance
 
@@ -20,14 +20,18 @@ export default {
 
   async getAuthorizationSubjectsMe() {
     const data = await authorizationApi.getAuthorizationSubjectsMe()
-    return data
+    return data  
   },
 
-  async getUsersMe(opts: platformClient.UsersApi.getUsersMeOptions | undefined) {
-    const data = await usersApi.getUsersMe( opts )
-    return data
+  //async getUsersMe(opts: platformClient.UsersApi.getUsersMeOptions | undefined) {
+  async getUsersMe() {
+    const data = await usersApi.getUsersMe()
+    return data  
   },
-  // Get the organization's queues.
-  // NOTE: For this sample only get the first 100.
+
+  async getOrganizationsMe() {
+      const data = await organizationApi.getOrganizationsMe()
+      return data
+  },
   
 }

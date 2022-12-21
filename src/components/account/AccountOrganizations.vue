@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import AccountOrganizationSummary from '../organizations/AccountOrganizationSummary.vue'
 import { useUserStore } from '@/stores/user'
-import type { IDriveCustomerOrg } from '@/interfaces'
+import type { IDriveOrg } from '@/interfaces'
 
 const userStore = useUserStore()
-const { customer, orgs } = storeToRefs(userStore)
+const { orgs } = storeToRefs(userStore)
 const selfManagedOrgs = computed(() => orgs.value.filter((organization) => organization.is_owned_by_gts))
 const customOrgs = computed(() => orgs.value.filter((organization) => !organization.is_owned_by_gts))
 
-function isOrgActive(org: IDriveCustomerOrg): boolean {
+const gtsOrgs = [
+  {"name":"purecloudnow","region":"us-east-1"}, 
+  {"name":"purecloudnowadmin","region":"us-east-1"}
+]
+
+function isOrgActive(org: IDriveOrg): boolean {
   return true
 }
 
@@ -16,7 +21,10 @@ function isOrgActive(org: IDriveCustomerOrg): boolean {
 
 <template>
   <!-- Main content START -->
-  <div class="col-lg-8 col-xl-9 ps-xl-5">
+  <div class="col-lg-9 col-xl-9 ps-xl-5">
+
+    <enviroment-organization></enviroment-organization>
+
 
     <!-- Offcanvas menu button -->
     <div class="d-grid mb-0 d-lg-none w-100">

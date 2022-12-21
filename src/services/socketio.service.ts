@@ -1,6 +1,8 @@
 import type { DefaultEventsMap } from '@socket.io/component-emitter';
 import { io, Socket } from 'socket.io-client'
 
+const GLABS_API_URL = import.meta.env.VITE_GLABS_API_URL
+
 import { useNotification } from '@kyvg/vue3-notification';
 
 
@@ -18,10 +20,9 @@ import { useNotification } from '@kyvg/vue3-notification';
 class SocketIOService {
     socket: Socket<DefaultEventsMap, DefaultEventsMap>;
     constructor() {
-        this.socket = io('http://localhost:3000')
+        this.socket = io(`${GLABS_API_URL}`)
     }
     setupSocketConnection(callback: any) {
-        //this.socket = io('http://localhost:3000')
         this.socket.on('msgToClient', callback)
     }
     disconnect() {

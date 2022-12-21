@@ -132,7 +132,7 @@ const updateCountryUser = () => {
           <h5 class="pb-3">Contact Information</h5>
 
           <el-form ref="personalFormRef" :model="user" :rules="personalRules" label-width="120px" label-position="top"
-            class="demo-ruleForm" :size="formSize" status-icon>
+            class="demo-ruleForm" status-icon>
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="First Name" prop="first_name">

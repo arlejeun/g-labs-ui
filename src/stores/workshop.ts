@@ -1,47 +1,20 @@
-import { defineStore } from 'pinia'
-import type { IWorkshop } from "@/interfaces"
-import axios from "axios"
+// /store/user.js
+
+import { defineStore } from "pinia";
+import type {
+  IWorkshop, ITree, IWorkshopMenuItem, IPathMap
+} from "@/interfaces/workshop";
 import sanitizeHtml from "sanitize-html"
-import type { IWorkshopMenuItem, ITree } from '@/interfaces/workshop'
-import { useAxios } from '@vueuse/integrations/useAxios'
-import { GLabsApiClient } from '@/apis/glabs'
+import { GLabsApiClient } from "@/apis/glabs";
 
-const WORKSHOPS_BASE = 'https://storage.googleapis.com/genesys-drive-test/'
+import { useAxios } from "@vueuse/integrations/useAxios";
+import { useNotification } from "@kyvg/vue3-notification";
+import { buildMenu } from "@/utils/workshop_utils";
 
-function buildMenu(submenu: IWorkshopMenuItem[]): any {
-  if (typeof submenu.forEach !== 'function') {
-    return []
-  }
+const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT
 
-  var result: { name: string; menus: IWorkshopMenuItem[]; pages: IWorkshopMenuItem[] }[] = []
-  var menu = {
-    name: '',
-    menus: [] as IWorkshopMenuItem[],
-    pages: [] as IWorkshopMenuItem[]
-  }
-
-  submenu.forEach((item: IWorkshopMenuItem) => {
-    menu.name = item.name
-    menu.menus = []
-    if (item.menus && item.menus.length > 0) {
-      menu.menus = { ...buildMenu(item.menus) }
-    }
-    if (item.pages && item.pages.length > 0) {
-      menu.pages = { ...buildMenu(item.pages) }
-    }
-    result.push({ ...menu })
-  })
-  //  console.log(result)
-  return result
-}
-
-type IPathMap = {
-  path: string,
-  index: number[],
-  key: number
-}
-var treeIndex = 0
-var pathMap = [] as IPathMap[]
+let treeIndex = 0
+let pathMap = [] as IPathMap[]
 
 const buildTree = (ws: IWorkshopMenuItem[], index?: number[]): ITree[] => {
 
@@ -77,136 +50,158 @@ const buildTree = (ws: IWorkshopMenuItem[], index?: number[]): ITree[] => {
   return result
 
 }
-export const useWorkshopStore = defineStore({
-  id: 'workshop',
-  state: () => ({
-    workshops: [] as IWorkshop[],
-    workshopTree: [] as ITree[],
-    workshopTreeKey: 0,
-    workShopPathMap: [] as IPathMap[],
-    workshopName: '',
-    workshop: [] as IWorkshopMenuItem[],
-    page_index: [0, 0] as number[], // acces to ws page: menus[1].menus[2] -> page_index is [1,2]
-  }),
-  getters: {
-    getAllWorkshops(): IWorkshop[] {
-      return this.workshops
-    },
-    getWorkshopPages(): IWorkshopMenuItem[] {
 
-      var pages = [] as IWorkshopMenuItem[]
-      pages = this.workshop[0]?.menus || []
-      for (let i = 0; this.page_index.length - 2; i++) {
-        pages = [...pages[i]?.menus || []]
-      }
-      pages.forEach(page =>
-        page.body = page.body?.replaceAll('/images/', `${WORKSHOPS_BASE}${this.workshopName}/images/`)
-      )
-      return pages
-    },
+export const useWorkshopStore = defineStore("workshop", () => {
+  
+  const router = useRouter();
+  const { notify } = useNotification();
 
-    getWorkshop(): IWorkshopMenuItem[] {
-      return this.workshop
-    },
-    getWorkshopUrl(): string {
-      return WORKSHOPS_BASE + this.workshopName + '/'
-    },
-    getWorkshopMenu(): any {
-      return buildMenu(this.workshop)
-    },
-    getWorkshopTree(): any {
-      return this.workshopTree
-    },
-    getTreeKey(): any {
-      return this.workshopTreeKey
-    },
-    getWorkshopPage(): string {
+  // state properties vue composition of store
+  //const registrationUser = ref({} as IDriveUserRegistration);
+  const workshops = ref([] as IWorkshop[])
+  const workshopTree = ref([] as ITree[])
+  const workshopTreeKey = ref(0)
+  const workShopPathMap = ref([] as IPathMap[])
+  const workshopName = ref('')
+  const workshop = ref([] as IWorkshopMenuItem[])
+  const page_index = ref([0, 0] as number[])
+  
+  // computed properties vue composition of store
+  // const getAllWorkshops = computed(() => {
+  //   return workshops.value
+  // })
 
-      if (this.workshop.length === 0) {
-        return ''
-      }
-      var content = [...this.workshop[0]?.menus || []] as IWorkshopMenuItem[]
-      var page = ''
-      this.page_index.forEach(index => {
-        if (content.length > index) {
-          page = content[index].body || ''
-          content = content[index].menus || []
-        }
-      })
-      page = page.replaceAll('/images/', `${WORKSHOPS_BASE}${this.workshopName}/images/`)
-
-      page = sanitizeHtml(page, {
-        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
-        allowedIframeHostnames: ['www.youtube.com']
-      });
-      return page
-    },
-
-    workshopEmpty(): Boolean {
-      return this.workshops.length <= 0
-    },
-  },
-  actions: {
-    async loadWorkshop(id: string) {
-      // getting manifest
-
-      let wsId
-      this.workshops.forEach((ws => {
-        if (ws.name == id) {
-          wsId = ws.id
-        }
-      }))
-
-      if (!wsId) {
-        console.error('Could not get Workshop ID!')
-        // return
-      }
-
-      wsId = 2
-      try {
-
-        const { execute } = useAxios(GLabsApiClient)
-        const result = await execute(`/workshops/${wsId}`)
-
-        const resData = result.data.value
-        this.workshopName = resData.name
-
-        let mnf = resData.manifest
-        mnf = mnf.replaceAll('\\"', '\\$')
-        mnf = mnf.replaceAll('\"', '"')
-        mnf = mnf.replaceAll('\\$', '\\"')
-
-        this.workshop = [JSON.parse(mnf).content] || []
-
-        treeIndex = 0
-        this.workshopTree = buildTree(this.workshop[0]?.menus || [])
-        this.workShopPathMap = [...pathMap]
-
-      } catch (error) {
-        console.error(`Workshop #${id} - manifest cannot be loaded and parsed!\n`, error)
-      }
-
-    },
-    addWorkshop(todo: IWorkshop) {
-      this.workshops.push(todo)
-    },
-
-    setWorkshops(workshops: IWorkshop[]) {
-      this.workshops = { ...workshops }
-    },
-
-    removeWorkshop(index: number) {
-      this.workshops.splice(index, 1)
-    },
-
-    setTreeIndex(ind: number[]) {
-      this.page_index = [...ind]
-    },
-    setTreeIndexByPath(path: string) {
-      const brunches = this.workShopPathMap.filter((item) => { return item.path.substr(2) === path })
-      const brunch = brunches[0] || this.workShopPathMap[0]
-      this.page_index = brunch.index
-      this.workshopTreeKey = brunch.key
+  const getWorkshopPages = computed(() => {
+    let pages = [] as IWorkshopMenuItem[]
+    pages = workshop.value[0]?.menus || []
+    for (let i = 0; page_index.value.length - 2; i++) {
+      pages = [...pages[i]?.menus || []]
     }
-  },
-})
+    pages.forEach(page =>
+      page.body = page.body?.replaceAll('/images/', `${WORKSHOPS_BASE}${workshopName.value}/images/`)
+    )
+    return pages
+  })
+
+  const getWorkshopUrl = computed(() => {
+    return WORKSHOPS_BASE + workshopName.value + '/'
+  })
+
+  const getWorkshopMenu = computed(() => {
+    return buildMenu(workshop.value)
+  })
+
+
+  const getWorkshopPage = computed(() => {
+    if (workshop.value.length === 0) {
+      return ''
+    }
+    let content = [...workshop.value[0]?.menus || []] as IWorkshopMenuItem[]
+    let page = ''
+    page_index.value.forEach(index => {
+      if (content.length > index) {
+        page = content[index].body || ''
+        content = content[index].menus || []
+      }
+    })
+    page = page.replaceAll('/images/', `${WORKSHOPS_BASE}${workshopName.value}/images/`)
+
+    page = sanitizeHtml(page, {
+      allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
+      allowedIframeHostnames: ['www.youtube.com']
+    });
+    return page
+  })
+
+  const workshopEmpty = computed(() => {
+    workshops.value.length <= 0
+  })
+
+  async function fetchUser() {
+  }
+  
+  async function loadWorkshop(id: string) {
+    // getting manifest
+
+    let wsId
+    workshops.value.forEach((ws => {
+      if (ws.name == id) {
+        wsId = ws.id
+      }
+    }))
+
+    if (!wsId) {
+      console.error('Could not get Workshop ID!')
+      // return
+    }
+
+    wsId = 2
+    try {
+
+      const { execute } = useAxios(GLabsApiClient)
+      const result = await execute(`/workshops/${wsId}`)
+      const resData = result.data.value
+      workshopName.value = resData.name
+      let mnf = resData.manifest
+      mnf = mnf.replaceAll('\\"', '\\$')
+      mnf = mnf.replaceAll('\"', '"')
+      mnf = mnf.replaceAll('\\$', '\\"')
+
+      workshop.value = [JSON.parse(mnf).content] || []
+      treeIndex = 0
+      workshopTree.value = buildTree(workshop.value[0]?.menus || [])
+      workShopPathMap.value = [...pathMap]
+
+    } catch (error) {
+      console.error(`Workshop #${id} - manifest cannot be loaded and parsed!\n`, error)
+    }
+
+  }
+
+  function addWorkshop(todo: IWorkshop) {
+    workshops.value.push(todo)
+  }
+
+  function setWorkshops(ws: IWorkshop[]) {
+    workshops.value = [...ws]
+  }
+
+  function removeWorkshop(index: number) {
+    workshops.value.splice(index, 1)
+  }
+
+  function setTreeIndex(ind: number[]) {
+    page_index.value = [...ind]
+  }
+
+  function setTreeIndexByPath(path: string) {
+    const brunches = workShopPathMap.value.filter((item) => { return item.path.substr(2) === path })
+    const brunch = brunches[0] || workShopPathMap.value[0]
+    page_index.value = brunch.index
+    workshopTreeKey.value = brunch.key
+  }
+  
+  return {
+    workshops,
+    workshopTree,
+    workshopTreeKey,
+    workShopPathMap,
+    workshopName,
+    workshop,
+    page_index,
+    getWorkshopPages,
+    getWorkshopUrl,
+    getWorkshopMenu,
+    getWorkshopPage,
+    workshopEmpty,
+    loadWorkshop,
+    addWorkshop,
+    setWorkshops,
+    removeWorkshop,
+    setTreeIndex,
+    setTreeIndexByPath
+  };
+
+  // async updatePersonalProfile(user: IDriveUser)
+});
+
