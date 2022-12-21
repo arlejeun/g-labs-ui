@@ -9,50 +9,12 @@ import { GLabsApiClient } from "@/apis/glabs";
 
 import { useAxios } from "@vueuse/integrations/useAxios";
 import { useNotification } from "@kyvg/vue3-notification";
-import { buildMenu } from "@/utils/workshop_utils";
+import { buildMenu, buildTree, pathMap } from "@/utils/workshop_utils";
 
 const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT
 
-let treeIndex = 0
-let pathMap = [] as IPathMap[]
-
-const buildTree = (ws: IWorkshopMenuItem[], index?: number[]): ITree[] => {
-
-  if (typeof ws?.forEach !== 'function') {
-    return []
-  }
-
-  index = index || []
-  var result = [] as ITree[]
-  var branch = {} as ITree
-  var i = 0
-
-  ws.forEach((item: IWorkshopMenuItem) => {
-    branch.index = [...index || []]
-    branch.label = item.name
-    branch.path = item.path.substr(0, item.path.lastIndexOf('.'))
-    branch.id = treeIndex
-    treeIndex++
-    branch.index.push(i)
-    if (item.menus && item.menus.length > 0) {
-      branch.children = [...buildTree(item.menus, branch.index)]
-    }
-    pathMap.push({
-      path: branch.path,
-      index: [...branch.index],
-      key: branch.id
-    })
-    result.push({ ...branch })
-    delete branch.children
-    i++
-  })
-
-  return result
-
-}
-
 export const useWorkshopStore = defineStore("workshop", () => {
-  
+
   const router = useRouter();
   const { notify } = useNotification();
 
@@ -65,7 +27,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const workshopName = ref('')
   const workshop = ref([] as IWorkshopMenuItem[])
   const page_index = ref([0, 0] as number[])
-  
+
   // computed properties vue composition of store
   // const getAllWorkshops = computed(() => {
   //   return workshops.value
@@ -119,7 +81,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
 
   async function fetchUser() {
   }
-  
+
   async function loadWorkshop(id: string) {
     // getting manifest
 
@@ -135,7 +97,6 @@ export const useWorkshopStore = defineStore("workshop", () => {
       // return
     }
 
-    wsId = 2
     try {
 
       const { execute } = useAxios(GLabsApiClient)
@@ -148,7 +109,6 @@ export const useWorkshopStore = defineStore("workshop", () => {
       mnf = mnf.replaceAll('\\$', '\\"')
 
       workshop.value = [JSON.parse(mnf).content] || []
-      treeIndex = 0
       workshopTree.value = buildTree(workshop.value[0]?.menus || [])
       workShopPathMap.value = [...pathMap]
 
@@ -180,7 +140,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
     page_index.value = brunch.index
     workshopTreeKey.value = brunch.key
   }
-  
+
   return {
     workshops,
     workshopTree,
