@@ -34,6 +34,8 @@ export const useUserStore = defineStore("identity", () => {
   const userUpdateInProgress = ref(false);
   const orgsUpdateInProgress = ref(false);
   const orgs = ref([] as IDriveOrg[]);
+  const localization = useStorage('localization', 'en-US', localStorage)
+
 
   // computed properties vue composition of store
   const getCustomerProfile = computed(() => {
@@ -298,6 +300,7 @@ export const useUserStore = defineStore("identity", () => {
     orgsUpdateInProgress,
     registrationStep,
     registrationUser,
+    localization,
     setUserRegistration,
     createUserProfile,
     updateUserProfile,
