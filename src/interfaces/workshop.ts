@@ -48,23 +48,26 @@ export interface IWorkshop {
   */
 }
 
-export interface IWorkshopMenuItem {
+export IWorkshopMenuItem {
   name: string
   weight: number
   path: string
-  body?: string
-  menus?: Array<IWorkshopMenuItem>
-  pages?: Array<IWorkshopMenuItem>
+  locale ?: string
+  body ?: string
+  menus ?: Array<IWorkshopMenuItem>
+  pages ?: Array<IWorkshopMenuItem>
+  [key: string]?: IWorkshopMenuItem
 }
 
 export interface ITree {
   id: number
   index: number[]
-  path: string,
+  path: string
   label: string
   isTop?: boolean
   isSelected?: boolean
   children?: ITree[]
+
 }
 
 export type IPathMap = {

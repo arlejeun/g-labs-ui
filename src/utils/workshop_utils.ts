@@ -1,4 +1,5 @@
 import type { IPathMap, ITree, IWorkshopMenuItem } from "@/interfaces/workshop";
+import { useUserStore } from '@/stores/user'
 
 const buildMenu = (submenu: IWorkshopMenuItem[]): any => {
   if (typeof submenu.forEach !== 'function') {
@@ -30,6 +31,9 @@ const buildMenu = (submenu: IWorkshopMenuItem[]): any => {
 let treeIndex = 0
 let pathMap = [] as IPathMap[]
 
+const store = useUserStore()
+const { localization } = storeToRefs(store)
+
 const buildTree = (ws: IWorkshopMenuItem[], index?: number[]): ITree[] => {
   treeIndex = 0
   pathMap = []
@@ -48,26 +52,37 @@ const _buildTree = (ws: IWorkshopMenuItem[], index?: number[]): ITree[] => {
   var i = 0
 
   ws.forEach((item: IWorkshopMenuItem) => {
-    // todo check language
-    branch.index = [...index || []]
-    branch.label = item.name
-    branch.path = item.path.substr(0, item.path.lastIndexOf('.'))
-    branch.path = branch.path.replaceAll(' ', '-')
-    branch.path = branch.path.replaceAll('_index', '')
-    branch.path = branch.path.replaceAll('_', '-')
-    branch.id = treeIndex
-    treeIndex++
-    branch.index.push(i)
-    if (item.menus && item.menus.length > 0) {
-      branch.children = [..._buildTree(item.menus, branch.index)]
+    const loc = localization.value || 'en-US'
+    if (loc == 'en-US' && !item.locale ||
+      localization.value === item.locale ||
+      item[loc]) {
+
+      branch = {} as ITree
+      let locItem = { ...item }
+      if (item[loc]) {
+        locItem = { ...item[loc] }
+        locItem.menus = item.menus
+      }
+      branch.index = [...index || []]
+      branch.label = locItem.name
+      branch.path = locItem.path.substr(0, locItem.path.lastIndexOf('.'))
+      branch.path = branch.path.replaceAll(' ', '-')
+      branch.path = branch.path.replaceAll('_index', '')
+      branch.path = branch.path.replaceAll('_', '-')
+      branch.id = treeIndex
+      treeIndex++
+      branch.index.push(i)
+      if (locItem.menus && locItem.menus.length > 0) {
+        branch.children = [..._buildTree(locItem.menus, branch.index)]
+      }
+      pathMap.push({
+        path: branch.path,
+        index: [...branch.index],
+        key: branch.id
+      })
+      result.push({ ...branch })
+      delete branch.children
     }
-    pathMap.push({
-      path: branch.path,
-      index: [...branch.index],
-      key: branch.id
-    })
-    result.push({ ...branch })
-    delete branch.children
     i++
   })
 

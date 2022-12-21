@@ -33,18 +33,6 @@ export const useWorkshopStore = defineStore("workshop", () => {
   //   return workshops.value
   // })
 
-  const getWorkshopPages = computed(() => {
-    let pages = [] as IWorkshopMenuItem[]
-    pages = workshop.value[0]?.menus || []
-    for (let i = 0; page_index.value.length - 2; i++) {
-      pages = [...pages[i]?.menus || []]
-    }
-    pages.forEach(page =>
-      page.body = page.body?.replaceAll('/images/', `${WORKSHOPS_BASE}${workshopName.value}/images/`)
-    )
-    return pages
-  })
-
   const getWorkshopUrl = computed(() => {
     return WORKSHOPS_BASE + workshopName.value + '/'
   })
@@ -109,13 +97,17 @@ export const useWorkshopStore = defineStore("workshop", () => {
       mnf = mnf.replaceAll('\\$', '\\"')
 
       workshop.value = [JSON.parse(mnf).content] || []
-      workshopTree.value = buildTree(workshop.value[0]?.menus || [])
-      workShopPathMap.value = [...pathMap]
+      rebuildTree()
 
     } catch (error) {
       console.error(`Workshop #${id} - manifest cannot be loaded and parsed!\n`, error)
     }
 
+  }
+
+  function rebuildTree() {
+    workshopTree.value = buildTree(workshop.value[0]?.menus || [])
+    workShopPathMap.value = [...pathMap]
   }
 
   function addWorkshop(todo: IWorkshop) {
@@ -149,7 +141,6 @@ export const useWorkshopStore = defineStore("workshop", () => {
     workshopName,
     workshop,
     page_index,
-    getWorkshopPages,
     getWorkshopUrl,
     getWorkshopMenu,
     getWorkshopPage,
@@ -159,7 +150,8 @@ export const useWorkshopStore = defineStore("workshop", () => {
     setWorkshops,
     removeWorkshop,
     setTreeIndex,
-    setTreeIndexByPath
+    setTreeIndexByPath,
+    rebuildTree
   };
 
   // async updatePersonalProfile(user: IDriveUser)
