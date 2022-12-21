@@ -34,7 +34,8 @@
     "@kyvg/vue3-notification": "^2.7.0",
     "@azure/msal-browser": "^2.32.0",
     "vue-markdown-render": "^2.0.0",
-    "socket.io-client": "4.5.4"
+    "socket.io-client": "4.5.4",
+    "vue3-easy-data-table":"^1.5.24"
   },
   "devDependencies": {
     "@antfu/eslint-config-vue": "~0.29.3",

@@ -25,6 +25,9 @@ import { CustomNavigationClient } from '@/router/NavigationClient'
 // import '@/assets/scss/element/index.scss'
 // import 'element-plus/dist/index.css'
 
+import Vue3EasyDataTable from 'vue3-easy-data-table';
+import 'vue3-easy-data-table/dist/style.css';
+
 // Import Fontawesome
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -43,6 +46,7 @@ const app = createApp(App)
 
 app.component('fa', FontAwesomeIcon)
 app.component('MazPhoneNumberInput', MazPhoneNumberInput)
+app.component('EasyDataTable', Vue3EasyDataTable);
 
 app.use(abilitiesPlugin, ability, {
     useGlobalProperties: true,
