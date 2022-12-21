@@ -22,7 +22,6 @@ declare module '@vue/runtime-core' {
     BasicFooter: typeof import('./components/layouts/BasicFooter.vue')['default']
     BasicNavBar: typeof import('./components/layouts/BasicNavBar.vue')['default']
     ConnectOrganization: typeof import('./components/environments/ConnectOrganization.vue')['default']
-    copy: typeof import('./components/account/AccountOrganizations copy.vue')['default']
     CustomerRecord: typeof import('./components/account/CustomerRecord.vue')['default']
     ElAlert: typeof import('element-plus/es')['ElAlert']
     ElAside: typeof import('element-plus/es')['ElAside']
