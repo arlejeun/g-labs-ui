@@ -99,25 +99,13 @@ export const useWorkshopStore = defineStore("workshop", () => {
     workShopPathMap.value = [...pathMap]
   }
 
-  async function loadWorkshopById(id: string) {
-    if (!id) {
+  async function loadWorkshopById(name: string) {
+    if (!name) {
       return
     }
-    let wsId
-    workshops.value.forEach((ws => {
-      if (ws.name == id) {
-        wsId = ws.id
-      }
-    }))
-
-    if (!wsId) {
-      wsId = 10
-      console.error('Could not get Workshop ID!')
-    }
-
     try {
       const { execute } = useAxios(GLabsApiClient)
-      const result = await execute(`/workshops/${wsId}`)
+      const result = await execute(`/workshops/name/${name}`)
       if (result.isFinished.value && !result.error.value) {
         const resData = result.data.value
         workshopName.value = resData.name
