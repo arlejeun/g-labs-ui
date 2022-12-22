@@ -13,7 +13,7 @@ const { loadWorkshopById, setTreeIndexByPath, rebuildTree, setTreeIndex } = wSto
 
 
 const userStore = useUserStore()
-const { localization } = storeToRefs(userStore)
+const { localization } = storeToRefs(userStore) //
 
 let urlParam = route.params.all.toString()
 const slashIdx = urlParam.indexOf('/')
@@ -50,14 +50,14 @@ watch(localization, () => {
                 <!-- <h3 class="fs-3 ws-header">{{ workshopTitle }}</h3> -->
                 <WorkshopBreadcrumb />
               </el-header>
-            <el-container class="pt-1">
-              <el-aside class="ws-nav">
-                <WorkshopNavigation/>
-              </el-aside>
+              <el-container class="pt-1">
+                <el-aside class="ws-nav">
+                  <WorkshopNavigation />
+                </el-aside>
 
-              <el-main class="ws-body">
-                <WorkshopContent/>
-              </el-main>
+                <el-main class="ws-body">
+                  <WorkshopContent />
+                </el-main>
               </el-container>
             </el-container>
           </div>
@@ -109,10 +109,11 @@ watch(localization, () => {
   width: 250px;
 }
 
-.ws-body img, #body .video-container {
-    margin: 3rem auto;
-    display: block;
-    text-align: center;
+.ws-body img,
+#body .video-container {
+  margin: 3rem auto;
+  display: block;
+  text-align: center;
 }
 
 .el-tree {
