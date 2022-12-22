@@ -94,9 +94,9 @@ const stopWatcher = watch(inProgress, () => {
       <el-main class="main-content">
         <RouterView />
       </el-main>
-      <pre>Authenticated MSAL: {{ isAuthenticated }} | In Progress: {{ inProgress }}</pre>
-      <!-- <pre>Accounts MSAL: {{ accounts }}</pre> -->
-      <pre>User Profile: {{ user }}</pre>
+      <!-- <pre>Authenticated MSAL: {{ isAuthenticated }} | In Progress: {{ inProgress }}</pre>
+      <pre>Accounts MSAL: {{ accounts }}</pre>
+      <pre>User Profile: {{ user }}</pre> -->
       <el-footer class="footer">
         <BasicFooter />
       </el-footer>

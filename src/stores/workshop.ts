@@ -10,12 +10,20 @@ import { GLabsApiClient } from "@/apis/glabs";
 import { useAxios } from "@vueuse/integrations/useAxios";
 import { useNotification } from "@kyvg/vue3-notification";
 import { buildMenu, buildTree, pathMap } from "@/utils/workshop_utils";
+import { handleAxiosError } from "@/utils/axios";
 
 const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT
+const config = {
+	headers: {
+		Authorization: 'Bearer TBD',
+		Accept: 'application/json, text/plain, */*'
+	}
+};
 
 export const useWorkshopStore = defineStore("workshop", () => {
 
-  const router = useRouter();
+  const route = useRoute();
+
   const { notify } = useNotification();
 
   // state properties vue composition of store
@@ -53,6 +61,15 @@ export const useWorkshopStore = defineStore("workshop", () => {
     return buildMenu(workshop.value)
   })
 
+  const workshopTitle = computed(
+    () =>
+      (getWorkshopMenu.value.length > 0 && getWorkshopMenu.value[0].name) || ""
+  );
+
+  const workshopMenu = computed(
+    () => getWorkshopMenu.value.length > 0 && getWorkshopMenu.value[0].menus
+  );
+
 
   const getWorkshopPage = computed(() => {
     if (workshop.value.length === 0) {
@@ -79,12 +96,10 @@ export const useWorkshopStore = defineStore("workshop", () => {
     workshops.value.length <= 0
   })
 
-  async function fetchUser() {
-  }
-
-  async function loadWorkshop(id: string) {
-    // getting manifest
-
+  async function loadWorkshopById(id: string) {
+    if (!id) {
+      return
+    }
     let wsId
     workshops.value.forEach((ws => {
       if (ws.name == id) {
@@ -93,24 +108,43 @@ export const useWorkshopStore = defineStore("workshop", () => {
     }))
 
     if (!wsId) {
+      wsId = 10
       console.error('Could not get Workshop ID!')
-      // return
     }
 
     try {
-
       const { execute } = useAxios(GLabsApiClient)
       const result = await execute(`/workshops/${wsId}`)
-      const resData = result.data.value
-      workshopName.value = resData.name
-      let mnf = resData.manifest
-      mnf = mnf.replaceAll('\\"', '\\$')
-      mnf = mnf.replaceAll('\"', '"')
-      mnf = mnf.replaceAll('\\$', '\\"')
-
-      workshop.value = [JSON.parse(mnf).content] || []
-      workshopTree.value = buildTree(workshop.value[0]?.menus || [])
-      workShopPathMap.value = [...pathMap]
+      if (result.isFinished.value && !result.error.value) {
+        const resData = result.data.value
+        workshopName.value = resData.name
+        let mnf = resData.manifest
+        mnf = mnf.replaceAll('\\"', '\\$')
+        mnf = mnf.replaceAll('\"', '"')
+        mnf = mnf.replaceAll('\\$', '\\"')
+        workshop.value = [JSON.parse(mnf).content] || []
+        workshopTree.value = buildTree(workshop.value[0]?.menus || [])
+        workShopPathMap.value = [...pathMap]
+        
+        /*** Test  */
+        let urlParam = route.params.all.toString()
+        const slashIdx = urlParam.indexOf('/')
+        urlParam = urlParam.substr(slashIdx+1) 
+        setTreeIndexByPath(urlParam);
+        /*** End Test */
+  //   tree.value!.setCurrentKey(workshopTreeKey.value, true); 
+      }
+      if (result.error.value) {
+        notify({
+          title: `Workshop - ${wsId} is not available at the moment`,
+          text: `${handleAxiosError(
+            result.error.value,
+            "Impossible to retrieve the workshop manifest at the moment"
+          )}`,
+          duration: -1,
+          type: "error",
+        });
+      } 
 
     } catch (error) {
       console.error(`Workshop #${id} - manifest cannot be loaded and parsed!\n`, error)
@@ -122,8 +156,23 @@ export const useWorkshopStore = defineStore("workshop", () => {
     workshops.value.push(todo)
   }
 
-  function setWorkshops(ws: IWorkshop[]) {
-    workshops.value = [...ws]
+  function loadWorkshops() {
+    const { data, isLoading, isFinished: isWorkshopsLoaded, error } = useAxios('/workshops', config, GLabsApiClient)
+    watch(isWorkshopsLoaded, () => {
+      workshops.value = [...data.value]
+    })
+    if (error.value) {
+      notify({
+        title: `Workshops Issue`,
+        text: `${handleAxiosError(
+          error.value,
+          `Workshops are not available at the moment`
+        )}`,
+        duration: -1,
+        type: "error",
+      });
+    } 
+    
   }
 
   function removeWorkshop(index: number) {
@@ -154,9 +203,11 @@ export const useWorkshopStore = defineStore("workshop", () => {
     getWorkshopMenu,
     getWorkshopPage,
     workshopEmpty,
-    loadWorkshop,
+    workshopTitle, 
+    workshopMenu,
+    loadWorkshops,
+    loadWorkshopById,
     addWorkshop,
-    setWorkshops,
     removeWorkshop,
     setTreeIndex,
     setTreeIndexByPath

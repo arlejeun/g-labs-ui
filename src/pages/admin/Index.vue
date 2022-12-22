@@ -64,7 +64,6 @@ const items: Item[] = [
 ];
 
 const handleSelectChange = () => {
-	reloadTableData()
 }
 
 const getQueryString = () => {
@@ -75,26 +74,10 @@ const getQueryString = () => {
         sord: sortOrder.value || '',
         q: searchQuery.value.trim(),
       }
+}
 
 const reloadTableData = async () => {
-      const query = this.getQueryString()
-      url = url.indexOf('?') !== -1 ? `${url}&${query}` : `${url}?${query}`
-
-      this.loading = true
-      try {
-        let { data } = await this.$axios.get(url)
-        this.currentPage = data.page
-        this.total = data.records
-        this.tableData = [...data.rows]
-      } catch (e) {
-        this.tableData = []
-        this.$store.dispatch('errors/setError', e)
-      } finally {
-        this.loading = false
-      }
-    },
-
-
+	return 1
 }
 
 const exportToCSV = async () => {
@@ -123,7 +106,7 @@ const exportToCSV = async () => {
 
 					<el-form-item label="User Status">
 						<el-select placeholder="Please select a Status" v-model="userStatus" clearable
-							@change="handleSelectChange">
+							@change="">
 							<el-option v-for="item in userStatuses" :key="item.value" :value="item.value"
 								:label="item.label" />
 						</el-select>

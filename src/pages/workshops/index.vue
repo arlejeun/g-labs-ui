@@ -11,20 +11,14 @@ const { isTokenActive, gsysCloudClient } = storeToRefs(workspaceStore)
 const { refreshEnvironment } = workspaceStore
 const routeHash = useRouteHash()
 
-const GLABS_APP_URL = import.meta.env.VITE_GLABS_APP_URL
-
 const wStore = useWorkshopStore()
 const { workshops } = storeToRefs(wStore)
+const { loadWorkshops } = wStore 
 
 
 const formatter = 'YYYY-MM-DD HH:mm:ss:SSS'
 const formatted = useDateFormat(useNow(), formatter)
-const config = {
-	headers: {
-		Authorization: 'Bearer TBD',
-		Accept: 'application/json, text/plain, */*'
-	}
-};
+
 const { width } = useWindowSize()
 const isMobile = computed(() => width.value < 1200)
 const drawerSize = ref('45%')
@@ -35,14 +29,16 @@ const connectCloudPanel = ref(false)
 // const url = `http://localhost:5173/demo/api/workshops.json`;
 // const { data, isLoading, isFinished: isWorkshopsLoaded, error } = useAxios(url, config)
 
-const { data, isLoading, isFinished: isWorkshopsLoaded, error } = useAxios('/workshops', config, GLabsApiClient)
+//const { data, isLoading, isFinished: isWorkshopsLoaded, error } = useAxios('/workshops', config, GLabsApiClient)
 
-watch(isWorkshopsLoaded, () => {
-  wStore.setWorkshops(data.value);
-})
+// watch(isWorkshopsLoaded, () => {
+//   setWorkshops(data.value);
+// })
+loadWorkshops()
 
 
 watchEffect(async () => {
+  //Environments
   //Token parameters must be read from the the oauth client redirects uri
   if (routeHash.value.includes('access_token')) {
     gsysCloudClient.value.access_token = getParameterByName('access_token')
