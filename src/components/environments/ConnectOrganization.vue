@@ -6,7 +6,7 @@ import genesysService from '@/services/genesyscloud-service'
 
 const workspaceStore = useWorkspaceStore()
 const { genesysUser, genesysOrg, genesysUserPermissions, isTokenActive, genesysApiUrl, genesysLoginUrl, genesysRegion, gsysCloudClient } = storeToRefs(workspaceStore)
-const { setLoginURL, getActiveOrg, getActiveUserPermissions, getActiveUser, setupUserToken, resetInfo, refreshEnvironment } = workspaceStore
+const { setLoginURL, resetInfo, refreshEnvironment } = workspaceStore
 
 const GLABS_APP_URL = import.meta.env.VITE_GLABS_APP_URL
 const GLABS_CLOUD_OAUTH_CLIENT_ID = import.meta.env.VITE_GLABS_CLOUD_OAUTH_CLIENT_ID

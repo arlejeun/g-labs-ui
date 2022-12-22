@@ -2,7 +2,6 @@
 import { useWorkshopStore } from "@/stores/workshop";
 import { useRoute } from "vue-router";
 import { onMounted, ref } from "vue";
-import WorkshopContent from "@/components/workshops/WorkshopContent.vue";
 import { useUserStore } from '@/stores/user'
 import type { ITree } from "@/interfaces/workshop";
 
@@ -46,19 +45,19 @@ watch(localization, () => {
         <div class="col-12 col-md-8 pr-0 workshop">
 
           <div class="left-side common-layout">
-            <el-container class="ws-body">
+            <el-container class="workshop">
               <el-header class="ws-header">
                 <!-- <h3 class="fs-3 ws-header">{{ workshopTitle }}</h3> -->
                 <WorkshopBreadcrumb />
               </el-header>
-              <el-container class="pt-1">
-                <el-aside width="300px" class="ws-side">
-                  <WorkshopNavigation />
-                </el-aside>
+            <el-container class="pt-1">
+              <el-aside class="ws-nav">
+                <WorkshopNavigation/>
+              </el-aside>
 
-                <el-main>
-                  <WorkshopContent />
-                </el-main>
+              <el-main class="ws-body">
+                <WorkshopContent/>
+              </el-main>
               </el-container>
             </el-container>
           </div>
@@ -106,8 +105,14 @@ watch(localization, () => {
   color: #ff6428;
 }
 
-.ws-side-body {
-  padding-top: 5ex;
+.ws-nav {
+  width: 250px;
+}
+
+.ws-body img, #body .video-container {
+    margin: 3rem auto;
+    display: block;
+    text-align: center;
 }
 
 .el-tree {
