@@ -2,7 +2,7 @@
 
 import { defineStore } from "pinia";
 import type {
-  IWorkshop, ITree, IWorkshopMenuItem, IPathMap
+  IWorkshop, ITree, IPathMap, IWorkshopMenuItem
 } from "@/interfaces/workshop";
 import sanitizeHtml from "sanitize-html"
 import { GLabsApiClient } from "@/apis/glabs";
