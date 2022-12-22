@@ -10,8 +10,8 @@ const route = useRoute();
 
 const wStore = useWorkshopStore();
 const { workshopTreeKey, workshopTitle } = storeToRefs(wStore)
-const { loadWorkshopById, setTreeIndexByPath, rebuildTree } = wStore
- 
+const { loadWorkshopById, setTreeIndexByPath, rebuildTree, setTreeIndex } = wStore
+
 
 const userStore = useUserStore()
 const { localization } = storeToRefs(userStore)
@@ -24,15 +24,16 @@ urlParam = urlParam.substr(slashIdx + 1)
 const tree = ref()
 
 onMounted(() => {
-    loadWorkshopById(wsId).then(()=>{
+  loadWorkshopById(wsId).then(() => {
     setTreeIndexByPath(urlParam);
-    tree.value?.setCurrentKey(workshopTreeKey.value, true); 
+    tree.value?.setCurrentKey(workshopTreeKey.value, true);
   });
 
 });
 
 watch(localization, () => {
   rebuildTree()
+  tree.value?.setCurrentKey(workshopTreeKey.value, true);
 });
 
 </script>
@@ -43,21 +44,21 @@ watch(localization, () => {
     <div>
       <div class="row">
         <div class="col-12 col-md-8 pr-0 workshop">
-        
+
           <div class="left-side common-layout">
             <el-container class="ws-body">
               <el-header class="ws-header">
-                  <!-- <h3 class="fs-3 ws-header">{{ workshopTitle }}</h3> -->
-                  <WorkshopBreadcrumb/>
+                <!-- <h3 class="fs-3 ws-header">{{ workshopTitle }}</h3> -->
+                <WorkshopBreadcrumb />
               </el-header>
-            <el-container class="pt-1">
-              <el-aside width="300px" class="ws-side">
-                <WorkshopNavigation/>
-              </el-aside>
+              <el-container class="pt-1">
+                <el-aside width="300px" class="ws-side">
+                  <WorkshopNavigation />
+                </el-aside>
 
-              <el-main>
-                <WorkshopContent/>
-              </el-main>
+                <el-main>
+                  <WorkshopContent />
+                </el-main>
               </el-container>
             </el-container>
           </div>
@@ -98,7 +99,7 @@ watch(localization, () => {
 .workshop {
   height: "100%";
   width: "100%";
- // background-color: white;
+  // background-color: white;
 }
 
 .ws-header {
@@ -122,7 +123,6 @@ watch(localization, () => {
 .el-tree-node.is-current>.el-tree-node__content {
   color: #ff6428;
 }
-
 </style>
 
 <route lang="yaml">

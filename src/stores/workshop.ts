@@ -11,13 +11,17 @@ import { useAxios } from "@vueuse/integrations/useAxios";
 import { useNotification } from "@kyvg/vue3-notification";
 import { buildMenu, buildTree, pathMap } from "@/utils/workshop_utils";
 import { handleAxiosError } from "@/utils/axios";
+import { useUserStore } from '@/stores/user'
 
 const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT
+const store = useUserStore()
+const { localization } = storeToRefs(store)
+
 const config = {
-	headers: {
-		Authorization: 'Bearer TBD',
-		Accept: 'application/json, text/plain, */*'
-	}
+  headers: {
+    Authorization: 'Bearer TBD',
+    Accept: 'application/json, text/plain, */*'
+  }
 };
 
 export const useWorkshopStore = defineStore("workshop", () => {
@@ -70,6 +74,10 @@ export const useWorkshopStore = defineStore("workshop", () => {
     page_index.value?.forEach(index => {
       if (content.length > index) {
         page = content[index].body || ''
+        const loc = localization.value || 'en-US'
+        if (content[index][loc]) {
+          page = content[index][loc]?.body
+        }
         content = content[index].menus || []
       }
     })
@@ -79,7 +87,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
       allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
       allowedIframeHostnames: ['www.youtube.com']
     });
-    return page
+    return page || 'Sorry, this page has no content'
   })
 
   const workshopEmpty = computed(() => {
@@ -119,14 +127,14 @@ export const useWorkshopStore = defineStore("workshop", () => {
         mnf = mnf.replaceAll('\\$', '\\"')
         workshop.value = [JSON.parse(mnf).content] || []
         rebuildTree()
-        
+
         // /*** Test  */
         // let urlParam = route.params.all.toString()
         // const slashIdx = urlParam.indexOf('/')
         // urlParam = urlParam.substr(slashIdx+1) 
         // setTreeIndexByPath(urlParam);
         // /*** End Test */
-  //   tree.value!.setCurrentKey(workshopTreeKey.value, true); 
+        //   tree.value!.setCurrentKey(workshopTreeKey.value, true); 
       }
       if (result.error.value) {
         notify({
@@ -138,7 +146,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
           duration: -1,
           type: "error",
         });
-      } 
+      }
 
     } catch (error) {
       console.error(`Workshop #${id} - manifest cannot be loaded and parsed!\n`, error)
@@ -165,8 +173,8 @@ export const useWorkshopStore = defineStore("workshop", () => {
         duration: -1,
         type: "error",
       });
-    } 
-    
+    }
+
   }
 
   function removeWorkshop(index: number) {
@@ -196,7 +204,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
     getWorkshopMenu,
     getWorkshopPage,
     workshopEmpty,
-    workshopTitle, 
+    workshopTitle,
     workshopMenu,
     loadWorkshops,
     loadWorkshopById,
