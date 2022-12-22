@@ -48,16 +48,20 @@ export interface IWorkshop {
   */
 }
 
-export IWorkshopMenuItem {
+export interface IWorkshopMenuItem {
   name: string
   weight: number
   path: string
-  locale ?: string
-  body ?: string
-  menus ?: Array<IWorkshopMenuItem>
-  pages ?: Array<IWorkshopMenuItem>
-  [key: string]?: IWorkshopMenuItem
+  locale?: string
+  body?: string
+  menus?: Array<IWorkshopMenuItem>
+  pages?: Array<IWorkshopMenuItem>
+  loc: IWorkshopMenuItem
+  [key: string]: IWorkshopMenuItem | string | number | undefined | IWorkshopMenuItem[]
 }
+
+
+
 
 export interface ITree {
   id: number

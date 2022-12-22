@@ -41,17 +41,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
   //   return workshops.value
   // })
 
-  const getWorkshopPages = computed(() => {
-    let pages = [] as IWorkshopMenuItem[]
-    pages = workshop.value[0]?.menus || []
-    for (let i = 0; page_index.value.length - 2; i++) {
-      pages = [...pages[i]?.menus || []]
-    }
-    pages.forEach(page =>
-      page.body = page.body?.replaceAll('/images/', `${WORKSHOPS_BASE}${workshopName.value}/images/`)
-    )
-    return pages
-  })
+
 
   const getWorkshopUrl = computed(() => {
     return WORKSHOPS_BASE + workshopName.value + '/'
@@ -77,7 +67,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
     }
     let content = [...workshop.value[0]?.menus || []] as IWorkshopMenuItem[]
     let page = ''
-    page_index.value.forEach(index => {
+    page_index.value?.forEach(index => {
       if (content.length > index) {
         page = content[index].body || ''
         content = content[index].menus || []
@@ -95,6 +85,11 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const workshopEmpty = computed(() => {
     workshops.value.length <= 0
   })
+
+  function rebuildTree() {
+    workshopTree.value = buildTree(workshop.value[0]?.menus || [])
+    workShopPathMap.value = [...pathMap]
+  }
 
   async function loadWorkshopById(id: string) {
     if (!id) {
@@ -123,15 +118,14 @@ export const useWorkshopStore = defineStore("workshop", () => {
         mnf = mnf.replaceAll('\"', '"')
         mnf = mnf.replaceAll('\\$', '\\"')
         workshop.value = [JSON.parse(mnf).content] || []
-        workshopTree.value = buildTree(workshop.value[0]?.menus || [])
-        workShopPathMap.value = [...pathMap]
+        rebuildTree()
         
-        /*** Test  */
-        let urlParam = route.params.all.toString()
-        const slashIdx = urlParam.indexOf('/')
-        urlParam = urlParam.substr(slashIdx+1) 
-        setTreeIndexByPath(urlParam);
-        /*** End Test */
+        // /*** Test  */
+        // let urlParam = route.params.all.toString()
+        // const slashIdx = urlParam.indexOf('/')
+        // urlParam = urlParam.substr(slashIdx+1) 
+        // setTreeIndexByPath(urlParam);
+        // /*** End Test */
   //   tree.value!.setCurrentKey(workshopTreeKey.value, true); 
       }
       if (result.error.value) {
@@ -186,8 +180,8 @@ export const useWorkshopStore = defineStore("workshop", () => {
   function setTreeIndexByPath(path: string) {
     const brunches = workShopPathMap.value.filter((item) => { return item.path.substr(2) === path })
     const brunch = brunches[0] || workShopPathMap.value[0]
-    page_index.value = brunch.index
-    workshopTreeKey.value = brunch.key
+    page_index.value = brunch?.index
+    workshopTreeKey.value = brunch?.key
   }
 
   return {
@@ -198,7 +192,6 @@ export const useWorkshopStore = defineStore("workshop", () => {
     workshopName,
     workshop,
     page_index,
-    getWorkshopPages,
     getWorkshopUrl,
     getWorkshopMenu,
     getWorkshopPage,
@@ -210,7 +203,8 @@ export const useWorkshopStore = defineStore("workshop", () => {
     addWorkshop,
     removeWorkshop,
     setTreeIndex,
-    setTreeIndexByPath
+    setTreeIndexByPath,
+    rebuildTree
   };
 
   // async updatePersonalProfile(user: IDriveUser)

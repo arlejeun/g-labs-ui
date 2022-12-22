@@ -11,13 +11,7 @@ const wsId = urlParam.split('/')[0]
 const wStore = useWorkshopStore()
 const { workshopTree } = storeToRefs(wStore)
 const { setTreeIndex } = wStore
-const treeChange = (node: ITree) => {
-  let treeIndex = node?.index || [];
-  let path = ''
-  treeIndex.forEach(idx => path += idx + '/')
-  setTreeIndex(treeIndex);
-  router.push(`/workshops/${wsId}/${node.path}`)
-};
+
 
 </script>
 

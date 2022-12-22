@@ -22,9 +22,9 @@ const treeChange = (node: ITree) => {
 
 <template>
 
-        <div class="">
-          <el-tree class="nav-tree" ref="tree" node-key="id" accordion :data="workshopTree" @current-change="treeChange" />
-        </div>
+  <div class="">
+    <el-tree class="nav-tree" ref="tree" node-key="id" accordion :data="workshopTree" @current-change="treeChange" />
+  </div>
 
 </template>
 

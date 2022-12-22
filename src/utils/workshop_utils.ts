@@ -60,7 +60,7 @@ const _buildTree = (ws: IWorkshopMenuItem[], index?: number[]): ITree[] => {
       branch = {} as ITree
       let locItem = { ...item }
       if (item[loc]) {
-        locItem = { ...item[loc] }
+        locItem = item[loc] as IWorkshopMenuItem
         locItem.menus = item.menus
       }
       branch.index = [...index || []]
