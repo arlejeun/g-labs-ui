@@ -7,7 +7,7 @@ import { useUserStore } from '@/stores/user'
 const route = useRoute();
 
 const wStore = useWorkshopStore();
-const { workshopTreeKey, workshopTitle } = storeToRefs(wStore)
+const { workshopTreeKey, workshopTitle, workshopName } = storeToRefs(wStore)
 const { loadWorkshopById, setTreeIndexByPath, rebuildTree, setTreeIndex } = wStore
 
 const userStore = useUserStore()
@@ -40,16 +40,12 @@ onMounted(() => {
 });
 
 onBeforeRouteUpdate(async (to, from) => {
-      // only fetch the user if the id changed as maybe only the query or the hash changed
-      if (to.params.all?.toString() !== from.params.all?.toString()) {
-        loadWorkshopById(wsId).then(() => {
-          setTreeIndexByPath(urlParam.value);
-          tree.value?.setCurrentKey(workshopTreeKey.value, true);
-        });
-      }
-    })
+  // only fetch the user if the id changed as maybe only the query or the hash changed
+  const newPath = to.path.replace(`/workshops/${workshopName.value}/`, '')
 
-
+  setTreeIndexByPath(newPath);
+  tree.value?.setCurrentKey(workshopTreeKey.value, true);
+})
 
 watch(localization, () => {
   rebuildTree()
@@ -71,23 +67,14 @@ watch(localization, () => {
                 <!-- <h3 class="fs-3 ws-header">{{ workshopTitle }}</h3> -->
                 <WorkshopBreadcrumb />
               </el-header>
-              <el-container class="pt-1"> 
-                <el-button v-show="!showNav"
-                    type="primary"
-                    text
-                    @click="toggleNavigation"
-                    >[+]</el-button>
-                <el-aside class="ws-nav" :class="{hide: !showNav}">
+              <el-container class="pt-1">
+                <el-button v-show="!showNav" type="primary" text @click="toggleNavigation">[+]</el-button>
+                <el-aside class="ws-nav" :class="{ hide: !showNav }">
                   <el-row class="pb-3" justify="end">
-                    <el-button
-                      type="primary"
-                      text
-                      @click="toggleNavigation"
-                      >[-]</el-button
-                  >
+                    <el-button type="primary" text @click="toggleNavigation">[-]</el-button>
                   </el-row>
-                  
-                  <WorkshopNavigation v-show="showNav"/>
+
+                  <WorkshopNavigation v-show="showNav" />
                 </el-aside>
 
                 <el-main class="ws-body">
@@ -145,7 +132,7 @@ watch(localization, () => {
 }
 
 .ws-nav.hide {
-  display:none;
+  display: none;
 }
 
 .ws-body img,
