@@ -1,56 +1,11 @@
 <script setup lang="ts">
 import { useWorkshopStore } from "@/stores/workshop";
-import { useRoute } from "vue-router";
-import { onMounted, ref } from "vue";
-import { useUserStore } from '@/stores/user'
 
-const route = useRoute();
-
-const wStore = useWorkshopStore();
-const { workshopTreeKey, workshopTitle, workshopName } = storeToRefs(wStore)
-const { loadWorkshopById, setTreeIndexByPath, rebuildTree, setTreeIndex } = wStore
-
-const userStore = useUserStore()
-const { localization } = storeToRefs(userStore) //
-
-const urlParam = ref(route.params.all.toString())
-const slashIdx = urlParam.value.indexOf('/')
-const wsId = urlParam.value.split('/')[0]
-urlParam.value = urlParam.value.substr(slashIdx + 1)
-
-// let urlParam = route.params.all.toString()
-// const slashIdx = urlParam.indexOf('/')
-// const wsId = urlParam.split('/')[0]
-// urlParam = urlParam.substr(slashIdx + 1)
-
-const tree = ref()
 const showNav = ref(true)
 
 const toggleNavigation = () => {
   showNav.value = !showNav.value
 }
-
-
-onMounted(() => {
-  loadWorkshopById(wsId).then(() => {
-    setTreeIndexByPath(urlParam.value);
-    tree.value?.setCurrentKey(workshopTreeKey.value, true);
-  });
-
-});
-
-onBeforeRouteUpdate(async (to, from) => {
-  // only fetch the user if the id changed as maybe only the query or the hash changed
-  const newPath = to.path.replace(`/workshops/${workshopName.value}/`, '')
-
-  setTreeIndexByPath(newPath);
-  tree.value?.setCurrentKey(workshopTreeKey.value, true);
-})
-
-watch(localization, () => {
-  rebuildTree()
-  tree.value?.setCurrentKey(workshopTreeKey.value, true);
-});
 
 </script>
 
