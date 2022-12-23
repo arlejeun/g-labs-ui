@@ -3,9 +3,13 @@
 import { Switch } from '@element-plus/icons-vue'
 import { useWorkspaceStore } from '@/stores/workspace'
 import genesysService from '@/services/genesyscloud-service'
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore()
+const { isMobile } = storeToRefs(userStore)
 
 const workspaceStore = useWorkspaceStore()
-const { genesysUser, genesysOrg, genesysUserPermissions, isTokenActive, genesysApiUrl, genesysLoginUrl, genesysRegion, gsysCloudClient } = storeToRefs(workspaceStore)
+const { genesysUser, genesysOrg, genesysUserPermissions, isTokenActive, activeOrgSummary, genesysLoginUrl, genesysRegion, gsysCloudClient } = storeToRefs(workspaceStore)
 const { setLoginURL, resetInfo, refreshEnvironment } = workspaceStore
 
 const GLABS_APP_URL = import.meta.env.VITE_GLABS_APP_URL
@@ -74,6 +78,7 @@ const regions = [
   },
 ]
 
+
 // Update the login/api url when region changes
 watch(
   () => gsysCloudClient.value.region,
@@ -84,20 +89,6 @@ watch(
     genesysService.setEnvironment(genesysLoginUrl.value.replace('https://login.',''))
 })
 
-// Update token when route hash change in response to 
-// watchEffect(async () => {
-//   //console.log(routeHash.value)
-//   if (routeHash.value.includes('access_token')) {
-//     genesysToken.value = getParameterByName('access_token')
-//     gsysCloudToken.value.access_token = genesysToken.value
-//     routeHash.value = ''
-//     // setupUserToken(genesysToken.value)
-//     // genesysService.setAccessToken(genesysToken.value)
-//     // genesysService.setEnvironment(gsysCloudToken.value.login_url.replace('https://login.',''))
-//     refreshEnvironment()
-//   }
-
-// })
 
 onMounted(() =>{
    //page reload different page
@@ -121,15 +112,11 @@ function loginWithGenesysCloud () {
 
 <template>
 
-<div class="">
-
-<div class="vstack gap-4">
-
 
   <!-- Personal info START -->
-  <div class="card">
+  <div class="card border">
     <!-- Card header -->
-    <div class="card-header border-bottom">
+    <div class="card-header">
       <h4 class="card-header-title text-primary">Active Organization</h4>
     </div>
 
@@ -137,18 +124,18 @@ function loginWithGenesysCloud () {
     <div class="card-body">
 
       <div class="row">
+        <h6>Connect to your Genesys Cloud org</h6>
         <el-alert
           title="Select your Genesys region and log in to your Genesys Cloud organization"
           type="warning"
           description="You must already have a Genesys Cloud user provisioned to access your Genesys Cloud profile. Your access token will be valid for 24 hours. Sign out from Genesys Cloud when you want to change organization."
           show-icon
-          :closable="false"
         />
         <el-row class="my-4">
         <el-select v-model="gsysCloudClient.region" class="mx-4" placeholder="Select your region">
         <el-option v-for="item in regions" :label="item.label" :value="item.value" :key="item.value" />
       </el-select>
-      <el-button @click="loginWithGenesysCloud" type="primary" :icon="Switch" :disabled="isTokenActive">Log in to Genesys</el-button>
+      <el-button @click="loginWithGenesysCloud" type="primary" :icon="Switch" :disabled="isTokenActive">Log in</el-button>
       <!-- <el-button @click="loginWithGenesysCloud" type="primary" :icon="Switch">Log in to Genesys</el-button> -->
 
     </el-row>
@@ -161,6 +148,26 @@ function loginWithGenesysCloud () {
     <div v-show="isTokenActive" class="container my-3">
       <div class="row">
         <el-tabs tab-position="top" class="demo-tabs">
+          <el-tab-pane label="Summary">
+            <el-descriptions
+                direction="horizontal"
+                :column="1"
+              >
+
+              <!-- <el-descriptions-item v-for="(value, key) in activeOrgSummary" :label="key">
+                <el-tag size="small">{{value}}</el-tag>
+              </el-descriptions-item> -->
+
+              <el-descriptions-item label="Organization name">
+                {{activeOrgSummary.orgName}}
+              </el-descriptions-item>
+              <el-descriptions-item class="pt-0" label="User email">
+                  {{activeOrgSummary.userEmail}}<span class="org-status ms-1" :class="{active: activeOrgSummary.userStatus=='active'}">&#9679;</span>
+              </el-descriptions-item>
+             
+            </el-descriptions>
+          </el-tab-pane>
+          
           <el-tab-pane label="Organization">
             <pre>{{genesysOrg}}</pre> 
           </el-tab-pane>
@@ -197,14 +204,15 @@ function loginWithGenesysCloud () {
     </div>
     <!-- Card body END -->
   </div>
-  <!-- Personal info END -->
 
-
-</div>
-</div>
 
 </template>
 
 <style>
-
+.org-status.active {
+  color: green
+}
+.org-status {
+  color: red
+}
 </style>

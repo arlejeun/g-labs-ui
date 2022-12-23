@@ -7,13 +7,12 @@ import { Delete } from '@element-plus/icons-vue'
 
 
 const userStore = useUserStore()
-const { customer, customerUpdateInProgress } = storeToRefs(userStore)
+const { customer, customerUpdateInProgress, isMobile } = storeToRefs(userStore)
 //const customer = ref(user.value?.customer?.[0] as IDriveCustomer)
 
-const { width } = useWindowSize()
-const isMobile = computed(() => width.value < 750)
+// const { width } = useWindowSize()
+// const isMobile = computed(() => width.value < 750)
 const dialogWidth = computed(() => isMobile.value ? '90%' : '30%')
-const formSize = ref('')
 const customerFormRef = ref<FormInstance>()
 
 const emailDialogFormVisible = ref(false)

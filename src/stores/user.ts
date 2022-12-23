@@ -21,7 +21,8 @@ import { generateCustomerPayload } from "@/utils/axios";
 export const useUserStore = defineStore("identity", () => {
   const router = useRouter();
   const { notify } = useNotification();
-
+  const { width } = useWindowSize()
+  
   // state properties vue composition of store
   const registrationUser = ref({} as IDriveUserRegistration);
   const user = ref({} as IDriveUser);
@@ -35,7 +36,7 @@ export const useUserStore = defineStore("identity", () => {
   const orgsUpdateInProgress = ref(false);
   const orgs = ref([] as IDriveOrg[]);
   const localization = useStorage('localization', 'en-US', localStorage)
-
+  const isMobile = computed(() => width.value < 750)
 
   // computed properties vue composition of store
   const getCustomerProfile = computed(() => {
@@ -301,6 +302,7 @@ export const useUserStore = defineStore("identity", () => {
     registrationStep,
     registrationUser,
     localization,
+    isMobile,
     setUserRegistration,
     createUserProfile,
     updateUserProfile,

@@ -7,6 +7,8 @@ const route = useRoute()
 const urlParam = route.params.all.toString()
 const wsId = urlParam.split('/')[0]
 
+const showNav = ref(true)
+
 const wStore = useWorkshopStore()
 const { workshopTree } = storeToRefs(wStore)
 const { setTreeIndex } = wStore
@@ -22,7 +24,8 @@ const treeChange = (node: ITree) => {
 
 <template>
 
-  <div class="">
+
+  <div>
     <el-tree class="nav-tree" ref="tree" node-key="id" accordion :data="workshopTree" @current-change="treeChange" />
   </div>
 
@@ -41,7 +44,7 @@ const treeChange = (node: ITree) => {
 }
 
 .nav-tree .el-tree-node__label {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .nav-tree .el-tree-node {

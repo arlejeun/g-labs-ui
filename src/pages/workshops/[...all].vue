@@ -3,7 +3,6 @@ import { useWorkshopStore } from "@/stores/workshop";
 import { useRoute } from "vue-router";
 import { onMounted, ref } from "vue";
 import { useUserStore } from '@/stores/user'
-import type { ITree } from "@/interfaces/workshop";
 
 const route = useRoute();
 
@@ -11,24 +10,49 @@ const wStore = useWorkshopStore();
 const { workshopTreeKey, workshopTitle } = storeToRefs(wStore)
 const { loadWorkshopById, setTreeIndexByPath, rebuildTree, setTreeIndex } = wStore
 
-
 const userStore = useUserStore()
 const { localization } = storeToRefs(userStore) //
 
-let urlParam = route.params.all.toString()
-const slashIdx = urlParam.indexOf('/')
-const wsId = urlParam.split('/')[0]
-urlParam = urlParam.substr(slashIdx + 1)
+const urlParam = ref(route.params.all.toString())
+const slashIdx = urlParam.value.indexOf('/')
+const wsId = urlParam.value.split('/')[0]
+urlParam.value = urlParam.value.substr(slashIdx + 1)
+
+// let urlParam = route.params.all.toString()
+// const slashIdx = urlParam.indexOf('/')
+// const wsId = urlParam.split('/')[0]
+// urlParam = urlParam.substr(slashIdx + 1)
 
 const tree = ref()
+const showNav = ref(true)
+
+const toggleNavigation = () => {
+  showNav.value = !showNav.value
+}
+
 
 onMounted(() => {
   loadWorkshopById(wsId).then(() => {
-    setTreeIndexByPath(urlParam);
+    setTreeIndexByPath(urlParam.value);
     tree.value?.setCurrentKey(workshopTreeKey.value, true);
   });
 
 });
+
+onBeforeRouteUpdate(async (to, from) => {
+      // only fetch the user if the id changed as maybe only the query or the hash changed
+      if (to.params.all?.toString() !== from.params.all?.toString()) {
+        loadWorkshopById(wsId).then(() => {
+          setTreeIndexByPath(urlParam.value);
+          tree.value?.setCurrentKey(workshopTreeKey.value, true);
+        });
+      }
+    })
+
+watch(route, ()=> {
+  console.log(urlParam.value)
+})
+
 
 watch(localization, () => {
   rebuildTree()
@@ -50,9 +74,23 @@ watch(localization, () => {
                 <!-- <h3 class="fs-3 ws-header">{{ workshopTitle }}</h3> -->
                 <WorkshopBreadcrumb />
               </el-header>
-              <el-container class="pt-1">
-                <el-aside class="ws-nav">
-                  <WorkshopNavigation />
+              <el-container class="pt-1"> 
+                <el-button v-show="!showNav"
+                    type="primary"
+                    text
+                    @click="toggleNavigation"
+                    >[+]</el-button>
+                <el-aside class="ws-nav" :class="{hide: !showNav}">
+                  <el-row class="pb-3" justify="end">
+                    <el-button
+                      type="primary"
+                      text
+                      @click="toggleNavigation"
+                      >[-]</el-button
+                  >
+                  </el-row>
+                  
+                  <WorkshopNavigation v-show="showNav"/>
                 </el-aside>
 
                 <el-main class="ws-body">
@@ -107,6 +145,10 @@ watch(localization, () => {
 
 .ws-nav {
   width: 250px;
+}
+
+.ws-nav.hide {
+  display:none;
 }
 
 .ws-body img,

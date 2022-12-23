@@ -7,12 +7,12 @@ import { loginRequest } from '@/plugins/msal/msalConfig'
 const { instance } = useMsal();
 
 const store = useUserStore()
-const { avatarUrl, username, userEmail, isRegistering, isActive, localization } = storeToRefs(store)
+const { avatarUrl, username, userEmail, isRegistering, isActive, localization, isMobile } = storeToRefs(store)
 const isAuthenticated = useIsAuthenticated();
 const { logout } = store
 
-const { width } = useWindowSize()
-const isMobile = computed(() => width.value < 1200)
+// const { width } = useWindowSize()
+// const isMobile = computed(() => width.value < 1200)
 const isDark = useDark({ valueDark: 'dark-mode', valueLight: 'light-mode' })
 const toggleDark = useToggle(isDark)
 

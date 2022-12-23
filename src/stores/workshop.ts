@@ -103,6 +103,9 @@ export const useWorkshopStore = defineStore("workshop", () => {
     if (!name) {
       return
     }
+    if (name == workshopName.value) {
+      return
+    }
     try {
       const { execute } = useAxios(GLabsApiClient)
       const result = await execute(`/workshops/name/${name}`)
@@ -126,7 +129,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
       }
       if (result.error.value) {
         notify({
-          title: `Workshop - ${wsId} is not available at the moment`,
+          title: `Workshop - ${name} is not available at the moment`,
           text: `${handleAxiosError(
             result.error.value,
             "Impossible to retrieve the workshop manifest at the moment"
@@ -137,7 +140,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
       }
 
     } catch (error) {
-      console.error(`Workshop #${id} - manifest cannot be loaded and parsed!\n`, error)
+      console.error(`Workshop #${name} - manifest cannot be loaded and parsed!\n`, error)
     }
 
   }

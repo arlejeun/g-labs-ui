@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { useAxios } from '@vueuse/integrations/useAxios'
 import { useWorkshopStore } from '@/stores/workshop'
 import { useWorkspaceStore } from '@/stores/workspace';
 import { getParameterByName } from '@/utils/string'
 import { useRouteHash } from '@vueuse/router';
-import { GLabsApiClient } from '@/apis/glabs';
+import { useUserStore } from '@/stores/user';
 
 const workspaceStore = useWorkspaceStore()
 const { isTokenActive, gsysCloudClient } = storeToRefs(workspaceStore)
@@ -18,9 +17,9 @@ const { loadWorkshops } = wStore
 
 const formatter = 'YYYY-MM-DD HH:mm:ss:SSS'
 const formatted = useDateFormat(useNow(), formatter)
+const store = useUserStore()
+const { isMobile } = storeToRefs(store)
 
-const { width } = useWindowSize()
-const isMobile = computed(() => width.value < 1200)
 const drawerSize = ref('45%')
 drawerSize.value = isMobile.value ? '85%':'45%'
 const connectCloudPanel = ref(false)

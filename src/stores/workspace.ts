@@ -17,6 +17,16 @@ export const useWorkspaceStore = defineStore("workspace", () => {
   const genesysApiUrl = computed(() => { return genesysLoginUrl.value.replace('login','api')})
   const isTokenActive = computed(() => gsysCloudClient.value.access_token != '')
   const hasAdminPermission = computed(() => genesysUserPermissions.value);
+  const activeOrgSummary = computed(() => {
+    return {
+      orgName: genesysOrg.value?.name || 'Not available',
+      orgId: genesysOrg.value?.id || 'Not available',
+      userEmail: genesysUser.value?.email,
+      userStatus: genesysUser.value?.state,
+      userAvatarPath: genesysUser.value?.images?.[0]?.imageUri
+    }
+  }
+  )
 
   function setupUserToken(token: string) {
     gsysCloudClient.value.access_token = token
@@ -89,6 +99,7 @@ export const useWorkspaceStore = defineStore("workspace", () => {
     genesysApiUrl,
     genesysLoginUrl,
     gsysCloudClient,
+    activeOrgSummary,
     getActiveOrg,
     getActiveUser,
     getActiveUserPermissions,

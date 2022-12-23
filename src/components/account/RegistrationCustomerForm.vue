@@ -8,7 +8,7 @@ import { generateCustomerPayload } from '@/utils/axios';
 
 
 const userStore = useUserStore()
-const { registrationUser: myRegistrationUser, status, registrationStep } = storeToRefs(userStore)
+const { registrationUser: myRegistrationUser, isMobile} = storeToRefs(userStore)
 const { createCustomerProfile } = userStore
 
 const customerDTO = ref({
@@ -34,8 +34,8 @@ const customerDTO = ref({
   } as IDriveCustomer)
 
 
-const { width } = useWindowSize()
-const isMobile = computed(() => width.value < 750)
+// const { width } = useWindowSize()
+// const isMobile = computed(() => width.value < 750)
 const dialogWidth = computed(() => isMobile.value ? '90%' : '30%')
 const customerFormRef = ref<FormInstance>()
 
