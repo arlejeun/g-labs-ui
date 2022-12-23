@@ -49,9 +49,6 @@ onBeforeRouteUpdate(async (to, from) => {
       }
     })
 
-watch(route, ()=> {
-  console.log(urlParam.value)
-})
 
 
 watch(localization, () => {
