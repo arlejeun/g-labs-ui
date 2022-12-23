@@ -69,6 +69,7 @@ const _buildTree = (ws: IWorkshopMenuItem[], index?: number[]): ITree[] => {
       branch.path = branch.path.replaceAll(' ', '-')
       branch.path = branch.path.replaceAll('_index', '')
       branch.path = branch.path.replaceAll('_', '-')
+      //branch.path = branch.path.replaceAll('.', '-')
       branch.id = treeIndex
       treeIndex++
       branch.index.push(i)
