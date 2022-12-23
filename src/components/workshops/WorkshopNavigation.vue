@@ -13,7 +13,7 @@ const showNav = ref(true)
 const wStore = useWorkshopStore()
 const { workshopTree } = storeToRefs(wStore)
 const { workshopTreeKey, workshopTitle, workshopName } = storeToRefs(wStore)
-const { loadWorkshopById, setTreeIndexByPath, rebuildTree, setTreeIndex } = wStore
+const { loadWorkshopById, setTreeIndexByPath, rebuildTree, setTreeIndex, setTreeIndexByKey } = wStore
 
 const tree = ref()
 
@@ -31,10 +31,11 @@ const treeChange = (node: ITree) => {
   treeIndex.forEach(idx => path += idx + '/')
   wStore.setTreeIndex(treeIndex);
   router.push(`/workshops/${wsId}/${node.path}`)
+  workshopTreeKey.value = node.id
 };
 
-const treeData = computed(
-  () => workshopTree || []
+const treeData: ComputedRef<ITree[]> = computed(
+  () => workshopTree.value || []
 );
 
 onMounted(() => {
@@ -46,15 +47,15 @@ onMounted(() => {
 });
 
 onBeforeRouteUpdate(async (to, from) => {
-  // only fetch the user if the id changed as maybe only the query or the hash changed
-  /* const newPath = to.path.replace(`/workshops/${workshopName.value}/`, '')
- 
-   setTreeIndexByPath(newPath);
-   tree.value?.setCurrentKey(workshopTreeKey.value, true);*/
+  const newPath = to.path.replace(`/workshops/${workshopName.value}/`, '')
+
+  setTreeIndexByPath(newPath.startsWith('./') ? newPath.substr(2) : newPath);
+  tree.value?.setCurrentKey(workshopTreeKey.value, true);
 })
 
 watch(localization, () => {
   rebuildTree()
+  setTreeIndexByKey();
   tree.value?.setCurrentKey(workshopTreeKey.value, true);
 });
 

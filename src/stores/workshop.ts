@@ -176,6 +176,17 @@ export const useWorkshopStore = defineStore("workshop", () => {
     page_index.value = [...ind]
   }
 
+  function setTreeIndexByKey(key?: number) {
+    key = key || workshopTreeKey.value
+    let path = ''
+    workShopPathMap.value.forEach(item => {
+      if (item.key == key) {
+        path = item.path.substr(2)
+      }
+    })
+    setTreeIndexByPath(path)
+  }
+
   function setTreeIndexByPath(path: string) {
     const brunches = workShopPathMap.value.filter((item) => { return item.path.substr(2) === path })
     const brunch = brunches[0] || workShopPathMap.value[0]
@@ -202,6 +213,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
     addWorkshop,
     removeWorkshop,
     setTreeIndex,
+    setTreeIndexByKey,
     setTreeIndexByPath,
     rebuildTree
   };
