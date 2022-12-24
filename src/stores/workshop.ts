@@ -2,134 +2,191 @@
 
 import { defineStore } from "pinia";
 import type {
-  IWorkshop, ITree, IPathMap, IWorkshopMenuItem
+  IWorkshop,
+  ITree,
+  IPathMap,
+  IWorkshopMenuItem,
 } from "@/interfaces/workshop";
-import sanitizeHtml from "sanitize-html"
+import sanitizeHtml from "sanitize-html";
 import { GLabsApiClient } from "@/apis/glabs";
 
 import { useAxios } from "@vueuse/integrations/useAxios";
 import { useNotification } from "@kyvg/vue3-notification";
-import { buildMenu, buildTree, pathMap } from "@/utils/workshop_utils";
 import { handleAxiosError } from "@/utils/axios";
-import { useUserStore } from '@/stores/user'
+import { useUserStore } from "@/stores/user";
 
-const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT
-const store = useUserStore()
-const { localization } = storeToRefs(store)
+const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT;
+const store = useUserStore();
+const { localization } = storeToRefs(store);
 
 const config = {
   headers: {
-    Authorization: 'Bearer TBD',
-    Accept: 'application/json, text/plain, */*'
-  }
+    Authorization: "Bearer TBD",
+    Accept: "application/json, text/plain, */*",
+  },
 };
 
 export const useWorkshopStore = defineStore("workshop", () => {
-
   const route = useRoute();
+  const router = useRouter();
 
   const { notify } = useNotification();
 
   // state properties vue composition of store
   //const registrationUser = ref({} as IDriveUserRegistration);
-  const workshops = ref([] as IWorkshop[])
-  const workshopTree = ref([] as ITree[])
-  const workshopTreeKey = ref(0)
-  const workShopPathMap = ref([] as IPathMap[])
-  const workshopName = ref('')
-  const workshop = ref([] as IWorkshopMenuItem[])
-  const page_index = ref([0, 0] as number[])
+  const workshops = ref([] as IWorkshop[]);
+  const workshopTree = ref([] as ITree[]);
+  const workshopTreeKey = ref(0);
+  const workShopPathMap = ref([] as IPathMap[]);
+  const workshopName = ref("");
+  const workshop = ref([] as IWorkshopMenuItem[]);
+  const page_index = ref([0, 0] as number[]);
+  const treeIndex = ref(0);
+  const pathMap = ref([] as IPathMap[]);
+  const treeStoreRef = ref();
+  
+  const wsId = computed(() => {
+    return route.params?.all?.toString().split("/")?.[0];
+  });
 
-  // computed properties vue composition of store
-  // const getAllWorkshops = computed(() => {
-  //   return workshops.value
-  // })
+  const slashIdx = computed(() => {
+    return route.params.all?.toString()?.indexOf("/");
+  });
 
-
+  const urlParam = computed(() => {
+    return route.params?.all?.toString().substring(slashIdx.value + 1);
+  });
 
   const getWorkshopUrl = computed(() => {
-    return WORKSHOPS_BASE + workshopName.value + '/'
-  })
+    return WORKSHOPS_BASE + workshopName.value + "/";
+  });
 
-  const getWorkshopMenu = computed(() => {
-    return buildMenu(workshop.value)
-  })
+  // const getWorkshopMenu = computed(() => {
+  //   return buildMenu(workshop.value);
+  // });
 
-  const workshopTitle = computed(
-    () =>
-      (getWorkshopMenu.value.length > 0 && getWorkshopMenu.value[0].name) || ""
-  );
+  // const workshopTitle = computed(
+  //   () =>
+  //     (getWorkshopMenu.value.length > 0 && getWorkshopMenu.value[0].name) || ""
+  // );
 
-  const workshopMenu = computed(
-    () => getWorkshopMenu.value.length > 0 && getWorkshopMenu.value[0].menus
-  );
-
+  // const workshopMenu = computed(
+  //   () => getWorkshopMenu.value.length > 0 && getWorkshopMenu.value[0].menus
+  // );
 
   const getWorkshopPage = computed(() => {
     if (workshop.value.length === 0) {
-      return ''
+      return "";
     }
-    let content = [...workshop.value[0]?.menus || []] as IWorkshopMenuItem[]
-    let page = ''
-    page_index.value?.forEach(index => {
+    let content = [...(workshop.value[0]?.menus || [])] as IWorkshopMenuItem[];
+    let page = "";
+    page_index.value?.forEach((index) => {
       if (content.length > index) {
-        page = content[index].body || ''
-        const loc = localization.value || 'en-US'
+        page = content[index].body || "";
+        const loc = localization.value || "en-US";
         if (content[index][loc]) {
-          page = content[index][loc]?.body
+          // @ts-ignore
+          //TODO - fix type
+          page = content[index][loc]?.body;
         }
-        content = content[index].menus || []
+        content = content[index].menus || [];
       }
-    })
-    page = page.replaceAll('/images/', `${WORKSHOPS_BASE}${workshopName.value}/images/`)
+    });
+    page = page.replaceAll(
+      "/images/",
+      `${WORKSHOPS_BASE}${workshopName.value}/images/`
+    );
 
     page = sanitizeHtml(page, {
-      allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
-      allowedIframeHostnames: ['www.youtube.com']
+      allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
+      allowedIframeHostnames: ["www.youtube.com"],
     });
-    return page || 'Sorry, this page has no content'
-  })
+    return page || "Sorry, this page has no content";
+  });
 
   const workshopEmpty = computed(() => {
-    workshops.value.length <= 0
-  })
+    workshops.value.length <= 0;
+  });
 
-  function rebuildTree() {
-    workshopTree.value = buildTree(workshop.value[0]?.menus || [])
-    workShopPathMap.value = [...pathMap]
-  }
+  const rebuildTree = () => {
+    workshopTree.value = buildTree(workshop.value[0]?.menus || []);
+    workShopPathMap.value = [...pathMap.value];
+  };
 
-  async function loadWorkshopById(name: string) {
-    if (!name) {
-      return
+  const treeChange = (node: ITree) => {
+    let treeIndex = node?.index || [];
+    let path = "";
+    treeIndex.forEach((idx) => (path += idx + "/"));
+    setTreeIndex(treeIndex);
+    const nodePath = node.path?.replace('./','') || node.path
+    router.push({path: `/workshops/${wsId.value}/${nodePath}`});
+  };
+
+  const buildTree = (ws: IWorkshopMenuItem[], index?: number[]): ITree[] => {
+    treeIndex.value = 0;
+    pathMap.value = [];
+    return _buildTree(ws, index);
+  };
+
+  const buildMenu = (submenu: IWorkshopMenuItem[]): any => {
+    if (typeof submenu.forEach !== "function") {
+      return [];
     }
-    if (name == workshopName.value) {
-      return
+
+    let result: {
+      name: string;
+      menus: IWorkshopMenuItem[];
+      pages: IWorkshopMenuItem[];
+    }[] = [];
+    var menu = {
+      name: "",
+      menus: [] as IWorkshopMenuItem[],
+      pages: [] as IWorkshopMenuItem[],
+    };
+
+    submenu.forEach((item: IWorkshopMenuItem) => {
+      menu.name = item.name;
+      menu.menus = [];
+      if (item.menus && item.menus.length > 0) {
+        menu.menus = { ...buildMenu(item.menus) };
+      }
+      if (item.pages && item.pages.length > 0) {
+        menu.pages = { ...buildMenu(item.pages) };
+      }
+      result.push({ ...menu });
+    });
+    //  console.log(result)
+    return result;
+  };
+
+  // const refreshView = (url: string | undefined) => {
+  //   console.log("url: " + url);
+  //   console.log("url param: " + urlParam.value);
+  //   setTreeIndexByPath(urlParam.value);
+  //   //tree.value?.setCurrentKey(workshopTreeKey.value, true)
+  // };
+
+  const loadWorkshop = async () => {
+    if (!wsId.value) {
+      return;
     }
     try {
-      const { execute } = useAxios(GLabsApiClient)
-      const result = await execute(`/workshops/name/${name}`)
+      const { execute } = useAxios(GLabsApiClient);
+      const result = await execute(`/workshops/name/${wsId.value}`);
       if (result.isFinished.value && !result.error.value) {
-        const resData = result.data.value
-        workshopName.value = resData.name
-        let mnf = resData.manifest
-        mnf = mnf.replaceAll('\\"', '\\$')
-        mnf = mnf.replaceAll('\"', '"')
-        mnf = mnf.replaceAll('\\$', '\\"')
-        workshop.value = [JSON.parse(mnf).content] || []
-        rebuildTree()
-
-        // /*** Test  */
-        // let urlParam = route.params.all.toString()
-        // const slashIdx = urlParam.indexOf('/')
-        // urlParam = urlParam.substr(slashIdx+1) 
-        // setTreeIndexByPath(urlParam);
-        // /*** End Test */
-        //   tree.value!.setCurrentKey(workshopTreeKey.value, true); 
+        const resData = result.data.value;
+        workshopName.value = resData.name;
+        let mnf = resData.manifest;
+        mnf = mnf.replaceAll('\\"', "\\$");
+        mnf = mnf.replaceAll('"', '"');
+        mnf = mnf.replaceAll("\\$", '\\"');
+        workshop.value = [JSON.parse(mnf).content] || [];
+        rebuildTree();
+        setTreeIndexByPath(urlParam.value);
       }
       if (result.error.value) {
         notify({
-          title: `Workshop - ${name} is not available at the moment`,
+          title: `Workshop - ${wsId.value} is not available at the moment`,
           text: `${handleAxiosError(
             result.error.value,
             "Impossible to retrieve the workshop manifest at the moment"
@@ -138,22 +195,28 @@ export const useWorkshopStore = defineStore("workshop", () => {
           type: "error",
         });
       }
-
     } catch (error) {
-      console.error(`Workshop #${name} - manifest cannot be loaded and parsed!\n`, error)
+      console.error(
+        `Workshop #${wsId.value} - manifest cannot be loaded and parsed!\n`,
+        error
+      );
     }
+  };
 
-  }
+  const addWorkshop = (todo: IWorkshop) => {
+    workshops.value.push(todo);
+  };
 
-  function addWorkshop(todo: IWorkshop) {
-    workshops.value.push(todo)
-  }
-
-  function loadWorkshops() {
-    const { data, isLoading, isFinished: isWorkshopsLoaded, error } = useAxios('/workshops', config, GLabsApiClient)
+  const loadWorkshops = () => {
+    const {
+      data,
+      isLoading,
+      isFinished: isWorkshopsLoaded,
+      error,
+    } = useAxios("/workshops", config, GLabsApiClient);
     watch(isWorkshopsLoaded, () => {
-      workshops.value = [...data.value]
-    })
+      workshops.value = [...data.value];
+    });
     if (error.value) {
       notify({
         title: `Workshops Issue`,
@@ -165,34 +228,85 @@ export const useWorkshopStore = defineStore("workshop", () => {
         type: "error",
       });
     }
+  };
 
-  }
+  const removeWorkshop = (index: number) => {
+    workshops.value.splice(index, 1);
+  };
 
-  function removeWorkshop(index: number) {
-    workshops.value.splice(index, 1)
-  }
+  const setTreeIndex = (ind: number[]) => {
+    page_index.value = [...ind];
+  };
 
-  function setTreeIndex(ind: number[]) {
-    page_index.value = [...ind]
-  }
-
-  function setTreeIndexByKey(key?: number) {
-    key = key || workshopTreeKey.value
-    let path = ''
-    workShopPathMap.value.forEach(item => {
+  const setTreeIndexByKey = (key?: number) => {
+    key = key || workshopTreeKey.value;
+    let path = "";
+    workShopPathMap.value.forEach((item) => {
       if (item.key == key) {
-        path = item.path.substr(2)
+        path = item.path.substring(2);
       }
-    })
-    setTreeIndexByPath(path)
-  }
+    });
+    setTreeIndexByPath(path);
+  };
 
-  function setTreeIndexByPath(path: string) {
-    const brunches = workShopPathMap.value.filter((item) => { return item.path.substr(2) === path })
-    const brunch = brunches[0] || workShopPathMap.value[0]
-    page_index.value = brunch?.index
-    workshopTreeKey.value = brunch?.key
-  }
+  const setTreeIndexByPath = (path: string) => {
+    const brunches = workShopPathMap.value.filter((item) => {
+      return item.path.substring(2) === path;
+    });
+    const brunch = brunches[0] || workShopPathMap.value[0];
+    page_index.value = brunch?.index;
+    workshopTreeKey.value = brunch?.key;
+  };
+
+  const _buildTree = (ws: IWorkshopMenuItem[], index?: number[]): ITree[] => {
+    if (typeof ws?.forEach !== "function") {
+      return [];
+    }
+
+    index = index || [];
+    var result = [] as ITree[];
+    var branch = {} as ITree;
+    var i = 0;
+
+    ws.forEach((item: IWorkshopMenuItem) => {
+      const loc = localization.value || "en-US";
+      if (
+        (loc == "en-US" && !item.locale) ||
+        localization.value === item.locale ||
+        item[loc]
+      ) {
+        branch = {} as ITree;
+        let locItem = { ...item };
+        if (item[loc]) {
+          locItem = item[loc] as IWorkshopMenuItem;
+          locItem.menus = item.menus;
+        }
+        branch.index = [...(index || [])];
+        branch.label = locItem.name;
+        branch.path = locItem.path.substr(0, locItem.path.lastIndexOf("."));
+        branch.path = branch.path.replaceAll(" ", "-");
+        branch.path = branch.path.replaceAll("_index", "");
+        branch.path = branch.path.replaceAll("_", "-");
+        //branch.path = branch.path.replaceAll('.', '-')
+        branch.id = treeIndex.value;
+        treeIndex.value++;
+        branch.index.push(i);
+        if (locItem.menus && locItem.menus.length > 0) {
+          branch.children = [..._buildTree(locItem.menus, branch.index)];
+        }
+        pathMap.value.push({
+          path: branch.path,
+          index: [...branch.index],
+          key: branch.id,
+        });
+        result.push({ ...branch });
+        delete branch.children;
+      }
+      i++;
+    });
+
+    return result;
+  };
 
   return {
     workshops,
@@ -203,21 +317,27 @@ export const useWorkshopStore = defineStore("workshop", () => {
     workshop,
     page_index,
     getWorkshopUrl,
-    getWorkshopMenu,
     getWorkshopPage,
     workshopEmpty,
-    workshopTitle,
-    workshopMenu,
+    //workshopTitle,
+    //workshopMenu,
     loadWorkshops,
-    loadWorkshopById,
+    loadWorkshop,
     addWorkshop,
     removeWorkshop,
     setTreeIndex,
     setTreeIndexByKey,
     setTreeIndexByPath,
-    rebuildTree
+    rebuildTree,
+    buildMenu,
+    buildTree,
+    pathMap,
+    treeStoreRef,
+    urlParam,
+    wsId,
+    slashIdx,
+    treeChange,
   };
 
   // async updatePersonalProfile(user: IDriveUser)
 });
-

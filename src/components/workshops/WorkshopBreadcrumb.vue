@@ -1,31 +1,30 @@
 <script setup lang="ts">
-import type { ITree } from '@/interfaces/workshop'
-import router from '@/router';
 import { useUserStore } from '@/stores/user';
 import { useWorkshopStore } from '@/stores/workshop';
 import { ArrowRight } from '@element-plus/icons-vue'
 
-const route = useRoute()
-const urlParam = route.params.all.toString()
-const wsId = urlParam.split('/')[0]
-
 const userStore = useUserStore()
 const { isMobile } = storeToRefs(userStore)
-
 const wStore = useWorkshopStore()
-const { workshopTree } = storeToRefs(wStore)
-const { setTreeIndex } = wStore
+const { workshopTree, wsId, workshopName, workshopTreeKey, urlParam } = storeToRefs(wStore)
+const { setTreeIndex, setTreeIndexByPath } = wStore
+
+
+const test = ref(workshopTreeKey.value)
+const wsPath = ref()
 
 
 </script>
 
 <template>
 
+<pre>{{ workshopTreeKey }}</pre>
+<pre>{{ urlParam }}</pre>
   <div v-show="!isMobile">
     <el-breadcrumb :separator-icon="ArrowRight">
-      <el-breadcrumb-item :to="{ path: '/' }">homepage</el-breadcrumb-item>
-      <el-breadcrumb-item>promotion management</el-breadcrumb-item>
-      <el-breadcrumb-item>promotion list</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/' }">Home</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/workshops/'+ wsId}">{{wsId}}</el-breadcrumb-item>
+      <el-breadcrumb-item>{{workshopName}}</el-breadcrumb-item>
       <el-breadcrumb-item>promotion detail</el-breadcrumb-item>
     </el-breadcrumb>
   </div>

@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { useWorkshopStore } from "@/stores/workshop";
 
 const showNav = ref(true)
 
 const toggleNavigation = () => {
   showNav.value = !showNav.value
 }
+
+onMounted(() => {
+});
+
+onBeforeRouteUpdate(async (to, from) => {})
 
 </script>
 

@@ -48,7 +48,9 @@ export interface IWorkshop {
   */
 }
 
-export interface IWorkshopMenuItem {
+
+
+export interface IWorkshopMenuItemBase {
   name: string
   weight: number
   path: string
@@ -57,6 +59,10 @@ export interface IWorkshopMenuItem {
   menus?: Array<IWorkshopMenuItem>
   pages?: Array<IWorkshopMenuItem>
   loc: IWorkshopMenuItem
+
+  //[key: string]: IWorkshopMenuItem | string | number | undefined | IWorkshopMenuItem[]
+}
+export interface IWorkshopMenuItem extends IWorkshopMenuItemBase {
   [key: string]: IWorkshopMenuItem | string | number | undefined | IWorkshopMenuItem[]
 }
 
