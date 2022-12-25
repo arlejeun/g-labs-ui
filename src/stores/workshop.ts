@@ -44,7 +44,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const treeIndex = ref(0);
   const pathMap = ref([] as IPathMap[]);
   const treeStoreRef = ref();
-  
+
   const wsId = computed(() => {
     return route.params?.all?.toString().split("/")?.[0];
   });
@@ -60,19 +60,6 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const getWorkshopUrl = computed(() => {
     return WORKSHOPS_BASE + workshopName.value + "/";
   });
-
-  // const getWorkshopMenu = computed(() => {
-  //   return buildMenu(workshop.value);
-  // });
-
-  // const workshopTitle = computed(
-  //   () =>
-  //     (getWorkshopMenu.value.length > 0 && getWorkshopMenu.value[0].name) || ""
-  // );
-
-  // const workshopMenu = computed(
-  //   () => getWorkshopMenu.value.length > 0 && getWorkshopMenu.value[0].menus
-  // );
 
   const getWorkshopPage = computed(() => {
     if (workshop.value.length === 0) {
@@ -109,7 +96,9 @@ export const useWorkshopStore = defineStore("workshop", () => {
   });
 
   const rebuildTree = () => {
-    workshopTree.value = buildTree(workshop.value[0]?.menus || []);
+    treeIndex.value = 0;
+    pathMap.value = [];
+    workshopTree.value = _buildTree(workshop.value[0]?.menus || []);
     workShopPathMap.value = [...pathMap.value];
   };
 
@@ -118,53 +107,9 @@ export const useWorkshopStore = defineStore("workshop", () => {
     let path = "";
     treeIndex.forEach((idx) => (path += idx + "/"));
     setTreeIndex(treeIndex);
-    const nodePath = node.path?.replace('./','') || node.path
-    router.push({path: `/workshops/${wsId.value}/${nodePath}`});
+    const nodePath = node.path?.replace('./', '') || node.path
+    router.push({ path: `/workshops/${wsId.value}/${nodePath}` });
   };
-
-  const buildTree = (ws: IWorkshopMenuItem[], index?: number[]): ITree[] => {
-    treeIndex.value = 0;
-    pathMap.value = [];
-    return _buildTree(ws, index);
-  };
-
-  const buildMenu = (submenu: IWorkshopMenuItem[]): any => {
-    if (typeof submenu.forEach !== "function") {
-      return [];
-    }
-
-    let result: {
-      name: string;
-      menus: IWorkshopMenuItem[];
-      pages: IWorkshopMenuItem[];
-    }[] = [];
-    var menu = {
-      name: "",
-      menus: [] as IWorkshopMenuItem[],
-      pages: [] as IWorkshopMenuItem[],
-    };
-
-    submenu.forEach((item: IWorkshopMenuItem) => {
-      menu.name = item.name;
-      menu.menus = [];
-      if (item.menus && item.menus.length > 0) {
-        menu.menus = { ...buildMenu(item.menus) };
-      }
-      if (item.pages && item.pages.length > 0) {
-        menu.pages = { ...buildMenu(item.pages) };
-      }
-      result.push({ ...menu });
-    });
-    //  console.log(result)
-    return result;
-  };
-
-  // const refreshView = (url: string | undefined) => {
-  //   console.log("url: " + url);
-  //   console.log("url param: " + urlParam.value);
-  //   setTreeIndexByPath(urlParam.value);
-  //   //tree.value?.setCurrentKey(workshopTreeKey.value, true)
-  // };
 
   const loadWorkshop = async () => {
     if (!wsId.value) {
@@ -284,10 +229,12 @@ export const useWorkshopStore = defineStore("workshop", () => {
         branch.index = [...(index || [])];
         branch.label = locItem.name;
         branch.path = locItem.path.substr(0, locItem.path.lastIndexOf("."));
+        branch.path = branch.path.substr(2);
         branch.path = branch.path.replaceAll(" ", "-");
         branch.path = branch.path.replaceAll("_index", "");
         branch.path = branch.path.replaceAll("_", "-");
-        //branch.path = branch.path.replaceAll('.', '-')
+        branch.path = branch.path.replaceAll(".", "-");
+        branch.path = './' + branch.path
         branch.id = treeIndex.value;
         treeIndex.value++;
         branch.index.push(i);
@@ -329,9 +276,6 @@ export const useWorkshopStore = defineStore("workshop", () => {
     setTreeIndexByKey,
     setTreeIndexByPath,
     rebuildTree,
-    buildMenu,
-    buildTree,
-    pathMap,
     treeStoreRef,
     urlParam,
     wsId,
