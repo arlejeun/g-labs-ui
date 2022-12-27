@@ -86,25 +86,25 @@ watch(
     setLoginURL(getGenesysCloudLoginUrl(reg))
     gsysCloudClient.value.login_url = genesysLoginUrl.value
     isTokenActive.value = false
-    genesysService.setEnvironment(genesysLoginUrl.value.replace('https://login.',''))
-})
+    genesysService.setEnvironment(genesysLoginUrl.value.replace('https://login.', ''))
+  })
 
 
-onMounted(() =>{
-   //page reload different page
-   if (gsysCloudClient.value?.access_token != '' && !genesysUser.value?.email ) {
+onMounted(() => {
+  //page reload different page
+  if (gsysCloudClient.value?.access_token != '' && !genesysUser.value?.email) {
     refreshEnvironment()
   }
 })
 
-function getGenesysCloudLoginUrl(region: string) : string {
+function getGenesysCloudLoginUrl(region: string): string {
   console.log(region)
   return regions.filter((reg) => {
     return reg.value == region
   })[0].url
 }
 
-function loginWithGenesysCloud () {
+function loginWithGenesysCloud() {
   location.href = `${gsysCloudClient.value.login_url}/oauth/authorize?client_id=${GLABS_CLOUD_OAUTH_CLIENT_ID}&response_type=token&redirect_uri=${GLABS_APP_URL}/workshops`
 }
 
@@ -114,7 +114,7 @@ function loginWithGenesysCloud () {
 
 
   <!-- Personal info START -->
-  <div class="card">
+  <div class="card active-org">
     <!-- Card header -->
     <div class="card-header">
       <h4 class="card-header-title text-primary">Active Organization</h4>
@@ -125,12 +125,9 @@ function loginWithGenesysCloud () {
 
       <div class="row">
         <h6>Connect to your Genesys Cloud org</h6>
-        <el-alert
-          title="Select your Genesys region and log in to your Genesys Cloud organization"
-          type="warning"
+        <el-alert title="Select your Genesys region and log in to your Genesys Cloud organization" type="warning"
           description="You must already have a Genesys Cloud user provisioned to access your Genesys Cloud profile. Your access token will be valid for 24 hours. Sign out from Genesys Cloud when you want to change organization."
-          show-icon
-        />
+          show-icon />
         <div class="row my-4">
           <div class="col-xl-6 col-lg-8 col-md-9 px-0">
             <el-select v-model="gsysCloudClient.region" placeholder="Select your region">
@@ -138,72 +135,81 @@ function loginWithGenesysCloud () {
             </el-select>
           </div>
           <div class="col-xl-6 col-lg-4 col-md-3">
-            <el-button @click="loginWithGenesysCloud" type="primary" :icon="Switch" :disabled="isTokenActive">Log in</el-button>
+            <el-button @click="loginWithGenesysCloud" type="primary" :icon="Switch" :disabled="isTokenActive">Log
+              in</el-button>
           </div>
-        
-      <!-- <el-button @click="loginWithGenesysCloud" type="primary" :icon="Switch">Log in to Genesys</el-button> -->
 
-    </div>
+          <!-- <el-button @click="loginWithGenesysCloud" type="primary" :icon="Switch">Log in to Genesys</el-button> -->
 
-    </div>
-    <div v-show="isTokenActive" class="row">
-      <h6>Genesys Cloud Profile</h6>
-    </div>
-    
-    <div v-show="isTokenActive" class="container my-3">
-      <div class="row">
-        <el-tabs tab-position="top" class="demo-tabs">
-          <el-tab-pane label="Summary">
-            <el-descriptions
+        </div>
+
+      </div>
+      <div v-show="isTokenActive" class="row">
+        <h6>Genesys Cloud Profile</h6>
+      </div>
+
+      <div v-show="isTokenActive" class="container my-3">
+        <div class="row">
+          <el-tabs tab-position="top" class="demo-tabs">
+            <el-tab-pane label="Summary">
+              <!-- <el-descriptions
                 direction="horizontal"
                 :column="1"
               >
 
-              <!-- <el-descriptions-item v-for="(value, key) in activeOrgSummary" :label="key">
+               <el-descriptions-item v-for="(value, key) in activeOrgSummary" :label="key">
                 <el-tag size="small">{{value}}</el-tag>
               </el-descriptions-item> -->
 
-              <el-descriptions-item label="Organization name">
+              <!-- <el-descriptions-item label="Organization name">
                 {{activeOrgSummary.orgName}}
               </el-descriptions-item>
               <el-descriptions-item class="pt-0" label="User email">
                   {{activeOrgSummary.userEmail}}<span class="org-status ms-1" :class="{active: activeOrgSummary.userStatus=='active'}">&#9679;</span>
               </el-descriptions-item>
-             
-            </el-descriptions>
-          </el-tab-pane>
-          
-          <el-tab-pane label="Organization">
-            <pre>{{genesysOrg}}</pre> 
-          </el-tab-pane>
-          <el-tab-pane label="User">
-            <pre>{{genesysUser}}</pre>
-          </el-tab-pane>
-          <el-tab-pane label="Permisisons">
-            <pre>{{genesysUserPermissions}}</pre> 
-          </el-tab-pane>
-        </el-tabs>
-      
-        <div class="col-4 px-2 m-2">
-          <!-- <el-button @click="getActiveUserPermissions" type="primary">Get Permissions</el-button>
+              <el-descriptions-item class="pt-0" label="User roles">
+                  {{activeOrgSummary.userRole}}
+              </el-descriptions-item>
+
+            </el-descriptions> -->
+
+              <ul class="summary">
+                <li><b>organization:</b> {{ activeOrgSummary.orgName }}</li>
+                <li><b>user:</b><span class="org-status ms-1"
+                    :class="{ active: activeOrgSummary.userStatus == 'active' }">&#9679;</span>{{ activeOrgSummary.userEmail }}
+                </li>
+                <li><b>roles:</b>
+                  <el-tag class="px-3 mx-1" v-for="(role) in activeOrgSummary.userRole">{{ role }}</el-tag>
+                </li>
+              </ul>
+
+
+            </el-tab-pane>
+
+            <!-- <el-tab-pane label="Organization">
+              <pre>{{ genesysOrg }}</pre>
+            </el-tab-pane>
+            <el-tab-pane label="User">
+              <pre>{{ genesysUser }}</pre>
+            </el-tab-pane> -->
+            <el-tab-pane label="Permisisons">
+              <pre>{{ genesysUserPermissions }}</pre>
+            </el-tab-pane>
+          </el-tabs>
+
+          <div class="col-4 px-2 m-2">
+            <!-- <el-button @click="getActiveUserPermissions" type="primary">Get Permissions</el-button>
           <el-button @click="getActiveUser" type="primary">Get My User</el-button>
           <el-button @click="getActiveOrg" type="primary">Get My Organization</el-button> -->
-          <el-button @click="resetInfo" type="primary">Reset</el-button>
+            <el-button @click="resetInfo" type="primary">Reset</el-button>
+
+          </div>
+
+
+        </div>
+
 
       </div>
-
-      <div class="col-7 px-2">
-        <div class="my-2 row">
-       
-        
-        
-      </div>
-      </div>
-    
-    </div>
-      
-
-    </div>
 
 
     </div>
@@ -214,10 +220,33 @@ function loginWithGenesysCloud () {
 </template>
 
 <style>
-.org-status.active {
-  color: green
+.active-org .el-descriptions__body .el-descriptions__table .el-descriptions__cell {
+  padding-bottom: 10px;
+  padding-top: 5px;
 }
+
+.active-org .summary {
+  font-size: medium;
+}
+
+.active-org ul.summary {
+  display: block;
+  padding: 3px 0px;
+}
+
+.active-org .summary li {
+  display: block;
+  padding: 3px 0px;
+}
+
+.org-status.active {
+  color: green;
+  /* font-size: 25px; */
+  padding-right: 10px;
+}
+
 .org-status {
-  color: red
+  color: red;
+  padding-right: 10px;
 }
 </style>

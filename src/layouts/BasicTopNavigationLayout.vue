@@ -87,7 +87,7 @@ const stopWatcher = watch(inProgress, () => {
 </script>
 
 <template>
-    <main class="container-fluid px-0 flex-shrink-0">
+    <main class="container-fluid px-0 flex-shrink-0 main-layout">
         <BasicNavBar />
         <RouterView />
         <!-- <pre>Authenticated MSAL: {{ isAuthenticated }} | In Progress: {{ inProgress }}</pre>

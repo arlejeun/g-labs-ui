@@ -49,28 +49,38 @@ export const useWorkshopStore = defineStore("workshop", () => {
       return "";
     }
     const loc = localization.value || "en-US";
-    const workshopInfo = workshop.value[0]?.[loc]?.name || wsId.value    
-    return workshopInfo;
+    const title = workshop.value[0]?.[loc]?.name || wsId.value
+    const path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
+    const modifiedPath = '/workshops/'+ wsId.value + '/' + path?.substring(2) + '/'
+    return {title: title, path: modifiedPath};
   });
 
   const workshopChapter = computed(() => {
-    if (workshop.value.length === 0) {
-      return "";
-    }
-    const loc = localization.value || "en-US";
-    const workshopInfo = workshop.value[0]?.[loc]?.name || wsId.value    
-    return workshopInfo;
+      if (workshop.value.length === 0) {
+        return "";
+      }
+      const loc = localization.value || "en-US";
+      const title = workshop.value[0]?.['menus']?.[page_index.value[0]]?.[loc]?.name
+      const path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
+      const pathArray = path?.substring(2)?.split('/')
+      const modifiedPath = '/workshops/'+ wsId.value + '/' + pathArray?.[0] + '/'
+      return {title: title, path: modifiedPath};
   });
+  
 
   const workshopSection = computed(() => {
     if (workshop.value.length === 0) {
       return "";
     }
+    const path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
+    const pathArray = path?.substring(2)?.split('/')
+    if (pathArray && pathArray?.length < 2) {
+      return ""
+    }
     const loc = localization.value || "en-US";
-    const workshopInfo = workshop.value[0]?.[loc]?.name || wsId.value    
-    return workshopInfo;
+    const title = workshop.value[0]?.['menus']?.[page_index.value[0]]?.['menus']?.[page_index.value[1]]?.[loc]?.name
+    return {title: title, path: path};
   });
-
 
 
   const wsId = computed(() => {
@@ -99,7 +109,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
       if (content.length > index) {
         page = content[index].body || "";
         const loc = localization.value || "en-US";
-        if (content[index][loc]) {
+        if (content?.[index]?.[loc]) {
           // @ts-ignore
           //TODO - fix type with body
           page = content[index][loc]?.body;

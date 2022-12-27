@@ -38,13 +38,13 @@ onBeforeRouteUpdate(async (to, from) => { })
         </el-row>
         <WorkshopNavigation />
       </div>
-      <div class="ws-content">
+      <div class="ws-content" :class="{'hide-nav': !showNav}">
         <div v-if="!showEnv" class="row">
 
-          <div class="col-xl-11 col-lg-11 col-md-11 pt-0">
-            <el-main class="ws-body">
+          <div class="col-xl-11 col-lg-11 col-md-11">
+            <div class="container ws-body">
               <WorkshopContent />
-            </el-main>
+            </div>
           </div>
 
           <div class="col-xl-1 col-lg-1 col-md-1 ">
@@ -60,10 +60,10 @@ onBeforeRouteUpdate(async (to, from) => { })
 
          <div v-if="showEnv" class="row">
 
-          <div class="col-xl-8 col-lg-8 col-md-9 pt-0">
-            <el-main class="ws-body">
+          <div class="col-xl-8 col-lg-8 col-md-9">
+            <div class="container ws-body">
               <WorkshopContent />
-            </el-main>
+            </div>
           </div>
 
           <div class="col-xl-4 col-lg-4 col-md-3 ">
@@ -112,7 +112,10 @@ onBeforeRouteUpdate(async (to, from) => { })
 
 .ws-content {
   width: calc(100% - 300px);
-  margin-top: 40px;
+}
+
+.ws-content.hide-nav{
+  width:calc(100% - 40px);
 }
 
 .ws-nav-min {
@@ -122,15 +125,9 @@ onBeforeRouteUpdate(async (to, from) => { })
   //padding-right: 0;
 }
 
-ws-env-min
-
-.ws-env-min {
-  width: 40px;
-  //padding-top:40px;
-  //padding-left: 0;
-  //padding-right: 0;
+.ws-body{
+  padding-top: 40px;
 }
-
 
 .ws-nav.hide {
   display: none;

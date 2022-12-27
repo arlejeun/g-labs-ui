@@ -23,6 +23,7 @@ export const useWorkspaceStore = defineStore("workspace", () => {
       orgId: genesysOrg.value?.id || 'Not available',
       userEmail: genesysUser.value?.email,
       userStatus: genesysUser.value?.state,
+      userRole: genesysUserPermissions.value?.grants?.map(grant => grant?.role?.name),
       userAvatarPath: genesysUser.value?.images?.[0]?.imageUri
     }
   }
