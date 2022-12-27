@@ -78,7 +78,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
       return ""
     }
     const loc = localization.value || "en-US";
-    const title = workshop.value[0]?.['menus']?.[page_index.value[0]]?.['menus']?.[page_index.value[1]]?.[loc]?.name
+    const title = workshop.value[0]?.['menus']?.[page_index.value[0]]?.[loc]?.['menus']?.[page_index.value[1]]?.name
     return {title: title, path: path};
   });
 

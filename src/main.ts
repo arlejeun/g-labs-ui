@@ -63,7 +63,7 @@ app.use(router)
 
  app.use(gtag, {
   isEnabled: true,
-  useDebugger: false,
+  useDebugger: true,
   disableScriptLoader: false,
   property: { id: "G-YR2MYN6ZRJ"}
 });

@@ -1,7 +1,13 @@
 <script setup lang="ts">
 
+import { useWorkshopStore } from '@/stores/workshop';
+
 const showNav = ref(true)
 const showEnv = ref(true)
+const title = useTitle()
+const wStore = useWorkshopStore()
+const { workshopTitle, workshopChapter, workshopSection } = storeToRefs(wStore)
+
 
 const toggleNavigation = () => {
   showNav.value = !showNav.value
@@ -14,7 +20,16 @@ const toggleEnv = () => {
 onMounted(() => {
 });
 
-onBeforeRouteUpdate(async (to, from) => { })
+onBeforeRouteUpdate(async (to, from) => {
+  if( workshopSection.value?.title) {
+    title.value = workshopTitle.value?.title + ' - ' + workshopChapter.value?.title + ' - ' + workshopSection.value?.title
+  } else if ( workshopChapter.value?.title) {
+    title.value = workshopTitle.value?.title + ' - ' + workshopChapter.value?.title
+  } else {
+      title.value = workshopTitle.value?.title
+  }
+
+ })
 
 </script>
 

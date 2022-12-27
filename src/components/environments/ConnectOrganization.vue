@@ -128,14 +128,12 @@ function loginWithGenesysCloud() {
         <el-alert title="Select your Genesys region and log in to your Genesys Cloud organization" type="warning"
           description="You must already have a Genesys Cloud user provisioned to access your Genesys Cloud profile. Your access token will be valid for 24 hours. Sign out from Genesys Cloud when you want to change organization."
           show-icon />
-        <div class="row my-4">
-          <div class="col-xl-6 col-lg-8 col-md-9 px-0">
+        <div class="row my-4 justify-content-center">
+          <div class="col px-0">
             <el-select v-model="gsysCloudClient.region" placeholder="Select your region">
               <el-option v-for="item in regions" :label="item.label" :value="item.value" :key="item.value" />
             </el-select>
-          </div>
-          <div class="col-xl-6 col-lg-4 col-md-3">
-            <el-button @click="loginWithGenesysCloud" type="primary" :icon="Switch" :disabled="isTokenActive">Log
+            <el-button class="ms-2" @click="loginWithGenesysCloud" type="primary" :icon="Switch" :disabled="isTokenActive">Log
               in</el-button>
           </div>
 
