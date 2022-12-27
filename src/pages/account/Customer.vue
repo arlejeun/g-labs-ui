@@ -2,7 +2,7 @@
   <!-- **************** MAIN CONTENT START **************** -->
   <main>
     <!-- ======================= Content START -->
-    <section class="pt-3">
+    <section>
       <div class="container">
         <div class="row">
           <SidebarAccount />

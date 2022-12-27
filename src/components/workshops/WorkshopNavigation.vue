@@ -56,9 +56,12 @@ onBeforeRouteUpdate(async (to, from) => {
 
 .nav-tree .el-tree-node__label {
   font-size: 16px;
+  overflow-wrap: break-word;
 }
 
 .nav-tree .el-tree-node {
   padding-bottom: 5px;
 }
+
+    
 </style>

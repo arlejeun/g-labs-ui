@@ -1,78 +1,96 @@
 <script setup lang="ts">
 
 const showNav = ref(true)
+const showEnv = ref(true)
 
 const toggleNavigation = () => {
   showNav.value = !showNav.value
 }
 
+const toggleEnv = () => {
+  showEnv.value = !showEnv.value
+}
+
 onMounted(() => {
 });
 
-onBeforeRouteUpdate(async (to, from) => {})
+onBeforeRouteUpdate(async (to, from) => { })
 
 </script>
 
 <template>
-  <div>
+  <section class="workshop pt-4">
+    <div class="row ps-4">
+      <WorkshopBreadcrumb />
+    </div>
+    <div class="row">
+      <div v-show="!showNav" class="ws-nav-min">
+        <el-tooltip class="box-item" effect="dark" content="Show navigation" placement="right">
 
-    <div>
-      <div class="row">
-        <div class="col-12 col-md-8 pr-0 workshop">
+          <el-button type="primary" text @click="toggleNavigation">[+]</el-button>
+        </el-tooltip>
+      </div>
+      <div v-show="showNav" class="ws-nav">
+        <el-row class="pb-3" justify="end">
+          <el-tooltip class="box-item" effect="dark" content="Hide navigation" placement="right">
+            <el-button type="primary" text @click="toggleNavigation">[-]</el-button>
+          </el-tooltip>
+        </el-row>
+        <WorkshopNavigation />
+      </div>
+      <div class="ws-content">
+        <div v-if="!showEnv" class="row">
 
-          <div class="left-side common-layout">
-            <el-container class="workshop">
-              <el-header class="ws-header">
-                <!-- <h3 class="fs-3 ws-header">{{ workshopTitle }}</h3> -->
-                <WorkshopBreadcrumb />
-              </el-header>
-              <el-container class="pt-1">
-                <el-button v-show="!showNav" type="primary" text @click="toggleNavigation">[+]</el-button>
-                <el-aside class="ws-nav" :class="{ hide: !showNav }">
-                  <el-row class="pb-3" justify="end">
-                    <el-button type="primary" text @click="toggleNavigation">[-]</el-button>
-                  </el-row>
-
-                  <WorkshopNavigation v-show="showNav" />
-                </el-aside>
-
-                <el-main class="ws-body">
-                  <WorkshopContent />
-                </el-main>
-              </el-container>
-            </el-container>
+          <div class="col-xl-11 col-lg-11 col-md-11 pt-0">
+            <el-main class="ws-body">
+              <WorkshopContent />
+            </el-main>
           </div>
+
+          <div class="col-xl-1 col-lg-1 col-md-1 ">
+            <div class="row justify-content-end">
+              <el-tooltip class="box-item" effect="dark" content="Show organization" placement="left">
+                <el-button type="primary" text @click="toggleEnv">[+]</el-button>
+              </el-tooltip>
+
+            </div>
+          </div>
+
         </div>
 
-        <div class="col-12 col-md-4 px-0">
-          <div class="right-side">
-            <div class="right-side">
-              <div class="workshop-layout">
-                <div class="container-fluid my-5">
-                  <div class="row mt-5">
-                    <div class="col-12">
-                      <div class="text-3xl font-semibold text-gray-9000 pb-2 mr-2">
-                        <div class="row">
-                          <div class="col">
-                            <ConnectOrganization></ConnectOrganization>
-                          </div>
-                          <div class="col-auto">
-                          </div>
-                        </div>
+         <div v-if="showEnv" class="row">
 
+          <div class="col-xl-8 col-lg-8 col-md-9 pt-0">
+            <el-main class="ws-body">
+              <WorkshopContent />
+            </el-main>
+          </div>
 
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          <div class="col-xl-4 col-lg-4 col-md-3 ">
+            <div class="row justify-content-end">
+              <div class="col">
+                <el-tooltip class="box-item" effect="dark" content="Hide organization" placement="left">
+                <el-button type="primary" text @click="toggleEnv">[-]</el-button>
+              </el-tooltip>
               </div>
+             </div>
+             <div class="row">
+              <ConnectOrganization></ConnectOrganization>
+             </div>
+             
             </div>
 
-          </div>
         </div>
+
+  
+
+
       </div>
+     
+     
+     
     </div>
-  </div>
+  </section>
 </template>
 
 <style lang="scss">
@@ -84,11 +102,35 @@ onBeforeRouteUpdate(async (to, from) => {})
 
 .ws-header {
   color: #ff6428;
+
 }
 
 .ws-nav {
-  width: 250px;
+  width: 300px;
+  margin-top: 40px;
 }
+
+.ws-content {
+  width: calc(100% - 300px);
+  margin-top: 40px;
+}
+
+.ws-nav-min {
+  width: 40px;
+  padding-top: 40px;
+  //padding-left: 0;
+  //padding-right: 0;
+}
+
+ws-env-min
+
+.ws-env-min {
+  width: 40px;
+  //padding-top:40px;
+  //padding-left: 0;
+  //padding-right: 0;
+}
+
 
 .ws-nav.hide {
   display: none;

@@ -44,7 +44,7 @@ async function getProfileData() {
 }
 
 //Refresh token every 30min
-const { start } = useTimeoutFn(renewSilentToken, 1000*60*30)
+const { start } = useTimeoutFn(renewSilentToken, 1000 * 60 * 30)
 
 
 async function renewSilentToken() {
@@ -64,11 +64,11 @@ async function renewSilentToken() {
 
 
 onBeforeMount(() => {
-  
+
   if (isAuthenticated.value) {
     start()
     getProfileData();
-    
+
   }
 })
 
@@ -87,21 +87,20 @@ const stopWatcher = watch(inProgress, () => {
 </script>
 
 <template>
-  <div class="main-layout">
-    <!-- <pre>Accounts Instance: {{instance}}</pre> -->
-    <el-container class="pt-0">
-      <BasicNavBar />
-      <el-main class="main-content">
+    <main class="container-fluid px-0 flex-shrink-0">
+        <BasicNavBar />
         <RouterView />
-      </el-main>
-      <!-- <pre>Authenticated MSAL: {{ isAuthenticated }} | In Progress: {{ inProgress }}</pre>
+        <!-- <pre>Authenticated MSAL: {{ isAuthenticated }} | In Progress: {{ inProgress }}</pre>
       <pre>Accounts MSAL: {{ accounts }}</pre>
       <pre>User Profile: {{ user }}</pre> -->
-      <el-footer class="footer">
-        <BasicFooter />
-      </el-footer>
-    </el-container>
-  </div>
+    </main>
+
+  <footer class="footer">
+    <div class="container">
+      <BasicFooter />
+    </div>
+  </footer>
+
 </template>
 
 <style>
@@ -125,10 +124,10 @@ const stopWatcher = watch(inProgress, () => {
   background-color: var(--el-color-info);
   font-family: AmazonEmberBold, Helvetica, Arial, "Sans-Serif";
   /* padding: 15px 0; */
-  position: absolute;
+  position: relative;
   bottom: 5px;
   width: 100%;
-  height: 2.5 rem;
+  height: 2 rem;
 }
 
 

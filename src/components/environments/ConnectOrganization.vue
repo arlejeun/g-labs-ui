@@ -114,7 +114,7 @@ function loginWithGenesysCloud () {
 
 
   <!-- Personal info START -->
-  <div class="card border">
+  <div class="card">
     <!-- Card header -->
     <div class="card-header">
       <h4 class="card-header-title text-primary">Active Organization</h4>
@@ -131,14 +131,19 @@ function loginWithGenesysCloud () {
           description="You must already have a Genesys Cloud user provisioned to access your Genesys Cloud profile. Your access token will be valid for 24 hours. Sign out from Genesys Cloud when you want to change organization."
           show-icon
         />
-        <el-row class="my-4">
-        <el-select v-model="gsysCloudClient.region" class="mx-4" placeholder="Select your region">
-        <el-option v-for="item in regions" :label="item.label" :value="item.value" :key="item.value" />
-      </el-select>
-      <el-button @click="loginWithGenesysCloud" type="primary" :icon="Switch" :disabled="isTokenActive">Log in</el-button>
+        <div class="row my-4">
+          <div class="col-xl-6 col-lg-8 col-md-9 px-0">
+            <el-select v-model="gsysCloudClient.region" placeholder="Select your region">
+              <el-option v-for="item in regions" :label="item.label" :value="item.value" :key="item.value" />
+            </el-select>
+          </div>
+          <div class="col-xl-6 col-lg-4 col-md-3">
+            <el-button @click="loginWithGenesysCloud" type="primary" :icon="Switch" :disabled="isTokenActive">Log in</el-button>
+          </div>
+        
       <!-- <el-button @click="loginWithGenesysCloud" type="primary" :icon="Switch">Log in to Genesys</el-button> -->
 
-    </el-row>
+    </div>
 
     </div>
     <div v-show="isTokenActive" class="row">

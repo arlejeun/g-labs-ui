@@ -1,4 +1,4 @@
-// /store/user.js
+// /store/workshop.js
 
 import { defineStore } from "pinia";
 import type {
@@ -43,7 +43,35 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const page_index = ref([0, 0] as number[]);
   const treeIndex = ref(0);
   const pathMap = ref([] as IPathMap[]);
-  const treeStoreRef = ref();
+  
+  const workshopTitle = computed(() => {
+    if (workshop.value.length === 0) {
+      return "";
+    }
+    const loc = localization.value || "en-US";
+    const workshopInfo = workshop.value[0]?.[loc]?.name || wsId.value    
+    return workshopInfo;
+  });
+
+  const workshopChapter = computed(() => {
+    if (workshop.value.length === 0) {
+      return "";
+    }
+    const loc = localization.value || "en-US";
+    const workshopInfo = workshop.value[0]?.[loc]?.name || wsId.value    
+    return workshopInfo;
+  });
+
+  const workshopSection = computed(() => {
+    if (workshop.value.length === 0) {
+      return "";
+    }
+    const loc = localization.value || "en-US";
+    const workshopInfo = workshop.value[0]?.[loc]?.name || wsId.value    
+    return workshopInfo;
+  });
+
+
 
   const wsId = computed(() => {
     return route.params?.all?.toString().split("/")?.[0];
@@ -73,7 +101,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
         const loc = localization.value || "en-US";
         if (content[index][loc]) {
           // @ts-ignore
-          //TODO - fix type
+          //TODO - fix type with body
           page = content[index][loc]?.body;
         }
         content = content[index].menus || [];
@@ -110,6 +138,50 @@ export const useWorkshopStore = defineStore("workshop", () => {
     const nodePath = node.path?.replace('./', '') || node.path
     router.push({ path: `/workshops/${wsId.value}/${nodePath}` });
   };
+
+  const buildTree = (ws: IWorkshopMenuItem[], index?: number[]): ITree[] => {
+    treeIndex.value = 0;
+    pathMap.value = [];
+    return _buildTree(ws, index);
+  };
+
+  const buildMenu = (submenu: IWorkshopMenuItem[]): any => {
+    if (typeof submenu.forEach !== "function") {
+      return [];
+    }
+
+    let result: {
+      name: string;
+      menus: IWorkshopMenuItem[];
+      pages: IWorkshopMenuItem[];
+    }[] = [];
+    let menu = {
+      name: "",
+      menus: [] as IWorkshopMenuItem[],
+      pages: [] as IWorkshopMenuItem[],
+    };
+
+    submenu.forEach((item: IWorkshopMenuItem) => {
+      menu.name = item.name;
+      menu.menus = [];
+      if (item.menus && item.menus.length > 0) {
+        menu.menus = { ...buildMenu(item.menus) };
+      }
+      if (item.pages && item.pages.length > 0) {
+        menu.pages = { ...buildMenu(item.pages) };
+      }
+      result.push({ ...menu });
+    });
+    //  console.log(result)
+    return result;
+  };
+
+  // const refreshView = (url: string | undefined) => {
+  //   console.log("url: " + url);
+  //   console.log("url param: " + urlParam.value);
+  //   setTreeIndexByPath(urlParam.value);
+  //   //tree.value?.setCurrentKey(workshopTreeKey.value, true)
+  // };
 
   const loadWorkshop = async () => {
     if (!wsId.value) {
@@ -159,9 +231,11 @@ export const useWorkshopStore = defineStore("workshop", () => {
       isFinished: isWorkshopsLoaded,
       error,
     } = useAxios("/workshops", config, GLabsApiClient);
+    
     watch(isWorkshopsLoaded, () => {
       workshops.value = [...data.value];
     });
+
     if (error.value) {
       notify({
         title: `Workshops Issue`,
@@ -209,9 +283,9 @@ export const useWorkshopStore = defineStore("workshop", () => {
     }
 
     index = index || [];
-    var result = [] as ITree[];
-    var branch = {} as ITree;
-    var i = 0;
+    let result = [] as ITree[];
+    let branch = {} as ITree;
+    let i = 0;
 
     ws.forEach((item: IWorkshopMenuItem) => {
       const loc = localization.value || "en-US";
@@ -276,11 +350,16 @@ export const useWorkshopStore = defineStore("workshop", () => {
     setTreeIndexByKey,
     setTreeIndexByPath,
     rebuildTree,
-    treeStoreRef,
+    buildMenu,
+    buildTree,
+    pathMap,
     urlParam,
     wsId,
     slashIdx,
     treeChange,
+    workshopTitle,
+    workshopChapter,
+    workshopSection
   };
 
   // async updatePersonalProfile(user: IDriveUser)

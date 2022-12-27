@@ -5,7 +5,7 @@
   <main>
     <!-- =======================
   Content START -->
-    <section class="pt-0">
+    <section>
       <div class="container vstack gap-4">
         <!-- Booking table START -->
         <div class="row">

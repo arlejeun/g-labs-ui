@@ -56,14 +56,13 @@ export interface IWorkshopMenuItemBase {
   path: string
   locale?: string
   body?: string
-  menus?: Array<IWorkshopMenuItem>
-  pages?: Array<IWorkshopMenuItem>
-  loc: IWorkshopMenuItem
-
   //[key: string]: IWorkshopMenuItem | string | number | undefined | IWorkshopMenuItem[]
 }
 export interface IWorkshopMenuItem extends IWorkshopMenuItemBase {
-  [key: string]: IWorkshopMenuItem | string | number | undefined | IWorkshopMenuItem[]
+  menus?: Array<IWorkshopMenuItem>
+  pages?: Array<IWorkshopMenuItem>
+  loc: IWorkshopMenuItem
+  // [key: string]: IWorkshopMenuItem | string | number | undefined | IWorkshopMenuItem[]
 }
 
 
