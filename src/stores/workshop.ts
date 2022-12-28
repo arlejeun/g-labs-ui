@@ -6,6 +6,7 @@ import type {
   ITree,
   IPathMap,
   IWorkshopMenuItem,
+  WsBreadcrumb,
 } from "@/interfaces/workshop";
 import sanitizeHtml from "sanitize-html";
 import { GLabsApiClient } from "@/apis/glabs";
@@ -42,46 +43,42 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const workshop = ref([] as IWorkshopMenuItem[]);
   const page_index = ref([0, 0] as number[]);
   const treeIndex = ref(0);
-  const pathMap = ref([] as IPathMap[]);
-  
-  const workshopTitle = computed(() => {
+
+  const workshopCreadcrub = computed(() => {
     if (workshop.value.length === 0) {
       return "";
     }
+    let bc = [] as WsBreadcrumb[]
+    bc.push({ name: "Home", path: "/" })
+    bc.push({ name: "Workshops", path: "/workshops" })
+
+    const ws = workshop.value[0]
     const loc = localization.value || "en-US";
-    const title = workshop.value[0]?.[loc]?.name || wsId.value
-    const path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
-    const modifiedPath = '/workshops/'+ wsId.value + '/' + path?.substring(2) + '/'
-    return {title: title, path: modifiedPath};
-  });
+    let wsItem = ws?.[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem
+    let title = wsItem?.name || wsId.value
+    let path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
+    let pathArray = path?.substring(2)?.split('/')
+    let modifiedPath = '/workshops/' + wsId.value + '/' + path?.substring(2) + '/'
+    if (!title || !modifiedPath) return bc
+    bc.push({ name: title, path: modifiedPath })
 
-  const workshopChapter = computed(() => {
-      if (workshop.value.length === 0) {
-        return "";
-      }
-      const loc = localization.value || "en-US";
-      const title = workshop.value[0]?.['menus']?.[page_index.value[0]]?.[loc]?.name
-      const path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
-      const pathArray = path?.substring(2)?.split('/')
-      const modifiedPath = '/workshops/'+ wsId.value + '/' + pathArray?.[0] + '/'
-      return {title: title, path: modifiedPath};
-  });
-  
+    wsItem = ws?.['menus']?.[page_index.value[0]]?.[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem
+    title = wsItem.name
+    path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
+    modifiedPath = '/workshops/' + wsId.value + '/' + pathArray?.[0] + '/'
+    if (!title || !modifiedPath) return bc
+    bc.push({ name: title, path: modifiedPath })
 
-  const workshopSection = computed(() => {
-    if (workshop.value.length === 0) {
-      return "";
+    path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
+    if (!(pathArray && pathArray?.length < 2)) {
+      wsItem = ws?.['menus']?.[page_index.value[0]]?.[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem
+      title = wsItem?.menus?.[page_index.value[1]]?.name || ''
+      if (!title || !modifiedPath) return bc
+      bc.push({ name: title, path: modifiedPath })
     }
-    const path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
-    const pathArray = path?.substring(2)?.split('/')
-    if (pathArray && pathArray?.length < 2) {
-      return ""
-    }
-    const loc = localization.value || "en-US";
-    const title = workshop.value[0]?.['menus']?.[page_index.value[0]]?.[loc]?.['menus']?.[page_index.value[1]]?.name
-    return {title: title, path: path};
-  });
 
+    return bc
+  });
 
   const wsId = computed(() => {
     return route.params?.all?.toString().split("/")?.[0];
@@ -109,7 +106,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
       if (content.length > index) {
         page = content[index].body || "";
         const loc = localization.value || "en-US";
-        if (content?.[index]?.[loc]) {
+        if (content?.[index]?.[loc as keyof IWorkshopMenuItem]) {
           // @ts-ignore
           //TODO - fix type with body
           page = content[index][loc]?.body;
@@ -135,12 +132,13 @@ export const useWorkshopStore = defineStore("workshop", () => {
 
   const rebuildTree = () => {
     treeIndex.value = 0;
-    pathMap.value = [];
+    workShopPathMap.value = [];
     workshopTree.value = _buildTree(workshop.value[0]?.menus || []);
-    workShopPathMap.value = [...pathMap.value];
   };
 
   const treeChange = (node: ITree) => {
+    if (!node) return
+
     let treeIndex = node?.index || [];
     let path = "";
     treeIndex.forEach((idx) => (path += idx + "/"));
@@ -148,50 +146,6 @@ export const useWorkshopStore = defineStore("workshop", () => {
     const nodePath = node.path?.replace('./', '') || node.path
     router.push({ path: `/workshops/${wsId.value}/${nodePath}` });
   };
-
-  const buildTree = (ws: IWorkshopMenuItem[], index?: number[]): ITree[] => {
-    treeIndex.value = 0;
-    pathMap.value = [];
-    return _buildTree(ws, index);
-  };
-
-  const buildMenu = (submenu: IWorkshopMenuItem[]): any => {
-    if (typeof submenu.forEach !== "function") {
-      return [];
-    }
-
-    let result: {
-      name: string;
-      menus: IWorkshopMenuItem[];
-      pages: IWorkshopMenuItem[];
-    }[] = [];
-    let menu = {
-      name: "",
-      menus: [] as IWorkshopMenuItem[],
-      pages: [] as IWorkshopMenuItem[],
-    };
-
-    submenu.forEach((item: IWorkshopMenuItem) => {
-      menu.name = item.name;
-      menu.menus = [];
-      if (item.menus && item.menus.length > 0) {
-        menu.menus = { ...buildMenu(item.menus) };
-      }
-      if (item.pages && item.pages.length > 0) {
-        menu.pages = { ...buildMenu(item.pages) };
-      }
-      result.push({ ...menu });
-    });
-    //  console.log(result)
-    return result;
-  };
-
-  // const refreshView = (url: string | undefined) => {
-  //   console.log("url: " + url);
-  //   console.log("url param: " + urlParam.value);
-  //   setTreeIndexByPath(urlParam.value);
-  //   //tree.value?.setCurrentKey(workshopTreeKey.value, true)
-  // };
 
   const loadWorkshop = async () => {
     if (!wsId.value) {
@@ -241,7 +195,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
       isFinished: isWorkshopsLoaded,
       error,
     } = useAxios("/workshops", config, GLabsApiClient);
-    
+
     watch(isWorkshopsLoaded, () => {
       workshops.value = [...data.value];
     });
@@ -301,13 +255,12 @@ export const useWorkshopStore = defineStore("workshop", () => {
       const loc = localization.value || "en-US";
       if (
         (loc == "en-US" && !item.locale) ||
-        localization.value === item.locale ||
-        item[loc]
+        localization.value === item.locale || item[loc as keyof IWorkshopMenuItem]
       ) {
         branch = {} as ITree;
         let locItem = { ...item };
-        if (item[loc]) {
-          locItem = item[loc] as IWorkshopMenuItem;
+        if (item[loc as keyof IWorkshopMenuItem]) {
+          locItem = item[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem;
           locItem.menus = item.menus;
         }
         branch.index = [...(index || [])];
@@ -325,7 +278,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
         if (locItem.menus && locItem.menus.length > 0) {
           branch.children = [..._buildTree(locItem.menus, branch.index)];
         }
-        pathMap.value.push({
+        workShopPathMap.value.push({
           path: branch.path,
           index: [...branch.index],
           key: branch.id,
@@ -350,8 +303,6 @@ export const useWorkshopStore = defineStore("workshop", () => {
     getWorkshopUrl,
     getWorkshopPage,
     workshopEmpty,
-    //workshopTitle,
-    //workshopMenu,
     loadWorkshops,
     loadWorkshop,
     addWorkshop,
@@ -360,16 +311,11 @@ export const useWorkshopStore = defineStore("workshop", () => {
     setTreeIndexByKey,
     setTreeIndexByPath,
     rebuildTree,
-    buildMenu,
-    buildTree,
-    pathMap,
     urlParam,
     wsId,
     slashIdx,
     treeChange,
-    workshopTitle,
-    workshopChapter,
-    workshopSection
+    workshopCreadcrub
   };
 
   // async updatePersonalProfile(user: IDriveUser)

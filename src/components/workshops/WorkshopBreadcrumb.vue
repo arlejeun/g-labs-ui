@@ -1,12 +1,14 @@
 <script setup lang="ts">
+import type { WsBreadcrumb } from '@/interfaces/workshop';
 import { useUserStore } from '@/stores/user';
 import { useWorkshopStore } from '@/stores/workshop';
 import { ArrowRight } from '@element-plus/icons-vue'
+import { ElBreadcrumb, ElBreadcrumbItem } from 'element-plus';
 
 const userStore = useUserStore()
 const { isMobile } = storeToRefs(userStore)
 const wStore = useWorkshopStore()
-const { workshopTitle, workshopChapter, workshopSection } = storeToRefs(wStore)
+const { workshopCreadcrub } = storeToRefs(wStore)
 
 const router = useRouter()
 
@@ -19,11 +21,9 @@ const router = useRouter()
 <template>
   <div v-show="!isMobile">
     <el-breadcrumb :separator-icon="ArrowRight">
-      <el-breadcrumb-item :to="{ path: '/' }">Home</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: '/workshops' }">Workshops</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path:  workshopTitle.path }">{{workshopTitle.title}}</el-breadcrumb-item>
-      <el-breadcrumb-item :to="{ path: workshopChapter.path }">{{workshopChapter.title}}</el-breadcrumb-item>
-      <el-breadcrumb-item>{{workshopSection.title}}</el-breadcrumb-item>
+      <el-breadcrumb-item v-for="item in (workshopCreadcrub as WsBreadcrumb[])" :to="{ path: item.path }">
+        {{ item.name }}
+      </el-breadcrumb-item>
     </el-breadcrumb>
   </div>
 

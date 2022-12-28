@@ -4,10 +4,7 @@ import { useWorkshopStore } from '@/stores/workshop';
 
 const showNav = ref(true)
 const showEnv = ref(true)
-const title = useTitle()
 const wStore = useWorkshopStore()
-const { workshopTitle, workshopChapter, workshopSection } = storeToRefs(wStore)
-
 
 const toggleNavigation = () => {
   showNav.value = !showNav.value
@@ -16,20 +13,6 @@ const toggleNavigation = () => {
 const toggleEnv = () => {
   showEnv.value = !showEnv.value
 }
-
-onMounted(() => {
-});
-
-onBeforeRouteUpdate(async (to, from) => {
-  if( workshopSection.value?.title) {
-    title.value = workshopTitle.value?.title + ' - ' + workshopChapter.value?.title + ' - ' + workshopSection.value?.title
-  } else if ( workshopChapter.value?.title) {
-    title.value = workshopTitle.value?.title + ' - ' + workshopChapter.value?.title
-  } else {
-      title.value = workshopTitle.value?.title
-  }
-
- })
 
 </script>
 
@@ -53,7 +36,7 @@ onBeforeRouteUpdate(async (to, from) => {
         </el-row>
         <WorkshopNavigation />
       </div>
-      <div class="ws-content" :class="{'hide-nav': !showNav}">
+      <div class="ws-content" :class="{ 'hide-nav': !showNav }">
         <div v-if="!showEnv" class="row">
 
           <div class="col-xl-11 col-lg-11 col-md-11">
@@ -73,7 +56,7 @@ onBeforeRouteUpdate(async (to, from) => {
 
         </div>
 
-         <div v-if="showEnv" class="row">
+        <div v-if="showEnv" class="row">
 
           <div class="col-xl-8 col-lg-8 col-md-9">
             <div class="container ws-body">
@@ -85,25 +68,25 @@ onBeforeRouteUpdate(async (to, from) => {
             <div class="row justify-content-end">
               <div class="col">
                 <el-tooltip class="box-item" effect="dark" content="Hide organization" placement="left">
-                <el-button type="primary" text @click="toggleEnv">[-]</el-button>
-              </el-tooltip>
+                  <el-button type="primary" text @click="toggleEnv">[-]</el-button>
+                </el-tooltip>
               </div>
-             </div>
-             <div class="row">
-              <ConnectOrganization></ConnectOrganization>
-             </div>
-             
             </div>
+            <div class="row">
+              <ConnectOrganization></ConnectOrganization>
+            </div>
+
+          </div>
 
         </div>
 
-  
+
 
 
       </div>
-     
-     
-     
+
+
+
     </div>
   </section>
 </template>
@@ -129,8 +112,8 @@ onBeforeRouteUpdate(async (to, from) => {
   width: calc(100% - 300px);
 }
 
-.ws-content.hide-nav{
-  width:calc(100% - 40px);
+.ws-content.hide-nav {
+  width: calc(100% - 40px);
 }
 
 .ws-nav-min {
@@ -140,7 +123,7 @@ onBeforeRouteUpdate(async (to, from) => {
   //padding-right: 0;
 }
 
-.ws-body{
+.ws-body {
   padding-top: 40px;
 }
 

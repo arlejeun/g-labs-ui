@@ -50,23 +50,18 @@ export interface IWorkshop {
 
 
 
-export interface IWorkshopMenuItemBase {
+export interface IWorkshopMenuItem {
   name: string
   weight: number
   path: string
   locale?: string
   body?: string
-  //[key: string]: IWorkshopMenuItem | string | number | undefined | IWorkshopMenuItem[]
-}
-export interface IWorkshopMenuItem extends IWorkshopMenuItemBase {
   menus?: Array<IWorkshopMenuItem>
   pages?: Array<IWorkshopMenuItem>
-  loc: IWorkshopMenuItem
-  // [key: string]: IWorkshopMenuItem | string | number | undefined | IWorkshopMenuItem[]
+  "en-US"?: IWorkshopMenuItem
+  "es-ES"?: IWorkshopMenuItem
+  "pt-PT"?: IWorkshopMenuItem
 }
-
-
-
 
 export interface ITree {
   id: number
@@ -84,3 +79,8 @@ export type IPathMap = {
   index: number[],
   key: number
 }
+
+export type WsBreadcrumb = {
+  name: string,
+  path: string
+} 
