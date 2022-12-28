@@ -4,7 +4,7 @@ const id = useStorage('latest', '/workshops/Genesys-Dialog-Engine-Build-a-Bot', 
 const router = useRouter()
 
 const redirectTest = () => {
-  router.replace({path: '/workshops/Genesys-Dialog-Engine-Build-a-Bot'})
+  //router.replace({path: '/workshops/Genesys-Dialog-Engine-Build-a-Bot'})
   //router.replace({path: '/workshops/Genesys-Dialog-Engine-Build-a-Bot'})
   //router.go(-1)
 }

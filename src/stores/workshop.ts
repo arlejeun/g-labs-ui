@@ -19,12 +19,12 @@ const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT;
 const store = useUserStore();
 const { localization } = storeToRefs(store);
 
-const config = {
-  headers: {
-    Authorization: "Bearer TBD",
-    Accept: "application/json, text/plain, */*",
-  },
-};
+// const config = {
+//   headers: {
+//     Authorization: "Bearer TBD",
+//     Accept: "application/json, text/plain, */*",
+//   },
+// };
 
 export const useWorkshopStore = defineStore("workshop", () => {
   const route = useRoute();
@@ -234,29 +234,25 @@ export const useWorkshopStore = defineStore("workshop", () => {
     workshops.value.push(todo);
   };
 
-  const loadWorkshops = () => {
-    const {
-      data,
-      isLoading,
-      isFinished: isWorkshopsLoaded,
-      error,
-    } = useAxios("/workshops", config, GLabsApiClient);
-    
-    watch(isWorkshopsLoaded, () => {
-      workshops.value = [...data.value];
+  const loadWorkshops = async () => {
+    const { execute } = useAxios(GLabsApiClient);
+    const result = await execute(`/workshops`, {
+        method: "GET"
     });
-
-    if (error.value) {
-      notify({
-        title: `Workshops Issue`,
-        text: `${handleAxiosError(
-          error.value,
-          `Workshops are not available at the moment`
-        )}`,
-        duration: -1,
-        type: "error",
-      });
+    if (result.isFinished.value && !result.error.value) {
+          workshops.value = [...result?.data?.value];
     }
+    if (result.error.value) {
+        notify({
+          title: "Workshops API",
+          text: `${handleAxiosError(
+            result.error.value,
+            "Impossible to get your workshops at the moment"
+          )}`,
+          duration: -1,
+          type: "error",
+        });
+      } 
   };
 
   const removeWorkshop = (index: number) => {

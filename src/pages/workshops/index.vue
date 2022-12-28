@@ -4,6 +4,10 @@ import { useWorkspaceStore } from '@/stores/workspace';
 import { getParameterByName } from '@/utils/string'
 import { useRouteHash } from '@vueuse/router';
 import { useUserStore } from '@/stores/user';
+import { GLabsApiClient, GLABS_STORAGE, GLABS_TOKEN } from '@/apis/glabs'
+
+const userStore = useUserStore()
+const { user } = storeToRefs(userStore)
 
 const workspaceStore = useWorkspaceStore()
 const { isTokenActive, gsysCloudClient } = storeToRefs(workspaceStore)
@@ -33,7 +37,6 @@ const connectCloudPanel = ref(false)
 // watch(isWorkshopsLoaded, () => {
 //   setWorkshops(data.value);
 // })
-loadWorkshops()
 
 
 watchEffect(async () => {
@@ -44,6 +47,11 @@ watchEffect(async () => {
     routeHash.value = ''
     refreshEnvironment()
   }
+
+  if (user.value) {
+	loadWorkshops()
+  }
+
 
 })
 
@@ -168,4 +176,5 @@ Hotel grid END -->
 <route lang="yaml">
 meta:
   layout: BasicTopNavigationLayout
+  requiresAuth: true
 </route>

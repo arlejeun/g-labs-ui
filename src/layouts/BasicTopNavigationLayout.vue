@@ -12,7 +12,6 @@ import { useNotification } from "@kyvg/vue3-notification";
 const { notify } = useNotification()
 
 const userStore = useUserStore()
-const { user, status } = storeToRefs(userStore)
 const { fetchUser } = userStore
 
 const isAuthenticated = useIsAuthenticated()

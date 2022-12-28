@@ -65,8 +65,8 @@ async function mockSignOut() {
             </li>
 
             <li class="nav-item dropdown">
-              <router-link class="nav-link text-white fw-bolder" to="/environments">
-                Environments
+              <router-link class="nav-link text-white fw-bolder" to="/testing/tracking">
+                Tracking
               </router-link>
             </li>
             <li class="nav-item dropdown">
