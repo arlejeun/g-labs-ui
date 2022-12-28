@@ -22,7 +22,7 @@ const router = useRouter()
   <div v-show="!isMobile">
     <el-breadcrumb :separator-icon="ArrowRight">
       <el-breadcrumb-item v-for="item in (workshopCreadcrub as WsBreadcrumb[])" :to="{ path: item.path }">
-        {{ item.name }}
+        {{ item.title }}
       </el-breadcrumb-item>
     </el-breadcrumb>
   </div>

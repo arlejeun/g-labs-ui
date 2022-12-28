@@ -49,8 +49,8 @@ export const useWorkshopStore = defineStore("workshop", () => {
       return "";
     }
     let bc = [] as WsBreadcrumb[]
-    bc.push({ name: "Home", path: "/" })
-    bc.push({ name: "Workshops", path: "/workshops" })
+    bc.push({ title: "Home", path: "/" })
+    bc.push({ title: "Workshops", path: "/workshops" })
 
     const ws = workshop.value[0]
     const loc = localization.value || "en-US";
@@ -60,21 +60,21 @@ export const useWorkshopStore = defineStore("workshop", () => {
     let pathArray = path?.substring(2)?.split('/')
     let modifiedPath = '/workshops/' + wsId.value + '/' + path?.substring(2) + '/'
     if (!title || !modifiedPath) return bc
-    bc.push({ name: title, path: modifiedPath })
+    bc.push({ title: title, path: modifiedPath })
 
     wsItem = ws?.['menus']?.[page_index.value[0]]?.[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem
     title = wsItem.name
     path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
     modifiedPath = '/workshops/' + wsId.value + '/' + pathArray?.[0] + '/'
     if (!title || !modifiedPath) return bc
-    bc.push({ name: title, path: modifiedPath })
+    bc.push({ title: title, path: modifiedPath })
 
     path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
     if (!(pathArray && pathArray?.length < 2)) {
       wsItem = ws?.['menus']?.[page_index.value[0]]?.[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem
       title = wsItem?.menus?.[page_index.value[1]]?.name || ''
       if (!title || !modifiedPath) return bc
-      bc.push({ name: title, path: modifiedPath })
+      bc.push({ title: title, path: modifiedPath })
     }
 
     return bc
@@ -191,22 +191,22 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const loadWorkshops = async () => {
     const { execute } = useAxios(GLabsApiClient);
     const result = await execute(`/workshops`, {
-        method: "GET"
+      method: "GET"
     });
     if (result.isFinished.value && !result.error.value) {
-          workshops.value = [...result?.data?.value];
+      workshops.value = [...result?.data?.value];
     }
     if (result.error.value) {
-        notify({
-          title: "Workshops API",
-          text: `${handleAxiosError(
-            result.error.value,
-            "Impossible to get your workshops at the moment"
-          )}`,
-          duration: -1,
-          type: "error",
-        });
-      } 
+      notify({
+        title: "Workshops API",
+        text: `${handleAxiosError(
+          result.error.value,
+          "Impossible to get your workshops at the moment"
+        )}`,
+        duration: -1,
+        type: "error",
+      });
+    }
   };
 
   const removeWorkshop = (index: number) => {

@@ -81,6 +81,6 @@ export type IPathMap = {
 }
 
 export type WsBreadcrumb = {
-  name: string,
+  title: string,
   path: string
 } 
