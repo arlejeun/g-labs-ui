@@ -1,10 +1,14 @@
 <script setup lang="ts">
 
 import { useWorkshopStore } from '@/stores/workshop';
+import { WS, type IWsBreadcrumb } from '@/interfaces/workshop';
+import { ElTooltip, ElButton, ElRow } from 'element-plus';
 
+const title = useTitle()
 const showNav = ref(true)
 const showEnv = ref(true)
 const wStore = useWorkshopStore()
+const { workshopCreadcrub } = storeToRefs(wStore)
 
 const toggleNavigation = () => {
   showNav.value = !showNav.value
@@ -14,6 +18,18 @@ const toggleEnv = () => {
   showEnv.value = !showEnv.value
 }
 
+onBeforeRouteUpdate(async (to, from) => {
+  if ((workshopCreadcrub.value[WS.Section] as IWsBreadcrumb)?.title) {
+    title.value = (workshopCreadcrub.value[WS.Title] as IWsBreadcrumb)?.title + ' - ' +
+      (workshopCreadcrub.value[WS.Chapter] as IWsBreadcrumb)?.title + ' - ' +
+      (workshopCreadcrub.value[WS.Section] as IWsBreadcrumb)?.title
+  } else if ((workshopCreadcrub.value[WS.Chapter] as IWsBreadcrumb)?.title) {
+    title.value = (workshopCreadcrub.value[WS.Title] as IWsBreadcrumb)?.title + ' - ' +
+      (workshopCreadcrub.value[WS.Chapter] as IWsBreadcrumb)?.title
+  } else {
+    title.value = (workshopCreadcrub.value[WS.Title] as IWsBreadcrumb)?.title
+  }
+})
 </script>
 
 <template>
