@@ -6,7 +6,7 @@ import type {
   ITree,
   IPathMap,
   IWorkshopMenuItem,
-  WsBreadcrumb,
+  IWsBreadcrumb,
 } from "@/interfaces/workshop";
 import sanitizeHtml from "sanitize-html";
 import { GLabsApiClient } from "@/apis/glabs";
@@ -48,35 +48,27 @@ export const useWorkshopStore = defineStore("workshop", () => {
     if (workshop.value.length === 0) {
       return "";
     }
-    let bc = [] as WsBreadcrumb[]
+    let bc = [] as IWsBreadcrumb[]
     bc.push({ title: "Home", path: "/" })
     bc.push({ title: "Workshops", path: "/workshops" })
 
-    const ws = workshop.value[0]
     const loc = localization.value || "en-US";
+    const ws = workshop.value[0]
     let wsItem = ws?.[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem
-    let title = wsItem?.name || wsId.value
-    let path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
-    let pathArray = path?.substring(2)?.split('/')
-    let modifiedPath = '/workshops/' + wsId.value + '/' + path?.substring(2) + '/'
-    if (!title || !modifiedPath) return bc
-    bc.push({ title: title, path: modifiedPath })
+    let tit = wsItem?.name || wsId.value
+    bc.push({ title: tit, path: "/workshops/" + wsId.value })
 
-    wsItem = ws?.['menus']?.[page_index.value[0]]?.[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem
-    title = wsItem.name
-    path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
-    modifiedPath = '/workshops/' + wsId.value + '/' + pathArray?.[0] + '/'
-    if (!title || !modifiedPath) return bc
-    bc.push({ title: title, path: modifiedPath })
-
-    path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
-    if (!(pathArray && pathArray?.length < 2)) {
-      wsItem = ws?.['menus']?.[page_index.value[0]]?.[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem
-      title = wsItem?.menus?.[page_index.value[1]]?.name || ''
-      if (!title || !modifiedPath) return bc
-      bc.push({ title: title, path: modifiedPath })
-    }
-
+    let content = [...(workshopTree.value || [])] as ITree[];
+    page_index.value?.forEach((index) => {
+      let crumb = {} as IWsBreadcrumb
+      if (content.length > index) {
+        crumb.title = content[index].label
+        crumb.path = `/workshops/${workshopName.value}/${content[index].path.substr(2)}`
+        content = content[index].children || [];
+        if (!crumb.title || !crumb.path) return bc
+        bc.push(crumb)
+      }
+    });
     return bc
   });
 
@@ -100,35 +92,31 @@ export const useWorkshopStore = defineStore("workshop", () => {
     if (workshop.value.length === 0) {
       return "";
     }
-    let content = [...(workshop.value[0]?.menus || [])] as IWorkshopMenuItem[];
+    let content = [...(workshopTree.value || [])] as ITree[];
     let page = "";
     page_index.value?.forEach((index) => {
       if (content.length > index) {
         page = content[index].body || "";
-        const loc = localization.value || "en-US";
-        if (content?.[index]?.[loc as keyof IWorkshopMenuItem]) {
-          // @ts-ignore
-          //TODO - fix type with body
-          page = content[index][loc]?.body;
-        }
-        content = content[index].menus || [];
       }
+      content = content[index].children || [];
     });
-    page = page.replaceAll(
+
+    page = _processPage(page)
+    return page || "Sorry, this page has no content";
+  });
+
+  const _processPage = (page: string) => {
+    let res = page.replaceAll(
       "/images/",
       `${WORKSHOPS_BASE}${workshopName.value}/images/`
     );
 
-    page = sanitizeHtml(page, {
+    res = sanitizeHtml(res, {
       allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
       allowedIframeHostnames: ["www.youtube.com"],
     });
-    return page || "Sorry, this page has no content";
-  });
-
-  const workshopEmpty = computed(() => {
-    workshops.value.length <= 0;
-  });
+    return res
+  }
 
   const rebuildTree = () => {
     treeIndex.value = 0;
@@ -261,14 +249,10 @@ export const useWorkshopStore = defineStore("workshop", () => {
         }
         branch.index = [...(index || [])];
         branch.label = locItem.name;
-        branch.path = locItem.path.substr(0, locItem.path.lastIndexOf("."));
-        branch.path = branch.path.substr(2);
-        branch.path = branch.path.replaceAll(" ", "-");
-        branch.path = branch.path.replaceAll("_index", "");
-        branch.path = branch.path.replaceAll("_", "-");
-        branch.path = branch.path.replaceAll(".", "-");
-        branch.path = './' + branch.path
+        branch.body = locItem.body;
+        branch.path = _processPath(locItem.path);
         branch.id = treeIndex.value;
+        branch.disabled = true;
         treeIndex.value++;
         branch.index.push(i);
         if (locItem.menus && locItem.menus.length > 0) {
@@ -281,12 +265,23 @@ export const useWorkshopStore = defineStore("workshop", () => {
         });
         result.push({ ...branch });
         delete branch.children;
+        i++;
       }
-      i++;
     });
 
     return result;
   };
+
+  const _processPath = (path: string) => {
+    let res = path.substr(0, path.lastIndexOf("."));
+    res = res.substr(2);
+    res = res.replaceAll(" ", "-");
+    res = res.replaceAll("_index", "");
+    res = res.replaceAll("_", "-");
+    res = res.replaceAll(".", "-");
+    res = './' + res
+    return res
+  }
 
   return {
     workshops,
@@ -298,7 +293,6 @@ export const useWorkshopStore = defineStore("workshop", () => {
     page_index,
     getWorkshopUrl,
     getWorkshopPage,
-    workshopEmpty,
     loadWorkshops,
     loadWorkshop,
     addWorkshop,

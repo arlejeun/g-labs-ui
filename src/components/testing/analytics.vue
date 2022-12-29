@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import type { WsBreadcrumb } from '@/interfaces/workshop';
+import { WS, type IWsBreadcrumb } from '@/interfaces/workshop';
 import { useUserStore } from '@/stores/user';
 import { useWorkshopStore } from '@/stores/workshop';
 import { ElButton } from 'element-plus';
@@ -23,22 +23,22 @@ const addConfigParams = () => {
 
 const enterWorkshop = () => {
   gtagEvt('tutorial_begin', {
-    'ws_name': (workshopCreadcrub.value[2] as WsBreadcrumb).title,
+    'ws_name': (workshopCreadcrub.value[WS.Title] as IWsBreadcrumb).title,
     'userId': userId.value
   })
 };
 
 const exitWorkshop = () => {
   gtagEvt('tutorial_exit', {
-    'ws_name': (workshopCreadcrub.value[2] as WsBreadcrumb).title,
-    'ws_chapter': (workshopCreadcrub.value[3] as WsBreadcrumb)?.title,
+    'ws_name': (workshopCreadcrub.value[WS.Title] as IWsBreadcrumb).title,
+    'ws_chapter': (workshopCreadcrub.value[WS.Chapter] as IWsBreadcrumb)?.title,
     'userId': userId.value
   })
 };
 
 const completeWorkshop = () => {
   gtagEvt('tutorial_complete', {
-    'ws_name': (workshopCreadcrub.value[2] as WsBreadcrumb).title,
+    'ws_name': (workshopCreadcrub.value[WS.Title] as IWsBreadcrumb).title,
     'userId': userId.value
   })
 };
@@ -46,30 +46,30 @@ const completeWorkshop = () => {
 const levelUp = () => {
   gtagEvt('level_up', {
     'level': 3,
-    'ws_name': (workshopCreadcrub.value[2] as WsBreadcrumb).title,
-    'ws_chapter': (workshopCreadcrub.value[3] as WsBreadcrumb)?.title,
-    'ws_section': (workshopCreadcrub.value[4] as WsBreadcrumb)?.title,
+    'ws_name': (workshopCreadcrub.value[WS.Title] as IWsBreadcrumb).title,
+    'ws_chapter': (workshopCreadcrub.value[WS.Chapter] as IWsBreadcrumb)?.title,
+    'ws_section': (workshopCreadcrub.value[WS.Section] as IWsBreadcrumb)?.title,
     'userId': userId.value
   })
 };
 
 const levelStart = () => {
   gtagEvt('level_start', {
-    'level_name': (workshopCreadcrub.value[3] as WsBreadcrumb)?.path,
-    'ws_name': (workshopCreadcrub.value[2] as WsBreadcrumb).title,
-    'ws_chapter': (workshopCreadcrub.value[3] as WsBreadcrumb)?.title,
-    'ws_section': (workshopCreadcrub.value[4] as WsBreadcrumb)?.title,
+    'level_name': (workshopCreadcrub.value[WS.Section] as IWsBreadcrumb)?.path,
+    'ws_name': (workshopCreadcrub.value[WS.Title] as IWsBreadcrumb).title,
+    'ws_chapter': (workshopCreadcrub.value[WS.Chapter] as IWsBreadcrumb)?.title,
+    'ws_section': (workshopCreadcrub.value[WS.Section] as IWsBreadcrumb)?.title,
     'userId': userId.value
   })
 };
 
 const levelEnd = () => {
   gtagEvt('level_end', {
-    'level_name': (workshopCreadcrub.value[3] as WsBreadcrumb)?.title,
+    'level_name': (workshopCreadcrub.value[WS.Section] as IWsBreadcrumb)?.title,
     'success': true,
-    'ws_name': (workshopCreadcrub.value[2] as WsBreadcrumb).title,
-    'ws_chapter': (workshopCreadcrub.value[3] as WsBreadcrumb)?.title,
-    'ws_section': (workshopCreadcrub.value[4] as WsBreadcrumb)?.title,
+    'ws_name': (workshopCreadcrub.value[WS.Title] as IWsBreadcrumb).title,
+    'ws_chapter': (workshopCreadcrub.value[WS.Chapter] as IWsBreadcrumb)?.title,
+    'ws_section': (workshopCreadcrub.value[WS.Section] as IWsBreadcrumb)?.title,
     'userId': userId.value
   })
 };

@@ -67,8 +67,10 @@ export interface ITree {
   id: number
   index: number[]
   path: string
+  body?: string
   label: string
   isTop?: boolean
+  disabled: boolean
   isSelected?: boolean
   children?: ITree[]
 
@@ -80,7 +82,15 @@ export type IPathMap = {
   key: number
 }
 
-export type WsBreadcrumb = {
+export type IWsBreadcrumb = {
   title: string,
   path: string
-} 
+}
+
+export enum WS {
+  Home,
+  Workshops,
+  Title,
+  Section,
+  Chapter
+}
