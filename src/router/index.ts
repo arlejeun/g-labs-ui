@@ -34,6 +34,12 @@ const router = createRouter({
 //   }
 // })
 
+router.beforeEach((to, _, next) => {
+  console.log('path ' + to.path)
+  next()
+})
+
+
 registerGuard(router);
 
 trackRouter(router, {

@@ -8,6 +8,7 @@ import type {
   IDriveUserRegistration,
   IDriveOrg,
   ICustomerRegistrationDTO,
+  IDriveOrgDTO,
 } from "@/interfaces";
 import defaultAvatarUrl from "@/assets/images/avatar/01.jpg";
 import { GLabsApiClient } from "@/apis/glabs";
@@ -21,7 +22,8 @@ import { generateCustomerPayload } from "@/utils/axios";
 export const useUserStore = defineStore("identity", () => {
   const router = useRouter();
   const { notify } = useNotification();
-
+  const { width } = useWindowSize()
+  
   // state properties vue composition of store
   const registrationUser = ref({} as IDriveUserRegistration);
   const user = ref({} as IDriveUser);
@@ -34,6 +36,8 @@ export const useUserStore = defineStore("identity", () => {
   const userUpdateInProgress = ref(false);
   const orgsUpdateInProgress = ref(false);
   const orgs = ref([] as IDriveOrg[]);
+  const localization = useStorage('localization', 'en-US', localStorage)
+  const isMobile = computed(() => width.value < 750)
 
   // computed properties vue composition of store
   const getCustomerProfile = computed(() => {
@@ -267,6 +271,35 @@ export const useUserStore = defineStore("identity", () => {
     } 
   }
 
+
+  const updateOrganization = async (org: IDriveOrgDTO) => {
+    const { execute } = useAxios(GLabsApiClient);
+    const result = await execute(`/users/me/org/${org.id}`, {
+      data: org,
+      method: "PATCH",
+    });
+    // customerUpdateInProgress.value = false;
+    if (result.isFinished.value && !result.error.value) {
+      notify({
+        title: "Organization Settings",
+        text: "Your organization settings were updated successfully",
+        duration: 2000,
+        type: "success",
+      });
+    }
+    if (result.error.value) {
+      notify({
+        title: "Organization Settings Error",
+        text: `${handleAxiosError(
+          result.error.value,
+          "Impossible to update the organization settings at the moment"
+        )}`,
+        duration: -1,
+        type: "error",
+      });
+    } 
+  }
+
   async function logout() {
     //call msal library
     
@@ -298,12 +331,15 @@ export const useUserStore = defineStore("identity", () => {
     orgsUpdateInProgress,
     registrationStep,
     registrationUser,
+    localization,
+    isMobile,
     setUserRegistration,
     createUserProfile,
     updateUserProfile,
     removeUserProfile,
     createCustomerProfile,
     updateCustomerProfile,
+    updateOrganization,
     fetchUser,
     logout,
   };

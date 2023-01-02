@@ -2,9 +2,9 @@
   <!-- **************** MAIN CONTENT START **************** -->
   <main>
     <!-- ======================= Content START -->
-    <section class="pt-3">
-      <div class="container">
-        <div class="row">
+    <section>
+      <div class="container" style="max-width: inherit;">
+        <div class="row justify-content-center">
           <SidebarAccount />
           <AccountProfile />
         </div>

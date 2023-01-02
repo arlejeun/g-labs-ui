@@ -5,10 +5,10 @@
   <main>
     <!-- =======================
   Content START -->
-    <section class="pt-0">
-      <div class="container vstack gap-4">
+    <section>
+      <div class="container" style="max-width: inherit;">
         <!-- Booking table START -->
-        <div class="row">
+        <div class="row justify-content-center">
           <SidebarAccount />
           <AccountFeedback />
         </div>

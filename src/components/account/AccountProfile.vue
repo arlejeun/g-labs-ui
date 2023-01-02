@@ -16,16 +16,6 @@ const isOrgProvisionned = computed(() => {
 })
 
 
-const isAlreadyLoggedIn = computed(() => {
-  return loginDate.value != 'N/A'
-})
-
-const loginDate = computed(() => {
-  return user.value?.date_lastLogin ?
-    useDateFormat(user.value?.date_lastLogin, 'YYYY-MM-DD H:mma').value
-    : 'N/A'
-})
-
 const profileScoreProgress = computed(() => {
   return [{ val: 25, status: isStatusActive.value }, { val: 25, status: isCustomerProfileReady.value }, { val: 25, status: isOrgProvisionned.value }].reduce((res, item) => item.status ? res + item.val : res, 25)
 })
@@ -37,7 +27,7 @@ const profileScoreProgress = computed(() => {
   <!-- Main content START -->
   <!-- <div class="col-lg-8 col-xl-9"> -->
 
-<div class="col">
+<div class="col-lg-9 col-xl-9" style="max-width: 1600px;">
     <!-- Offcanvas menu button -->
     <div class="d-grid mb-0 d-lg-none w-100">
       <button class="btn btn-primary mb-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar"

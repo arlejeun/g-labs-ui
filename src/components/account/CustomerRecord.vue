@@ -7,13 +7,12 @@ import { Delete } from '@element-plus/icons-vue'
 
 
 const userStore = useUserStore()
-const { customer, customerUpdateInProgress } = storeToRefs(userStore)
+const { customer, customerUpdateInProgress, isMobile } = storeToRefs(userStore)
 //const customer = ref(user.value?.customer?.[0] as IDriveCustomer)
 
-const { width } = useWindowSize()
-const isMobile = computed(() => width.value < 750)
+// const { width } = useWindowSize()
+// const isMobile = computed(() => width.value < 750)
 const dialogWidth = computed(() => isMobile.value ? '90%' : '30%')
-const formSize = ref('')
 const customerFormRef = ref<FormInstance>()
 
 const emailDialogFormVisible = ref(false)
@@ -197,7 +196,7 @@ const removeIdentifier = ((identifier: IDriveIdentifier, idx: number) => {
 
 <template>
 
-  <div class="col-lg-8 col-xl-9">
+  <div class="col-lg-9 col-xl-9" style="max-width: 1600px;">
 
     <!-- Offcanvas menu button -->
     <div class="d-grid mb-0 d-lg-none w-100">

@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import type { IDriveOrg } from '@/interfaces'
-import type { FormInstance, FormRules } from 'element-plus'
+import type { IDriveBaseOrgPending, IDriveOrg } from '@/interfaces'
 import { useUserStore } from '@/stores/user'
 
 const userStore = useUserStore()  
 const  { isAdmin } = storeToRefs(userStore)
 
-const props = defineProps<{ org: IDriveOrg, active: boolean }>()
+const props = defineProps<{ org: IDriveOrg , active: boolean }>()
 
 const showSettings = ref(false)
 
@@ -19,26 +18,34 @@ function toggleSettings() {
 
 <template>
 
-  <div class="card border mb-4">
+  <div class="card border mt-1 mb-2">
     <div class="card-header bg-light-soft d-md-flex justify-content-md-between align-items-center">
       <div class="d-flex align-items-center">
         <div class="icon-sm rounded-circle flex-shrink-0" :class="[active ? 'bg-success' : 'bg-light']">
         </div>
-        <div class="ms-2">
-          <h6 class="card-title mb-0">{{ props.org.name }} ({{ props.org.region }})</h6>
+        <div class="ms-2 me-1">
+          <h6 class="card-title mb-0">{{ props.org.name }}<span class="ms-2"><p style="display:inline">(region: {{ props.org.region }})</p></span></h6>
           <ul class="nav nav-divider small">
-            <li class="nav-item">{{ props.org.org_uuid }}</li>
+            <li class="nav-item">{{ props.org.description }}</li>
           </ul>
         </div>
       </div>
 
-      <div class="mt-2 mt-md-0">
-        <div @click="toggleSettings" class="btn btn-light mb-0 me-2">Settings</div>
-        <div @click="toggleSettings" class="btn btn-danger-soft mb-0">Deprovision</div>
+      <div class="mt-2 ms-2 mt-md-0">
+        <el-button v-if="!active" @click="" type="primary">Provision</el-button>
+        <el-button v-if="active" @click="toggleSettings" bg text type="primary">Settings</el-button>
+        <el-button v-if="active" @click="" bg text type="danger">Deprovision</el-button>
+        <!-- <el-button type="" text bg>Deprovision</el-button> -->
+
+        <!-- <div @click="toggleSettings" class="btn btn-light mb-0 me-2">Settings</div>
+        <div @click="toggleSettings" class="btn btn-danger-soft mb-0">Deprovision</div> -->
       </div>
     </div>
 
-    <AccountOrganizationSettingsForm v-if="showSettings" :settings="org.org_user_settings"></AccountOrganizationSettingsForm>
+    <div v-if="showSettings">
+      <AccountOrganizationSettingsForm :org="org"></AccountOrganizationSettingsForm>
+    </div>
+   
 
   </div>
 

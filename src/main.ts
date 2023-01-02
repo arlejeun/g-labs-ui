@@ -1,8 +1,8 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import { abilitiesPlugin } from '@casl/vue'
+//import { abilitiesPlugin } from '@casl/vue'
 
-import ability from '@/plugins/casl/ability'
+// import ability from '@/plugins/casl/ability'
 import gtag from 'vue-gtag-next'
 import Notifications from '@kyvg/vue3-notification'
 
@@ -25,13 +25,16 @@ import { CustomNavigationClient } from '@/router/NavigationClient'
 // import '@/assets/scss/element/index.scss'
 // import 'element-plus/dist/index.css'
 
+import Vue3EasyDataTable from 'vue3-easy-data-table';
+import 'vue3-easy-data-table/dist/style.css';
+
 // Import Fontawesome
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 
-import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput'
-import 'maz-ui/css/main.css'
+// import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput'
+// import 'maz-ui/css/main.css'
 
 import router from './router'
 import App from '@/App.vue'
@@ -42,11 +45,12 @@ const app = createApp(App)
 //app.use(ElementPlus)
 
 app.component('fa', FontAwesomeIcon)
-app.component('MazPhoneNumberInput', MazPhoneNumberInput)
+//app.component('MazPhoneNumberInput', MazPhoneNumberInput)
+app.component('EasyDataTable', Vue3EasyDataTable);
 
-app.use(abilitiesPlugin, ability, {
-    useGlobalProperties: true,
-  })
+// app.use(abilitiesPlugin, ability, {
+//     useGlobalProperties: true,
+//   })
 
 app.use(Notifications)
 
@@ -59,7 +63,7 @@ app.use(router)
 
  app.use(gtag, {
   isEnabled: true,
-  useDebugger: false,
+  useDebugger: true,
   disableScriptLoader: false,
   property: { id: "G-YR2MYN6ZRJ"}
 });

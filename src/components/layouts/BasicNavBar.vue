@@ -7,12 +7,12 @@ import { loginRequest } from '@/plugins/msal/msalConfig'
 const { instance } = useMsal();
 
 const store = useUserStore()
-const { avatarUrl, username, userEmail, isRegistering, isActive } = storeToRefs(store)
+const { avatarUrl, username, userEmail, isRegistering, isActive, localization, isMobile } = storeToRefs(store)
 const isAuthenticated = useIsAuthenticated();
 const { logout } = store
 
-const { width } = useWindowSize()
-const isMobile = computed(() => width.value < 1200)
+// const { width } = useWindowSize()
+// const isMobile = computed(() => width.value < 1200)
 const isDark = useDark({ valueDark: 'dark-mode', valueLight: 'light-mode' })
 const toggleDark = useToggle(isDark)
 
@@ -65,8 +65,8 @@ async function mockSignOut() {
             </li>
 
             <li class="nav-item dropdown">
-              <router-link class="nav-link text-white fw-bolder" to="/environments">
-                Environments
+              <router-link class="nav-link text-white fw-bolder" to="/testing/tracking">
+                Tracking
               </router-link>
             </li>
             <li class="nav-item dropdown">
@@ -83,10 +83,23 @@ async function mockSignOut() {
               </router-link>
             </li> -->
             <li class="nav-item dropdown">
-              <router-link class="nav-link text-white fw-bolder" to="/admin">
+              <router-link class="nav-link text-white dropdown-toggle fw-bolder" to="/admin">
                 Administration
               </router-link>
+              <ul class="dropdown-menu" aria-labelledby="pagesMenu">
 
+                <li> 
+                  <router-link class="dropdown-item" to="/admin/users">Users</router-link>
+                </li>
+                <li> 
+                  <router-link class="dropdown-item" to="/admin/workshops">Workshops</router-link>
+                </li>
+                <li> 
+                  <router-link class="dropdown-item" to="/admin/tags">Tags</router-link>
+                </li>
+
+              
+              </ul>
             </li>
 
 
@@ -308,6 +321,13 @@ async function mockSignOut() {
           </li> -->
         </ul>
 
+        <select v-model="localization" class="nav flex-row locale-select">
+          <option value="en-US">English</option>
+          <option value="es-ES">Spanish</option>
+          <option value="pt-PT">Portugase</option>
+        </select>
+
+
       </div>
     </nav>
     <!-- Logo Nav END -->
@@ -318,5 +338,9 @@ async function mockSignOut() {
 .img-logo-next {
   float: left;
   padding: 8px 20px 8px 0;
+}
+
+.locale-select {
+  margin-left: 30px !important;
 }
 </style>
