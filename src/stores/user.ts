@@ -8,6 +8,7 @@ import type {
   IDriveUserRegistration,
   IDriveOrg,
   ICustomerRegistrationDTO,
+  IDriveOrgDTO,
 } from "@/interfaces";
 import defaultAvatarUrl from "@/assets/images/avatar/01.jpg";
 import { GLabsApiClient } from "@/apis/glabs";
@@ -270,6 +271,35 @@ export const useUserStore = defineStore("identity", () => {
     } 
   }
 
+
+  const updateOrganization = async (org: IDriveOrgDTO) => {
+    const { execute } = useAxios(GLabsApiClient);
+    const result = await execute(`/users/me/org/${org.id}`, {
+      data: org,
+      method: "PATCH",
+    });
+    // customerUpdateInProgress.value = false;
+    if (result.isFinished.value && !result.error.value) {
+      notify({
+        title: "Organization Settings",
+        text: "Your organization settings were updated successfully",
+        duration: 2000,
+        type: "success",
+      });
+    }
+    if (result.error.value) {
+      notify({
+        title: "Organization Settings Error",
+        text: `${handleAxiosError(
+          result.error.value,
+          "Impossible to update the organization settings at the moment"
+        )}`,
+        duration: -1,
+        type: "error",
+      });
+    } 
+  }
+
   async function logout() {
     //call msal library
     
@@ -309,6 +339,7 @@ export const useUserStore = defineStore("identity", () => {
     removeUserProfile,
     createCustomerProfile,
     updateCustomerProfile,
+    updateOrganization,
     fetchUser,
     logout,
   };

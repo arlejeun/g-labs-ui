@@ -6,9 +6,9 @@
     <!-- =======================
   Content START -->
     <section>
-      <div class="container vstack gap-4">
+      <div class="container" style="max-width: inherit;">
         <!-- Booking table START -->
-        <div class="row">
+        <div class="row justify-content-center">
           <SidebarAccount />
           <AccountFeedback />
         </div>

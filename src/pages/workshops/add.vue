@@ -1,0 +1,68 @@
+<script setup lang="ts">
+import { useWorkshopStore } from '@/stores/workshop'
+import { useWorkspaceStore } from '@/stores/workspace';
+import { getParameterByName } from '@/utils/string'
+import { useRouteHash } from '@vueuse/router';
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore()
+const { user } = storeToRefs(userStore)
+
+const workspaceStore = useWorkspaceStore()
+const { isTokenActive, gsysCloudClient } = storeToRefs(workspaceStore)
+const { refreshEnvironment } = workspaceStore
+const routeHash = useRouteHash()
+
+const wStore = useWorkshopStore()
+const { workshops } = storeToRefs(wStore)
+const { loadWorkshops } = wStore 
+
+
+const formatter = 'YYYY-MM-DD HH:mm:ss:SSS'
+const formatted = useDateFormat(useNow(), formatter)
+const store = useUserStore()
+const { isMobile } = storeToRefs(store)
+
+const drawerSize = ref('45%')
+drawerSize.value = isMobile.value ? '85%':'45%'
+
+
+watchEffect(async () => {
+})
+
+const form = ref({
+        is_public: false,
+        is_internal: false,
+        is_partners: false,
+        is_specific: false,
+        permissions_groups: [],
+      })
+
+
+
+
+</script>
+
+<template>
+
+	<section class="pt-0 pb-4">
+		<div class="container position-relative">
+			<div class="row">
+				<h3 class="fs-3 text-primary mt-4">Add Workshop</h3>
+			</div>
+			<workshop-form :model="form" mode="add"></workshop-form>
+
+		</div>
+	</section>
+
+</template>
+
+<style scoped lang="scss">
+
+</style>
+
+<route lang="yaml">
+meta:
+  layout: BasicTopNavigationLayout
+  requiresAuth: true
+</route>

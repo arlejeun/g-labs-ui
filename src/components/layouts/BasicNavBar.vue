@@ -83,11 +83,25 @@ async function mockSignOut() {
               </router-link>
             </li> -->
             <li class="nav-item dropdown">
-              <router-link class="nav-link text-white fw-bolder" to="/admin">
+              <router-link class="nav-link text-white dropdown-toggle fw-bolder" to="/admin">
                 Administration
               </router-link>
+              <ul class="dropdown-menu" aria-labelledby="pagesMenu">
 
+                <li> 
+                  <router-link class="dropdown-item" to="/admin/users">Users</router-link>
+                </li>
+                <li> 
+                  <router-link class="dropdown-item" to="/admin/workshops">Workshops</router-link>
+                </li>
+                <li> 
+                  <router-link class="dropdown-item" to="/admin/tags">Tags</router-link>
+                </li>
+
+              
+              </ul>
             </li>
+
 
             <!-- <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="listingMenu" data-bs-toggle="dropdown"

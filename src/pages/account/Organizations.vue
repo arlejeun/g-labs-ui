@@ -7,9 +7,9 @@
 
     <!-- =======================
   Content START -->
-    <section class="pt-3">
-      <div class="container">
-        <div class="row">
+    <section>
+      <div class="container pe-2" style="max-width: inherit;">
+        <div class="row justify-content-center">
           <SidebarAccount />
           <AccountOrganizations />
         </div>

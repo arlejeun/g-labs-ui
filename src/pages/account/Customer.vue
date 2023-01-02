@@ -1,10 +1,12 @@
+<script setup lang="ts">
+</script>
 <template>
   <!-- **************** MAIN CONTENT START **************** -->
   <main>
     <!-- ======================= Content START -->
     <section>
-      <div class="container">
-        <div class="row">
+      <div class="container" style="max-width: inherit;">
+        <div class="row justify-content-center">
           <SidebarAccount />
           <CustomerRecord />
         </div>

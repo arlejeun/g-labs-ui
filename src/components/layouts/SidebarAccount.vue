@@ -26,7 +26,7 @@
 
 <template>
   <!-- Sidebar START -->
-  <div class="col-lg-4 col-xl-3">
+  <div class="col-md-4 col-lg-3 col-xl-3" style="max-width:320px">
     <!-- Responsive offcanvas body START -->
     <div
       id="offcanvasSidebar"
@@ -94,13 +94,13 @@
                 <router-link
                   class="nav-link" :class="{active:matchRoute('/account/customer')}"
                   to="/account/customer"
-                ><i class="bi bi-gear fa-fw me-2" />Customer Record</router-link>
+                ><i class="bi bi-people fa-fw me-2" />Customer Record</router-link>
               </li>
               <li class="nav-item">
                 <router-link
                   class="nav-link" :class="{active:matchRoute('/account/organizations')}"
                   to="/account/organizations"
-                ><i class="bi bi-people fa-fw me-2" />Organizations</router-link>
+                ><i class="bi bi-gear fa-fw me-2" />Organizations</router-link>
               </li>
               
               <li class="nav-item">
@@ -109,7 +109,7 @@
                   to="/account/feedback"
                 ><i class="bi bi-heart fa-fw me-2" />Feedback & Issues</router-link>
               </li>
-              <li class="nav-item">
+             <!-- <li class="nav-item">
                 <router-link
                   class="nav-link" :class="{active:matchRoute('/account/settings')}"
                   to="/account/settings"
@@ -121,7 +121,7 @@
                   to="/account/delete"
                 ><i class="bi bi-trash fa-fw me-2" />Delete
                   Profile</router-link>
-              </li>
+              </li> -->
               <li class="nav-item">
                 <a
                   class="nav-link text-danger bg-danger-soft-hover"

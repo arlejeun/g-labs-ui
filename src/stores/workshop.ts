@@ -7,6 +7,9 @@ import type {
   IPathMap,
   IWorkshopMenuItem,
   WsBreadcrumb,
+  WsQueryDTO,
+  IWorkshopsResponse,
+  ITag,
 } from "@/interfaces/workshop";
 import sanitizeHtml from "sanitize-html";
 import { GLabsApiClient } from "@/apis/glabs";
@@ -20,12 +23,6 @@ const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT;
 const store = useUserStore();
 const { localization } = storeToRefs(store);
 
-// const config = {
-//   headers: {
-//     Authorization: "Bearer TBD",
-//     Accept: "application/json, text/plain, */*",
-//   },
-// };
 
 export const useWorkshopStore = defineStore("workshop", () => {
   const route = useRoute();
@@ -33,16 +30,45 @@ export const useWorkshopStore = defineStore("workshop", () => {
 
   const { notify } = useNotification();
 
-  // state properties vue composition of store
-  //const registrationUser = ref({} as IDriveUserRegistration);
-  const workshops = ref([] as IWorkshop[]);
+  //const workshops = ref([] as IWorkshop[]);
+  const workshops = ref({} as IWorkshopsResponse);
+  const workshopsQuery = ref({} as WsQueryDTO)
+  const workshopMeta = ref({} as IWorkshop)
+
   const workshopTree = ref([] as ITree[]);
   const workshopTreeKey = ref(0);
   const workShopPathMap = ref([] as IPathMap[]);
   const workshopName = ref("");
+  //TODO: Should be renamed workshopManifest
   const workshop = ref([] as IWorkshopMenuItem[]);
   const page_index = ref([0, 0] as number[]);
   const treeIndex = ref(0);
+
+  const tagsLoV = ref([] as ITag[])
+
+  const fetchTagsLov = async () => {
+    if (tagsLoV.value.length < 1) {
+      const { execute } = useAxios(GLabsApiClient);
+      const result = await execute(`/tags`, {
+       method: "GET"
+      });
+      if (result.isFinished.value && !result.error.value) {
+        tagsLoV.value = [...result?.data?.value];
+      }
+      if (result.error.value) {
+        notify({
+          title: "Tags API",
+          text: `${handleAxiosError(
+            result.error.value,
+            "Impossible to get your tags at the moment"
+          )}`,
+          duration: -1,
+          type: "error",
+        });
+      }
+    }
+  }
+
 
   const workshopCreadcrub = computed(() => {
     if (workshop.value.length === 0) {
@@ -127,7 +153,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
   });
 
   const workshopEmpty = computed(() => {
-    workshops.value.length <= 0;
+    workshops.value.records > 0;
   });
 
   const rebuildTree = () => {
@@ -185,32 +211,52 @@ export const useWorkshopStore = defineStore("workshop", () => {
   };
 
   const addWorkshop = (todo: IWorkshop) => {
-    workshops.value.push(todo);
+    workshops.value?.rows.push(todo);
   };
 
-  const loadWorkshops = async () => {
-    const { execute } = useAxios(GLabsApiClient);
-    const result = await execute(`/workshops`, {
-      method: "GET"
-    });
-    if (result.isFinished.value && !result.error.value) {
-      workshops.value = [...result?.data?.value];
-    }
-    if (result.error.value) {
-      notify({
-        title: "Workshops API",
-        text: `${handleAxiosError(
-          result.error.value,
-          "Impossible to get your workshops at the moment"
-        )}`,
-        duration: -1,
-        type: "error",
+  const editWorkshop = (todo: IWorkshop) => {
+    console.log(JSON.stringify(todo));
+   // workshops.value.push(todo);
+  };
+
+  const loadWorkshops = async (query: WsQueryDTO ) => {
+      const { execute } = useAxios(GLabsApiClient);
+      let myQuery = Object.assign({}, {...query})
+      let result, queryParams;
+      queryParams = `page=${myQuery.page}&pageSize=${myQuery.pageSize}`;
+      if (myQuery.searchString) {
+        queryParams += `&searchString=${myQuery.searchString}`   
+      } 
+      if (myQuery?.tags && myQuery?.tags?.length > 0) {
+        queryParams += `&tags=${myQuery?.tags?.join(',')}`   
+      } 
+
+      result = await execute(`/workshops?${queryParams}`, {
+        method: "GET"
       });
-    }
+      if (result.isFinished.value && !result.error.value) {
+        workshopsQuery.value = {...myQuery}
+        workshops.value = {...result?.data?.value};
+      }
+      if (result.error.value) {
+        notify({
+          title: "Workshops API",
+          text: `${handleAxiosError(
+            result.error.value,
+            "Impossible to get your workshops at the moment"
+          )}`,
+          duration: -1,
+          type: "error",
+        });
+      }
   };
 
+  const updateWorkshop = (ws: IWorkshop) => {
+    //TODO: Update workshop
+  };
+  
   const removeWorkshop = (index: number) => {
-    workshops.value.splice(index, 1);
+    workshops.value?.rows.splice(workshops.value?.rows?.findIndex(rec => rec.id = index), 1);
   };
 
   const setTreeIndex = (ind: number[]) => {
@@ -290,6 +336,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
 
   return {
     workshops,
+    workshopsQuery,
     workshopTree,
     workshopTreeKey,
     workShopPathMap,
@@ -299,9 +346,11 @@ export const useWorkshopStore = defineStore("workshop", () => {
     getWorkshopUrl,
     getWorkshopPage,
     workshopEmpty,
+    tagsLoV,
     loadWorkshops,
     loadWorkshop,
     addWorkshop,
+    editWorkshop,
     removeWorkshop,
     setTreeIndex,
     setTreeIndexByKey,
@@ -311,7 +360,10 @@ export const useWorkshopStore = defineStore("workshop", () => {
     wsId,
     slashIdx,
     treeChange,
-    workshopCreadcrub
+    workshopCreadcrub,
+    workshopMeta,
+    fetchTagsLov,
+    updateWorkshop
   };
 
   // async updatePersonalProfile(user: IDriveUser)

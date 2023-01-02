@@ -2,7 +2,15 @@
 </script>
 
 <template>
-  <div class="col-lg-8 col-xl-9">
+  <div class="col-md-8 col-lg-9 col-xl-9" style="max-width: 1600px;">
+
+    <div class="d-grid mb-0 d-lg-none w-100">
+      <button class="btn btn-primary mb-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar"
+        aria-controls="offcanvasSidebar">
+        <i class="fas fa-sliders-h"></i> Menu
+      </button>
+    </div>
+
     <div class="card border">
       <!-- Card header START -->
       <div class="card-header border-bottom">

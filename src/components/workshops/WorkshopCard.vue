@@ -25,8 +25,8 @@ function workshopDefaultName(workshop: IWorkshop) {
 
 
 function goToWorkshop(workshop: IWorkshop) {
-  if (workshop.id && workshop.manifest) {
-    router.replace({path: `/workshops/${workshopDefaultName(workshop)}`});
+  if (workshop.name && workshop.active) {
+    router.push({name: 'workshops-all', params: {all: workshopDefaultName(workshop)}});
   }
 }
 
@@ -57,20 +57,21 @@ const workThumbnail = computed(() => `${WORKSHOPS_BASE}resources/images/${props.
       <!-- Card body START -->
       <div class="card-body px-3 pb-0">
         <!-- Rating and cart -->
-        <div class="d-flex flex-row mb-3">
-          <!-- <a class="badge bg-primary text-white"><i class="bi fa-fw bi-star-fill me-2 text-warning"></i>{{category}}</a> -->
+        <!-- <div class="d-flex flex-row mb-3">
           <a v-for="category in workshop.categories" :key="category.name" class="badge bg-primary text-white me-1">
             <p class="mb-0"><small>{{ category }}</small></p>
           </a>
-        </div>
+        </div> -->
 
         <!-- Title -->
         <h5 class="card-title text-primary"><a href="">{{ workshop.title }}</a></h5>
-        <p><small>{{ workshop.description }}</small></p>
+        <p class="mb-1"><small>{{ workshop.description }}</small></p>
 
         <!-- List -->
         <ul class="nav nav-divider mb-2 mb-sm-3">
-          <li class="text-primary me-1" v-for="tag in workshop.tags" :key="tag.id"><small><u>{{ tag }}</u></small>
+          <li class="text-primary me-1" v-for="(tag) in workshop.tags" :key="tag.id">
+            <el-tag class="me-2">{{ tag.name }}</el-tag>
+            <!-- <small><u>{{ tag.name }}</u></small> -->
           </li>
         </ul>
 

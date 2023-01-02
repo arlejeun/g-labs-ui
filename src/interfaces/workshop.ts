@@ -1,10 +1,28 @@
 export interface ITag {
   id: number,
-  name: string
+  name: string,
+  category: string
+  label?: string
 }
 
-export interface ICategory extends ITag, ITag { }
+export interface ICategoryTag extends ITag {
+  used?: number,
+  workshops?: {id: number, name: string}[]
+ }
+
+export interface basicServerResponse {
+  page: number,
+  records: number,
+}
+export interface ITagsResponse extends basicServerResponse {
+  rows: ICategoryTag[]
+}
+
 export interface IPlatform extends ITag, ITag { }
+
+export interface IWorkshopsResponse extends basicServerResponse {
+  rows: IWorkshop[]
+}
 
 export interface IWorkshop {
   id: number,
@@ -21,7 +39,7 @@ export interface IWorkshop {
   manifest?: string,
   tags: ITag[],
 
-  categories?: ICategory[],
+  categories?: ITag[],
   platforms?: IPlatform[],
   permissions_groups?: string[],
   is_public?: boolean,
@@ -84,3 +102,37 @@ export type WsBreadcrumb = {
   title: string,
   path: string
 } 
+
+export interface WsFilter {
+  searchString?: string,
+  categories?: string[],
+  tags?: string[]
+}
+
+export interface WsQueryDTO extends WsFilter {
+  page: number,
+  pageSize: number
+}
+
+export interface WsQueryDTO extends WsFilter, BasicQueryDTO {
+}
+
+export interface BasicQueryDTO {
+  page: number,
+  pageSize: number
+}
+
+export interface TagQueryDTO extends BasicQueryDTO {
+  searchString?: string,
+  category?: string
+}
+
+export interface IWorkshopAdminTableElt {
+  label: string,
+  formatter?: string,
+  width?: number
+}
+
+export interface IWorkshopAdminTable {
+  [x:string]: IWorkshopAdminTableElt
+}

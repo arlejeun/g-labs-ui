@@ -196,7 +196,7 @@ const removeIdentifier = ((identifier: IDriveIdentifier, idx: number) => {
 
 <template>
 
-  <div class="col-lg-8 col-xl-9">
+  <div class="col-lg-9 col-xl-9" style="max-width: 1600px;">
 
     <!-- Offcanvas menu button -->
     <div class="d-grid mb-0 d-lg-none w-100">
