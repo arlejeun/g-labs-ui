@@ -50,11 +50,11 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const fetchTagsLov = async () => {
     if (tagsLoV.value.length < 1) {
       const { execute } = useAxios(GLabsApiClient);
-      const result = await execute(`/tags`, {
+      const result = await execute(`/tags?page=1&pageSize=300`, {
        method: "GET"
       });
       if (result.isFinished.value && !result.error.value) {
-        tagsLoV.value = [...result?.data?.value];
+        tagsLoV.value = [...result?.data?.value.rows];
       }
       if (result.error.value) {
         notify({
@@ -355,6 +355,12 @@ export const useWorkshopStore = defineStore("workshop", () => {
     getWorkshopPage,
     tagsLoV,
     workshopEmpty,
+    wsId,
+    slashIdx,
+    workshopCreadcrub,
+    workshopTitle,
+    urlParam,
+    workshopMeta,
     loadWorkshops,
     loadWorkshop,
     addWorkshop,
@@ -364,14 +370,8 @@ export const useWorkshopStore = defineStore("workshop", () => {
     setTreeIndexByKey,
     setTreeIndexByPath,
     rebuildTree,
-    wsId,
-    slashIdx,
     treeChange,
-    workshopCreadcrub,
-    workshopTitle,
-    urlParam,
     nextStep,
-    workshopMeta,
     fetchTagsLov,
     updateWorkshop,
   }
