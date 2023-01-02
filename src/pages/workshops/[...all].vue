@@ -1,19 +1,42 @@
 <script setup lang="ts">
 
 import { useWorkshopStore } from '@/stores/workshop';
+import { WS, type IWsBreadcrumb } from '@/interfaces/workshop';
+import { ElTooltip, ElButton, ElRow } from 'element-plus';
 
+const title = useTitle()
 const showNav = ref(true)
 const showEnv = ref(true)
 const wStore = useWorkshopStore()
-
+const { workshopCreadcrub } = storeToRefs(wStore)
+const { nextStep } = wStore
 const toggleNavigation = () => {
   showNav.value = !showNav.value
 }
+const navRef = ref()
 
 const toggleEnv = () => {
   showEnv.value = !showEnv.value
 }
 
+const addProgress = () => {
+  nextStep()
+  navRef.value.setNewCurrentKey()
+  navRef.value.setChecked()
+}
+
+onBeforeRouteUpdate(async (to, from) => {
+  if ((workshopCreadcrub.value[WS.Section] as IWsBreadcrumb)?.title) {
+    title.value = (workshopCreadcrub.value[WS.Title] as IWsBreadcrumb)?.title + ' - ' +
+      (workshopCreadcrub.value[WS.Chapter] as IWsBreadcrumb)?.title + ' - ' +
+      (workshopCreadcrub.value[WS.Section] as IWsBreadcrumb)?.title
+  } else if ((workshopCreadcrub.value[WS.Chapter] as IWsBreadcrumb)?.title) {
+    title.value = wStore.workshopTitle + ' - ' +
+      (workshopCreadcrub.value[WS.Chapter] as IWsBreadcrumb)?.title
+  } else {
+    title.value = wStore.workshopTitle
+  }
+})
 </script>
 
 <template>
@@ -34,7 +57,7 @@ const toggleEnv = () => {
             <el-button type="primary" text @click="toggleNavigation">[-]</el-button>
           </el-tooltip>
         </el-row>
-        <WorkshopNavigation />
+        <WorkshopNavigation ref="navRef" />
       </div>
       <div class="ws-content" :class="{ 'hide-nav': !showNav }">
         <div v-if="!showEnv" class="row">
@@ -61,6 +84,10 @@ const toggleEnv = () => {
           <div class="col-xl-8 col-lg-8 col-md-9">
             <div class="container ws-body">
               <WorkshopContent />
+            </div>
+            <el-divider />
+            <div>
+              <el-button type="primary" style="float: right;" @click="addProgress" size="large">Next</el-button>
             </div>
           </div>
 

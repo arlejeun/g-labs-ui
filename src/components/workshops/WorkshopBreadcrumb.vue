@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { WsBreadcrumb } from '@/interfaces/workshop';
+import type { IWsBreadcrumb } from '@/interfaces/workshop';
 import { useUserStore } from '@/stores/user';
 import { useWorkshopStore } from '@/stores/workshop';
 import { ArrowRight } from '@element-plus/icons-vue'
@@ -21,7 +21,7 @@ const router = useRouter()
 <template>
   <div v-show="!isMobile">
     <el-breadcrumb :separator-icon="ArrowRight">
-      <el-breadcrumb-item v-for="item in (workshopCreadcrub as WsBreadcrumb[])" :to="{ path: item.path }">
+      <el-breadcrumb-item v-for="item in (workshopCreadcrub as IWsBreadcrumb[])" :to="{ path: item.path }">
         {{ item.title }}
       </el-breadcrumb-item>
     </el-breadcrumb>
@@ -30,5 +30,7 @@ const router = useRouter()
 </template>
 
 <style>
-
+.el-breadcrumb__item {
+  cursor: pointer;
+}
 </style>

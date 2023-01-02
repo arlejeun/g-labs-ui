@@ -6,18 +6,20 @@ import type {
   ITree,
   IPathMap,
   IWorkshopMenuItem,
-  WsBreadcrumb,
+  IWsBreadcrumb,
   WsQueryDTO,
   IWorkshopsResponse,
   ITag,
+  WsBreadcrumb,
 } from "@/interfaces/workshop";
-import sanitizeHtml from "sanitize-html";
 import { GLabsApiClient } from "@/apis/glabs";
-
+import { useStorage } from '@vueuse/core'
 import { useAxios } from "@vueuse/integrations/useAxios";
 import { useNotification } from "@kyvg/vue3-notification";
 import { handleAxiosError } from "@/utils/axios";
 import { useUserStore } from "@/stores/user";
+import { processPath } from "@/utils/workshops"
+import sanitizeHtml from "sanitize-html";
 
 const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT;
 const store = useUserStore();
@@ -37,6 +39,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
 
   const workshopTree = ref([] as ITree[]);
   const workshopTreeKey = ref(0);
+  let workshopTitle = '';
   const workShopPathMap = ref([] as IPathMap[]);
   const workshopName = ref("");
   //TODO: Should be renamed workshopManifest
@@ -74,35 +77,22 @@ export const useWorkshopStore = defineStore("workshop", () => {
     if (workshop.value.length === 0) {
       return "";
     }
-    let bc = [] as WsBreadcrumb[]
+    let bc = [] as IWsBreadcrumb[]
     bc.push({ title: "Home", path: "/" })
     bc.push({ title: "Workshops", path: "/workshops" })
+    bc.push({ title: workshopTitle, path: "/workshops/" + wsId.value })
 
-    const ws = workshop.value[0]
-    const loc = localization.value || "en-US";
-    let wsItem = ws?.[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem
-    let title = wsItem?.name || wsId.value
-    let path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
-    let pathArray = path?.substring(2)?.split('/')
-    let modifiedPath = '/workshops/' + wsId.value + '/' + path?.substring(2) + '/'
-    if (!title || !modifiedPath) return bc
-    bc.push({ title: title, path: modifiedPath })
-
-    wsItem = ws?.['menus']?.[page_index.value[0]]?.[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem
-    title = wsItem.name
-    path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
-    modifiedPath = '/workshops/' + wsId.value + '/' + pathArray?.[0] + '/'
-    if (!title || !modifiedPath) return bc
-    bc.push({ title: title, path: modifiedPath })
-
-    path = workShopPathMap.value.find((item: IPathMap) => item.key == workshopTreeKey.value)?.path
-    if (!(pathArray && pathArray?.length < 2)) {
-      wsItem = ws?.['menus']?.[page_index.value[0]]?.[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem
-      title = wsItem?.menus?.[page_index.value[1]]?.name || ''
-      if (!title || !modifiedPath) return bc
-      bc.push({ title: title, path: modifiedPath })
-    }
-
+    let content = [...(workshopTree.value || [])] as ITree[];
+    page_index.value?.forEach((index) => {
+      let crumb = {} as IWsBreadcrumb
+      if (content.length > index) {
+        crumb.title = content[index].label
+        crumb.path = `/workshops/${workshopName.value}/${content[index].path.substr(2)}`
+        content = content[index].children || [];
+        if (!crumb.title || !crumb.path) return bc
+        bc.push(crumb)
+      }
+    });
     return bc
   });
 
@@ -110,47 +100,49 @@ export const useWorkshopStore = defineStore("workshop", () => {
     return route.params?.all?.toString().split("/")?.[0];
   });
 
+  const workshopProgress = useStorage(wsId.value, [] as number[], localStorage)
+
   const slashIdx = computed(() => {
     return route.params.all?.toString()?.indexOf("/");
-  });
-
-  const urlParam = computed(() => {
-    return route.params?.all?.toString().substring(slashIdx.value + 1);
   });
 
   const getWorkshopUrl = computed(() => {
     return WORKSHOPS_BASE + workshopName.value + "/";
   });
 
+  const urlParam = computed(() => {
+    return route.params?.all?.toString().substring(slashIdx.value + 1);
+  });
+
   const getWorkshopPage = computed(() => {
     if (workshop.value.length === 0) {
       return "";
     }
-    let content = [...(workshop.value[0]?.menus || [])] as IWorkshopMenuItem[];
+    let content = [...(workshopTree.value || [])] as ITree[];
     let page = "";
     page_index.value?.forEach((index) => {
       if (content.length > index) {
         page = content[index].body || "";
-        const loc = localization.value || "en-US";
-        if (content?.[index]?.[loc as keyof IWorkshopMenuItem]) {
-          // @ts-ignore
-          //TODO - fix type with body
-          page = content[index][loc]?.body;
-        }
-        content = content[index].menus || [];
       }
+      content = content[index].children || [];
     });
-    page = page.replaceAll(
+
+    page = _processPage(page)
+    return page || "Sorry, this page has no content";
+  });
+
+  const _processPage = (page: string) => {
+    let res = page.replaceAll(
       "/images/",
       `${WORKSHOPS_BASE}${workshopName.value}/images/`
     );
 
-    page = sanitizeHtml(page, {
+    res = sanitizeHtml(res, {
       allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
       allowedIframeHostnames: ["www.youtube.com"],
     });
-    return page || "Sorry, this page has no content";
-  });
+    return res
+  }
 
   const workshopEmpty = computed(() => {
     workshops.value.records > 0;
@@ -168,7 +160,8 @@ export const useWorkshopStore = defineStore("workshop", () => {
     let treeIndex = node?.index || [];
     let path = "";
     treeIndex.forEach((idx) => (path += idx + "/"));
-    setTreeIndex(treeIndex);
+    setTreeIndex(node.id);
+    setPageIndex(treeIndex);
     const nodePath = node.path?.replace('./', '') || node.path
     router.push({ path: `/workshops/${wsId.value}/${nodePath}` });
   };
@@ -190,6 +183,12 @@ export const useWorkshopStore = defineStore("workshop", () => {
         workshop.value = [JSON.parse(mnf).content] || [];
         rebuildTree();
         setTreeIndexByPath(urlParam.value);
+
+        const loc = localization.value || "en-US";
+        const ws = workshop.value[0]
+        let wsItem = ws?.[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem
+        workshopTitle = wsItem?.name || wsId.value
+
       }
       if (result.error.value) {
         notify({
@@ -219,12 +218,22 @@ export const useWorkshopStore = defineStore("workshop", () => {
    // workshops.value.push(todo);
   };
 
+  const nextStep = () => {
+      workshopProgress.value.push(treeIndex.value)
+    }
+    if (treeIndex.value < workShopPathMap.value.length) {
+      treeIndex.value++
+      setTreeIndexByKey(treeIndex.value)
+    }
+  }
+
   const loadWorkshops = async (query: WsQueryDTO ) => {
       const { execute } = useAxios(GLabsApiClient);
       let myQuery = Object.assign({}, {...query})
       let result, queryParams;
       queryParams = `page=${myQuery.page}&pageSize=${myQuery.pageSize}`;
       if (myQuery.searchString) {
+    if (!workshopProgress.value.includes(treeIndex.value)) {
         queryParams += `&searchString=${myQuery.searchString}`   
       } 
       if (myQuery?.tags && myQuery?.tags?.length > 0) {
@@ -259,8 +268,12 @@ export const useWorkshopStore = defineStore("workshop", () => {
     workshops.value?.rows.splice(workshops.value?.rows?.findIndex(rec => rec.id = index), 1);
   };
 
-  const setTreeIndex = (ind: number[]) => {
+  const setPageIndex = (ind: number[]) => {
     page_index.value = [...ind];
+  };
+
+  const setTreeIndex = (ind: number) => {
+    treeIndex.value = ind;
   };
 
   const setTreeIndexByKey = (key?: number) => {
@@ -307,28 +320,24 @@ export const useWorkshopStore = defineStore("workshop", () => {
         }
         branch.index = [...(index || [])];
         branch.label = locItem.name;
-        branch.path = locItem.path.substr(0, locItem.path.lastIndexOf("."));
-        branch.path = branch.path.substr(2);
-        branch.path = branch.path.replaceAll(" ", "-");
-        branch.path = branch.path.replaceAll("_index", "");
-        branch.path = branch.path.replaceAll("_", "-");
-        branch.path = branch.path.replaceAll(".", "-");
-        branch.path = './' + branch.path
+        branch.body = locItem.body;
+        branch.path = processPath(locItem.path);
         branch.id = treeIndex.value;
+        branch.disabled = true;
         treeIndex.value++;
         branch.index.push(i);
-        if (locItem.menus && locItem.menus.length > 0) {
-          branch.children = [..._buildTree(locItem.menus, branch.index)];
-        }
         workShopPathMap.value.push({
           path: branch.path,
           index: [...branch.index],
           key: branch.id,
         });
+        if (locItem.menus && locItem.menus.length > 0) {
+          branch.children = [..._buildTree(locItem.menus, branch.index)];
+        }
         result.push({ ...branch });
         delete branch.children;
+        i++;
       }
-      i++;
     });
 
     return result;
@@ -341,26 +350,29 @@ export const useWorkshopStore = defineStore("workshop", () => {
     workshopTreeKey,
     workShopPathMap,
     workshopName,
+    workshopProgress,
     workshop,
     page_index,
     getWorkshopUrl,
     getWorkshopPage,
-    workshopEmpty,
     tagsLoV,
+    workshopEmpty,
     loadWorkshops,
     loadWorkshop,
     addWorkshop,
     editWorkshop,
     removeWorkshop,
-    setTreeIndex,
+    setPageIndex,
     setTreeIndexByKey,
     setTreeIndexByPath,
     rebuildTree,
-    urlParam,
     wsId,
     slashIdx,
     treeChange,
     workshopCreadcrub,
+    workshopTitle,
+    urlParam,
+    nextStep
     workshopMeta,
     fetchTagsLov,
     updateWorkshop
