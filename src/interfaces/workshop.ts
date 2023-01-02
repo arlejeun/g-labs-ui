@@ -112,7 +112,7 @@ export enum WS {
   Section,
   Chapter
 }
-} 
+
 
 export interface WsFilter {
   searchString?: string,
