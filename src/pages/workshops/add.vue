@@ -4,6 +4,7 @@ import { useWorkspaceStore } from '@/stores/workspace';
 import { getParameterByName } from '@/utils/string'
 import { useRouteHash } from '@vueuse/router';
 import { useUserStore } from '@/stores/user';
+import type { IWorkshopForm } from '@/interfaces/workshop';
 
 const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
@@ -30,13 +31,7 @@ drawerSize.value = isMobile.value ? '85%':'45%'
 watchEffect(async () => {
 })
 
-const form = ref({
-        is_public: false,
-        is_internal: false,
-        is_partners: false,
-        is_specific: false,
-        permissions_groups: [],
-      })
+const form = ref({} as IWorkshopForm)
 
 
 
@@ -50,7 +45,7 @@ const form = ref({
 			<div class="row">
 				<h3 class="fs-3 text-primary mt-4">Add Workshop</h3>
 			</div>
-			<workshop-form :model="form" mode="add"></workshop-form>
+			<workshop-form :model="form" :editMode="false"></workshop-form>
 
 		</div>
 	</section>

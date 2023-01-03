@@ -2,13 +2,22 @@ import type { Ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useAxios } from '@vueuse/integrations/useAxios'
 import { GLabsApiClient } from '@/apis/glabs'
-import type { ICategoryTag, ITagsResponse, TagQueryDTO } from '@/interfaces/workshop'
+import type { ICategoryTag, ITagsResponse, IUserGroup, IUserGroupsResponse, TagQueryDTO, UserGroupQueryDTO } from '@/interfaces/workshop'
 import { notify } from '@kyvg/vue3-notification'
 import { handleAxiosError } from '@/utils/axios'
 
-export const useTagStore = defineStore('tag', () => {
+export const useAdminStore = defineStore('admin', () => {
   
   const tags = ref({} as ITagsResponse)
+  const userGroups = ref({} as IUserGroupsResponse)
+
+  const businessTags = computed(() => {
+    return tags.value?.rows?.filter(x => x.category == 'Business')
+  })
+
+  const technicalTags = computed(() => {
+    return tags.value?.rows?.filter(x => x.category == 'Technical')
+  })
   
   const fetchTags = async (query: TagQueryDTO) => {
     let myQuery = Object.assign({}, {...query})
@@ -29,6 +38,32 @@ export const useTagStore = defineStore('tag', () => {
           text: `${handleAxiosError(
             result.error.value,
             "Impossible to get your tags at the moment"
+          )}`,
+          duration: -1,
+          type: "error",
+        });
+      }
+  }
+
+  const fetchUserGroups = async (query: UserGroupQueryDTO) => {
+    let myQuery = Object.assign({}, {...query})
+    let queryParams = `page=${myQuery.page}&pageSize=${myQuery.pageSize}`;
+    if (myQuery.searchString) {
+      queryParams += `&searchString=${myQuery.searchString}`   
+    } 
+      const { execute } = useAxios(GLabsApiClient);
+      const result = await execute(`/user-groups?${queryParams}`, {
+       method: "GET"
+      });
+      if (result.isFinished.value && !result.error.value) {
+        userGroups.value = {...result?.data?.value} as IUserGroupsResponse;
+      }
+      if (result.error.value) {
+        notify({
+          title: "User Groups API",
+          text: `${handleAxiosError(
+            result.error.value,
+            "Impossible to get user groups at the moment"
           )}`,
           duration: -1,
           type: "error",
@@ -136,5 +171,48 @@ export const useTagStore = defineStore('tag', () => {
     }
 }
 
-  return { tags, fetchTags, updateTag, removeTag, addTag }
+const updateUserGroup = async (ug: IUserGroup) => {
+  const { execute } = useAxios(GLabsApiClient);
+  const { workshops, ...data} = ug
+  const result = await execute(`/user-groups/${ug.id}`, {
+    data: data,
+    method: "PATCH"
+  });
+  if (result.isFinished.value && !result.error.value) {
+    const originTagIndex = tags.value?.rows?.findIndex((t) => t.id == ug.id);
+    if (originTagIndex) {
+      userGroups.value.rows[originTagIndex] = {...ug}
+      notify({
+        title: "User Group API",
+        text: `${handleAxiosError(
+          result.error.value,
+          "User Group was updated successfully"
+        )}`,
+        duration: 2000,
+        type: "success",
+      });
+    }
+  }
+  if (result.error.value) {
+    notify({
+      title: "Tags API",
+      text: `${handleAxiosError(
+        result.error.value,
+        "Impossible to update user group at the moment"
+      )}`,
+      duration: -1,
+      type: "error",
+    });
+  }
+}
+
+//TODO: Implementation add User group
+const addUserGroup = async (ug: IUserGroup) => {
+}
+
+//TODO: Implementation add User group
+const removeUserGroup = async (ug: IUserGroup) => {
+}
+
+  return { tags, businessTags, technicalTags, userGroups, fetchTags, updateTag, removeTag, addTag, fetchUserGroups, updateUserGroup, addUserGroup, removeUserGroup }
 })

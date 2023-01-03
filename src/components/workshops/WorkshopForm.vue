@@ -1,13 +1,29 @@
 <script setup lang="ts">
-import type { IWorkshop } from '@/interfaces/workshop';
+import type { IWorkshop, IWorkshopForm } from '@/interfaces/workshop';
+import { useAdminStore } from '@/stores/admin.js';
 import { useUserStore } from '@/stores/user';
 import { useWorkshopStore } from '@/stores/workshop';
 import type { FormInstance } from 'element-plus/es/components/form';
 import type { FormRules } from 'element-plus/es/tokens/form';
+import type { PropType } from 'vue';
+
+const props = defineProps({
+  editMode: {
+    type: Boolean,
+    required: true
+  },
+  workshop: {
+    type: Object as PropType<IWorkshop>,
+  }
+})
 
 const userStore = useUserStore()
 const { user, isAdmin } = storeToRefs(userStore)
 const { updateUserProfile } = userStore
+
+const tagsStore = useAdminStore()
+const { tags: tagsLoV, businessTags: bizTagsLoV, technicalTags: techTagsLoV } = storeToRefs(tagsStore)
+const { fetchTags } = tagsStore
 
 const wStore = useWorkshopStore()
 const { workshopMeta } = storeToRefs(wStore)
@@ -62,9 +78,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      // //userStore.updatePersonalProfile(user)
-      // updateCountryUser()
-      // updateUserProfile()
       console.log('submit!')
     } else {
       console.log('error submit!', fields)
@@ -77,23 +90,32 @@ const resetForm = (formEl: FormInstance | undefined) => {
   formEl.resetFields()
 }
 
-const tagsLoV = computed(() => {
-  return [{ id: 1, label: 'AI', name: 'AI' }]
-})
-
 const permissionsLoV = computed(() => {
   return [{ id: 1, label: 'Public Demos', name: 'Public Demos' }]
 })
 
-const form = ref({} as IWorkshop)
+const form = ref({} as IWorkshopForm)
 
 const selects = ref({
   platform: [
     { value: "pcn", label: "PureCloudNow" },
-    { value: "pea", label: "Multicloud Azure" },
-    { value: "pec", label: "Multicloud AWS" },
-    { value: "custom", label: "Dev Org" }
+    { value: "custom", label: "Dev Orgs" },
+    { value: "managed", label: "Managed Orgs" }
   ],
+})
+
+watch(props, () => {
+  console.log('New props')
+  if(props?.workshop) {
+    form.value = {...props.workshop}
+    form.value.bizTags = [...form.value?.tags?.filter(t => t.category == 'Business')]?.map(x => x.name)
+    form.value.techTags = [...form.value?.tags?.filter(t => t.category == 'Technical')]?.map(x => x.name)
+    form.value.groups = [...form.value?.user_groups]?.map(x => x.id)
+  }
+})
+
+onMounted(() => {
+    fetchTags({ page: 1, pageSize:200 });
 })
 
     // getSourceThumbnail() {
@@ -116,12 +138,11 @@ const selects = ref({
 </script>
 
 <template>
-  <section>
-    <div class="container-fluid mt--6">
+  <!-- <section class="pt-0"> -->
+    <div class="container-fluid">
       <div class="row">
         <div class="col-12">
           <div class="card-wrapper">
-            <card>
 
               <div class="card-body">
                 <!-- Form START -->
@@ -131,24 +152,24 @@ const selects = ref({
                 <el-form ref="workshopFormRef" :model="form" :rules="workshopRules" label-width="120px"
                   label-position="top" class="demo-ruleForm" status-icon>
                   <el-row :gutter="20">
-                    <el-col :xs="24" :span="12">
+                    <el-col :xs="24" :span="24">
                       <el-form-item label="Workshop Title" prop="title">
                         <el-input v-model="form.title" />
                       </el-form-item>
-                    </el-col>
+                    </el-col>  
+                  </el-row>
+                  <el-row :gutter="20">
                     <el-col :xs="24" :span="12">
                       <el-form-item label="Workshop Name" prop="name">
                         <el-input v-model="form.name" />
                       </el-form-item>
                     </el-col>
-                  </el-row>
-                  <el-row :gutter="20">
-                    <el-col :xs="24" :span="12">
+                    <el-col :xs="18" :span="6">
                       <el-form-item label="Level" prop="level">
                         <el-input v-model="form.level" />
                       </el-form-item>
                     </el-col>
-                    <el-col :xs="24" :span="12">
+                    <el-col :xs="6" :span="6">
                       <el-form-item label="Duration" prop="duration">
                         <el-input v-model="form.duration" />
                       </el-form-item>
@@ -156,22 +177,139 @@ const selects = ref({
                   </el-row>
                  
                   <el-row :gutter="20">
-                    <el-col :xs="24" :span="12">
+                    <el-col :xs="24" :span="24">
                       <el-form-item label="Description" prop="desc">
-                        <el-input v-model="form.description" />
+                        <el-input :rows="3" type="textarea" v-model="form.description" />
                       </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :span="12">
-                      <!-- <el-form-item label="Phone Number" prop="phone_number">
-                        <el-input v-model="form" />
-                      </el-form-item> -->
                     </el-col>
                   </el-row>
 
+                  <el-row :gutter="20">
+                    <el-col :xs="18" :span="18">
+                      
+                      <el-form-item class="ws-100" label="Supported platforms" prop="platforms">
+                        <el-select class="w-100"
+                        v-model="form.platforms"
+                        multiple
+                        filterable
+                        placeholder="Platforms"
+                      >
+                        <el-option
+                          v-for="option in selects.platform"
+                          :key="option.label"
+                          :label="option.label"
+                          :value="option.value"
+                        ></el-option>
+                      </el-select>
+                      </el-form-item>
+                    </el-col>
+
+                    <el-col :xs="6" :span="6">
+                    <el-form-item label="Active">
+                      <el-switch v-model="form.active" />
+                    </el-form-item>
+                    </el-col>
+                    </el-row>
+                    <el-row>
+                    <el-col :xs="24" :span="24">
+                      <el-form-item label="Categories">
+                        <el-select class="w-100"
+                        v-model="form.bizTags"
+                        multiple
+                        filterable
+                        placeholder="Business Goals"
+                      >
+                        <el-option
+                          v-for="option in bizTagsLoV"
+                          :key="option.id"
+                          :label="option.label"
+                          :value="option.name"
+                        ></el-option>
+                      </el-select>
+                      </el-form-item>
+                    </el-col>
+
+                  </el-row>
+
+                  <el-row>
+                    <el-col :xs="24" :span="24">
+                      <el-form-item label="Tags">
+                        <el-select class="w-100"
+                        v-model="form.techTags"
+                        multiple
+                        filterable
+                        placeholder="Technical Tags"
+                      >
+                        <el-option
+                          v-for="option in techTagsLoV"
+                          :key="option.id"
+                          :label="option.label"
+                          :value="option.name"
+                        ></el-option>
+                      </el-select>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+
+                  <el-divider></el-divider>
+
+                    <h5 class="pb-3">Workshop Publication</h5>
+
+                    <el-row :gutter="20">
+                      <el-col :xs="24" :span="24">
+                        <el-form-item label="Workshop URL" prop="workshop_url">
+                          <el-input v-model="form.workshop_url" />
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+
+                    <el-row :gutter="20">
+                      <el-col :xs="24" :span="24">
+                        <el-form-item label="User Groups" prop="user_groups">
+                          <el-select class="w-100"
+                        v-model="form.groups"
+                        multiple
+                        filterable
+                        placeholder="User Groups"
+                      >
+                        <el-option
+                          v-for="option in tagsLoV.rows"
+                          :key="option.id"
+                          :label="option.label"
+                          :value="option.id"
+                        ></el-option>
+                      </el-select>                        </el-form-item>
+                      </el-col>
+                    </el-row>
+
+
+
+
+                  
+                  <!-- <el-row>
+                    <el-col :xs="24" :span="24">
+                      <el-form-item label="Tags" prop="tags">
+                        <el-select class="w-100"
+                        v-model="form.tags"
+                        multiple
+                        filterable
+                        placeholder="Technical Tags"
+                      >
+                        <el-option
+                          v-for="option in tags.rows"
+                          :key="option.id"
+                          :label="option.label"
+                          :value="option.id"
+                        ></el-option>
+                      </el-select>
+                      </el-form-item>
+                    </el-col>
+                  </el-row> -->
+
                   <div class="pt-2 d-sm-flex justify-content-end">
                     <el-form-item>
-                      <el-button type="primary" @click="submitForm(workshopFormRef)">Save changes</el-button>
                       <el-button @click="resetForm(workshopFormRef)">Reset</el-button>
+                      <el-button type="primary" @click="submitForm(workshopFormRef)">Save changes</el-button>
                     </el-form-item>
                   </div>
 
@@ -179,48 +317,12 @@ const selects = ref({
 
                 <!-- Form END -->
 
-                <el-divider></el-divider>
-
-                <h5 class="pb-3">Account Settings</h5>
-
 
               </div>
 
 
               <!-- <form>
-                <div class="row">
-                  <div class="col-md-3">
-                    <h3 class="text-default">Title</h3>
-                    <el-input placeholder="Demo Title" v-model="form.title">
-                    </el-input>
-                  </div>
-
-                  <div class="col-md-6">
-                    <h3 class="text-default">Workshop URL</h3>
-                    <el-input
-                      placeholder="Workshop url"
-                      prefix-icon="fas fa-globe"
-                      v-model="form.workshop_url"
-                    >
-                    </el-input>
-                  </div>
-
-                  <div class="col-md-1">
-                    <h3 class="text-default">Level</h3>
-                    <el-input placeholder="Level" v-model="form.level">
-                    </el-input>
-                  </div>
-
-                  <div class="col-md-2">
-                    <h3 class="text-default">Duration</h3>
-                    <el-input
-                      placeholder="Duration"
-                      prefix-icon="far fa-hourglass"
-                      v-model="form.duration"
-                    >
-                    </el-input>
-                  </div>
-                </div>
+                
 
                 <div class="row mt-4">
                   <div class="col-md-4">
@@ -409,7 +511,6 @@ const selects = ref({
                   </div>
                 </div>
               </form> -->
-            </card>
           </div>
         </div>
       </div>
@@ -420,6 +521,6 @@ const selects = ref({
     <div class="mt-1 mr-6 col-12 mb-6 align-self-end">
 
     </div>
-  </section>
+  <!-- </section> -->
 </template>
 

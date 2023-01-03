@@ -92,6 +92,9 @@ async function mockSignOut() {
                   <router-link class="dropdown-item" to="/admin/users">Users</router-link>
                 </li>
                 <li> 
+                  <router-link class="dropdown-item" to="/admin/user-groups">User Groups</router-link>
+                </li>
+                <li> 
                   <router-link class="dropdown-item" to="/admin/workshops">Workshops</router-link>
                 </li>
                 <li> 

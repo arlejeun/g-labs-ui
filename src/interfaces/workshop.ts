@@ -10,12 +10,23 @@ export interface ICategoryTag extends ITag {
   workshops?: {id: number, name: string}[]
  }
 
+ export interface IUserGroup {
+  id?: number,
+  name?: string,
+  isActive?: boolean,
+  workshops?: {id: number, name: string}[]
+ }
+
 export interface basicServerResponse {
   page: number,
   records: number,
 }
 export interface ITagsResponse extends basicServerResponse {
   rows: ICategoryTag[]
+}
+
+export interface IUserGroupsResponse extends basicServerResponse {
+  rows: IUserGroup[]
 }
 
 export interface IPlatform extends ITag, ITag { }
@@ -40,6 +51,18 @@ export interface IWorkshop {
   tags: ITag[],
 
   categories?: ITag[],
+  platforms?: IPlatform[],
+  permissions_groups?: string[],
+  is_public?: boolean,
+  is_internal?: boolean,
+
+}
+
+export interface IWorkshopForm extends IWorkshop{
+  groups?: string[]
+  techTags?: string[],
+  bizTags?: string[],
+  user_groups?: any,
   platforms?: IPlatform[],
   permissions_groups?: string[],
   is_public?: boolean,
@@ -136,6 +159,11 @@ export interface BasicQueryDTO {
 export interface TagQueryDTO extends BasicQueryDTO {
   searchString?: string,
   category?: string
+}
+
+
+export interface UserGroupQueryDTO extends BasicQueryDTO {
+  searchString?: string
 }
 
 export interface IWorkshopAdminTableElt {
