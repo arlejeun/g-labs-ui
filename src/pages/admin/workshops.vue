@@ -157,7 +157,7 @@ const columns = ref({} as IWorkshopAdminTable)
 columns.value = {
 	id: {
 		label: 'ID',
-		width: 40
+		width: 50
 	},
 	owner: {
 		label: 'Owner',

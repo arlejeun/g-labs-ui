@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IWorkshop, IWorkshopForm } from '@/interfaces/workshop';
+import type { IWorkshop, IWorkshopLocalizationForm, IWorkshopForm } from '@/interfaces/workshop';
 import { useAdminStore } from '@/stores/admin.js';
 import { useUserStore } from '@/stores/user';
 import { useWorkshopStore } from '@/stores/workshop';
@@ -30,6 +30,7 @@ const { workshopMeta } = storeToRefs(wStore)
 const { addWorkshop, editWorkshop } = wStore
 
 const formSize = ref('')
+const localizationArrayForm = ref([] as IWorkshopLocalizationForm[])
 const workshopFormRef = ref<FormInstance>()
 const workshopRules = reactive<FormRules>({
   title: [
@@ -111,6 +112,7 @@ watch(props, () => {
     form.value.bizTags = [...form.value?.tags?.filter(t => t.category == 'Business')]?.map(x => x.id)
     form.value.techTags = [...form.value?.tags?.filter(t => t.category == 'Technical')]?.map(x => x.id)
     form.value.groups = [...form.value?.user_groups]?.map(x => x.id)
+    localizationArrayForm.value = props.workshop?.ws_localized
   }
 })
 
@@ -186,7 +188,7 @@ onMounted(() => {
                   </el-row>
 
                   <el-row :gutter="20">
-                    <el-col :xs="18" :span="18">
+                    <el-col :xs="24" :span="24">
                       
                       <el-form-item class="ws-100" label="Supported platforms" prop="platforms">
                         <el-select class="w-100"
@@ -205,11 +207,7 @@ onMounted(() => {
                       </el-form-item>
                     </el-col>
 
-                    <el-col :xs="6" :span="6">
-                    <el-form-item label="Active">
-                      <el-switch v-model="form.active" />
-                    </el-form-item>
-                    </el-col>
+                    
                     </el-row>
                     <el-row>
                     <el-col :xs="24" :span="24">
@@ -265,7 +263,7 @@ onMounted(() => {
                     </el-row>
 
                     <el-row :gutter="20">
-                      <el-col :xs="24" :span="24">
+                      <el-col :xs="18" :span="18">
                         <el-form-item label="User Groups" prop="user_groups">
                           <el-select class="w-100"
                         v-model="form.groups"
@@ -282,7 +280,53 @@ onMounted(() => {
                       </el-select>                        
                     </el-form-item>
                       </el-col>
+                      <el-col :xs="6" :span="6">
+                        <el-form-item label="Active">
+                          <el-switch v-model="form.active" />
+                        </el-form-item>
+                        </el-col>
                     </el-row>
+
+                    <el-divider></el-divider>
+
+                    <div v-for="loc in form.ws_localized" :key="loc.id">
+                      <el-row :gutter="20">
+                      <el-col :xs="18" :span="18">
+                        <el-form-item label="localization">
+                          <el-select class="w-100"
+                        v-model="loc.locale"
+                        placeholder="Localization"
+                      >
+                        <el-option value="es-ES" label="es-ES"></el-option>
+                        <el-option value="fr-FR" label="fr-FR"></el-option>
+                        <el-option value="pt-BR" label="pt-BR"></el-option>
+                        </el-select>
+
+                        </el-form-item>
+                      </el-col>
+                        <el-col :xs="6" :span="6">
+                        <el-form-item label="Active">
+                          <el-switch v-model="loc.active" />
+                        </el-form-item>
+                        </el-col>
+                      <el-col :xs="24" :span="24">
+                        <el-form-item label="title">
+                          <el-input v-model="loc.title" />
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                    <el-row :gutter="20">
+                    <el-col :xs="24" :span="24">
+                      <el-form-item label="Description" prop="desc">
+                        <el-input :rows="3" type="textarea" v-model="loc.description" />
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+
+                    <el-divider></el-divider>
+
+                    </div>
+                    
 
 
 

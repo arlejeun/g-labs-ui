@@ -55,6 +55,7 @@ export interface IWorkshop {
   permissions_groups?: string[],
   is_public?: boolean,
   is_internal?: boolean,
+  ws_localized: IWorkshopLocalizationForm[]
 
 }
 
@@ -67,26 +68,15 @@ export interface IWorkshopForm extends IWorkshop{
   permissions_groups?: string[],
   is_public?: boolean,
   is_internal?: boolean,
+}
 
-  /*
-    image: string,
-    is_public?: boolean,
-    is_internal?: boolean,
-    permissions_groups: string[],
-    categories: ICategory[],
-    tags: ITag[],
-    platforms: IPlatform[],
-    active?: boolean,
-    id: string,
-    title: string,
-    level: number,
-    duration: string,
-    description: string,
-    workshop_url: URL
-    modified_at?: Date,
-    author?: string,
-    name?: string
-  */
+export interface IWorkshopLocalizationForm {
+  id: number,
+  locale?: string,
+  title?: string,
+  description?: string,
+  active: boolean,
+  manifest?: string
 }
 
 
