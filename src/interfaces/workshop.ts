@@ -59,9 +59,9 @@ export interface IWorkshop {
 }
 
 export interface IWorkshopForm extends IWorkshop{
-  groups?: string[]
-  techTags?: string[],
-  bizTags?: string[],
+  groups?: number[]
+  techTags?: number[],
+  bizTags?: number[],
   user_groups?: any,
   platforms?: IPlatform[],
   permissions_groups?: string[],

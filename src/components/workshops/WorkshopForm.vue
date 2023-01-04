@@ -21,9 +21,9 @@ const userStore = useUserStore()
 const { user, isAdmin } = storeToRefs(userStore)
 const { updateUserProfile } = userStore
 
-const tagsStore = useAdminStore()
-const { tags: tagsLoV, businessTags: bizTagsLoV, technicalTags: techTagsLoV } = storeToRefs(tagsStore)
-const { fetchTags } = tagsStore
+const adminStore = useAdminStore()
+const { tags: tagsLoV, businessTags: bizTagsLoV, technicalTags: techTagsLoV, userGroups: userGroupsLoV } = storeToRefs(adminStore)
+const { fetchTags, fetchUserGroups } = adminStore
 
 const wStore = useWorkshopStore()
 const { workshopMeta } = storeToRefs(wStore)
@@ -34,11 +34,11 @@ const workshopFormRef = ref<FormInstance>()
 const workshopRules = reactive<FormRules>({
   title: [
     { required: true, message: 'Please input workshop title', trigger: 'blur' },
-    { min: 2, max: 30, message: 'Length should be 2 to 30', trigger: 'blur' },
+    { min: 2, max: 50, message: 'Length should be 2 to 50', trigger: 'blur' },
   ],
   name: [
     { required: true, message: 'Please input github repo name', trigger: 'blur' },
-    { min: 2, max: 30, message: 'Length should be 2 to 30', trigger: 'blur' },
+    { min: 2, max: 50, message: 'Length should be 2 to 50', trigger: 'blur' },
   ],
 
   gh_owner: [
@@ -108,14 +108,15 @@ watch(props, () => {
   console.log('New props')
   if(props?.workshop) {
     form.value = {...props.workshop}
-    form.value.bizTags = [...form.value?.tags?.filter(t => t.category == 'Business')]?.map(x => x.name)
-    form.value.techTags = [...form.value?.tags?.filter(t => t.category == 'Technical')]?.map(x => x.name)
+    form.value.bizTags = [...form.value?.tags?.filter(t => t.category == 'Business')]?.map(x => x.id)
+    form.value.techTags = [...form.value?.tags?.filter(t => t.category == 'Technical')]?.map(x => x.id)
     form.value.groups = [...form.value?.user_groups]?.map(x => x.id)
   }
 })
 
 onMounted(() => {
     fetchTags({ page: 1, pageSize:200 });
+    fetchUserGroups({ page: 1, pageSize:200 })
 })
 
     // getSourceThumbnail() {
@@ -223,7 +224,7 @@ onMounted(() => {
                           v-for="option in bizTagsLoV"
                           :key="option.id"
                           :label="option.label"
-                          :value="option.name"
+                          :value="option.id"
                         ></el-option>
                       </el-select>
                       </el-form-item>
@@ -244,7 +245,7 @@ onMounted(() => {
                           v-for="option in techTagsLoV"
                           :key="option.id"
                           :label="option.label"
-                          :value="option.name"
+                          :value="option.id"
                         ></el-option>
                       </el-select>
                       </el-form-item>
@@ -273,12 +274,13 @@ onMounted(() => {
                         placeholder="User Groups"
                       >
                         <el-option
-                          v-for="option in tagsLoV.rows"
+                          v-for="option in userGroupsLoV.rows"
                           :key="option.id"
-                          :label="option.label"
+                          :label="option.name"
                           :value="option.id"
                         ></el-option>
-                      </el-select>                        </el-form-item>
+                      </el-select>                        
+                    </el-form-item>
                       </el-col>
                     </el-row>
 
