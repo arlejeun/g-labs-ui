@@ -9,7 +9,8 @@ import type {
   IWsBreadcrumb,
   WsQueryDTO,
   IWorkshopsResponse,
-  ITag
+  ITag,
+  IWorkshopForm
 } from "@/interfaces/workshop";
 import { GLabsApiClient } from "@/apis/glabs";
 import { useStorage } from '@vueuse/core'
@@ -19,6 +20,7 @@ import { handleAxiosError } from "@/utils/axios";
 import { useUserStore } from "@/stores/user";
 import { processPath } from "@/utils/workshops"
 import sanitizeHtml from "sanitize-html";
+import type { Ref } from "vue";
 
 const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT;
 const store = useUserStore();
@@ -286,8 +288,10 @@ export const useWorkshopStore = defineStore("workshop", () => {
     workshops.value?.rows.push(todo);
   };
 
-  const editWorkshop = (todo: IWorkshop) => {
-    console.log(JSON.stringify(todo));
+  const editWorkshop = (workshop: IWorkshop) => {
+
+    console.log(JSON.stringify(workshop));
+
    // workshops.value.push(todo);
   };
 
@@ -334,7 +338,44 @@ export const useWorkshopStore = defineStore("workshop", () => {
   };
 
   //TODO: Update workshop
-  const updateWorkshop = (ws: IWorkshop) => {
+  const updateWorkshop = async (ws: IWorkshopForm) => {
+    console.log(JSON.stringify(ws));
+
+    const { execute } = useAxios(GLabsApiClient);
+    const { techTags, bizTags, user_groups, environments, localizations, ...wsEdit } = ws;
+    const wsEditDTO = {...wsEdit, 
+      tags: { connect: [...bizTags, ...techTags].map((x) => { return {'id': x}})},
+      user_groups: {connect: user_groups?.map(x => {return {'id': x.id }})},
+      environments: {connect: environments?.map(x => {return {'id': x.id }})},
+      localizations: {create: localizations} }
+    
+    delete wsEditDTO?.groups;
+    //const result = await execute(`/users/${user.value.id}`, {method: 'PATCH', data: userProperty}, )
+    const result = await execute(`/workshops/${wsEditDTO.id}`, {
+      method: "PATCH",
+      data: wsEditDTO,
+    });
+    if (result.isFinished.value && !result.error.value) {
+        notify({
+          title: "Workshop API",
+          text: "Your workshop was updated successfully",
+          duration: 2000,
+          type: "success",
+      });
+    }
+    if (result.error.value) {
+      notify({
+        title: "Workshop API",
+        text: `${handleAxiosError(
+          result.error.value,
+          "Impossible to update the workshop at the moment"
+        )}`,
+        duration: -1,
+        type: "error",
+      });
+    } 
+
+
   };
   
   const removeWorkshop = (index: number) => {

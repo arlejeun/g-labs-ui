@@ -19,7 +19,6 @@ const props = defineProps({
 
 const userStore = useUserStore()
 const { user, isAdmin } = storeToRefs(userStore)
-const { updateUserProfile } = userStore
 
 const adminStore = useAdminStore()
 const { tags: tagsLoV, businessTags: bizTagsLoV, technicalTags: techTagsLoV, userGroups: userGroupsLoV } = storeToRefs(adminStore)
@@ -27,7 +26,7 @@ const { fetchTags, fetchUserGroups } = adminStore
 
 const wStore = useWorkshopStore()
 const { workshopMeta } = storeToRefs(wStore)
-const { addWorkshop, editWorkshop } = wStore
+const { addWorkshop, updateWorkshop } = wStore
 
 const formSize = ref('')
 const localizationArrayForm = ref([] as IWorkshopLocalizationForm[])
@@ -79,6 +78,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
+      updateWorkshop(form.value)
       console.log('submit!')
     } else {
       console.log('error submit!', fields)
@@ -86,39 +86,62 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   })
 }
 
+//TODO: Create endpoint to fetch the list of environment
+const environments = [
+  {
+    id: 1,
+    name: 'purecloudnow',
+  },
+  {
+    id: 2,
+    name: '3rd party org',
+  },
+];
+
 const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.resetFields()
 }
 
-const permissionsLoV = computed(() => {
-  return [{ id: 1, label: 'Public Demos', name: 'Public Demos' }]
-})
-
 const form = ref({} as IWorkshopForm)
+const formBizTags = computed(() => { return form.value?.tags?.filter(t => t.category == 'Business')?.map(x => x.id) || []})
+const formTechnicalTags = computed(() => { return form.value?.tags?.filter(t => t.category == 'Technical')?.map(x => x.id) || []})
+const formLocalizations = computed(()=> {return form.value?.localizations || []})
 
-const selects = ref({
-  platform: [
-    { value: "pcn", label: "PureCloudNow" },
-    { value: "custom", label: "Dev Orgs" },
-    { value: "managed", label: "Managed Orgs" }
-  ],
-})
+// const selects = ref({
+//   platform: [
+//     { value: "pcn", label: "PureCloudNow" },
+//     { value: "custom", label: "3rd Party Orgs" }
+//   ],
+// })
 
-watch(props, () => {
-  console.log('New props')
-  if(props?.workshop) {
-    form.value = {...props.workshop}
-    form.value.bizTags = [...form.value?.tags?.filter(t => t.category == 'Business')]?.map(x => x.id)
-    form.value.techTags = [...form.value?.tags?.filter(t => t.category == 'Technical')]?.map(x => x.id)
-    form.value.groups = [...form.value?.user_groups]?.map(x => x.id)
-    localizationArrayForm.value = props.workshop?.ws_localized
+
+watchEffect(() => {
+  if(props.workshop) {
+    form.value = {bizTags: [],techTags: [], groups: [], ...props.workshop};
+    form.value.techTags = form.value?.tags?.filter(t => t.category == 'Technical')?.map(x => x.id) || [];
+    form.value.bizTags = form.value?.tags?.filter(t => t.category == 'Business')?.map(x => x.id) || [];
   }
 })
+
+// watch(props.workshop, (newVal, _oldVal) => {
+//   console.log('New props ' + JSON.stringify(newVal))
+//   if(props?.workshop) {
+//     console.log('New props ' + JSON.stringify(newVal))
+
+//    // form.value = Object.assign({} as IWorkshopForm, {...props.workshop})
+//     // form.value.bizTags = [...form.value?.tags?.filter(t => t.category == 'Business')]?.map(x => x.id)
+//     // form.value.techTags = [...form.value?.tags?.filter(t => t.category == 'Technical')]?.map(x => x.id)
+//     // form.value.groups = [...form.value?.user_groups]?.map(x => x.id)
+//     // form.value.localizations = [...form.value?.localizations]
+//   }
+// })
 
 onMounted(() => {
     fetchTags({ page: 1, pageSize:200 });
     fetchUserGroups({ page: 1, pageSize:200 })
+    
+
 })
 
     // getSourceThumbnail() {
@@ -192,16 +215,16 @@ onMounted(() => {
                       
                       <el-form-item class="ws-100" label="Supported platforms" prop="platforms">
                         <el-select class="w-100"
-                        v-model="form.platforms"
+                        v-model="form.environments"
                         multiple
                         filterable
                         placeholder="Platforms"
                       >
                         <el-option
-                          v-for="option in selects.platform"
-                          :key="option.label"
-                          :label="option.label"
-                          :value="option.value"
+                          v-for="option in environments"
+                          :key="option.id"
+                          :label="option.name"
+                          :value="option.id"
                         ></el-option>
                       </el-select>
                       </el-form-item>
@@ -266,7 +289,7 @@ onMounted(() => {
                       <el-col :xs="18" :span="18">
                         <el-form-item label="User Groups" prop="user_groups">
                           <el-select class="w-100"
-                        v-model="form.groups"
+                        v-model="form.user_groups"
                         multiple
                         filterable
                         placeholder="User Groups"
@@ -289,7 +312,7 @@ onMounted(() => {
 
                     <el-divider></el-divider>
 
-                    <div v-for="loc in form.ws_localized" :key="loc.id">
+                    <div v-for="loc in formLocalizations" :key="loc.id">
                       <el-row :gutter="20">
                       <el-col :xs="18" :span="18">
                         <el-form-item label="localization">
@@ -328,29 +351,6 @@ onMounted(() => {
                     </div>
                     
 
-
-
-
-                  
-                  <!-- <el-row>
-                    <el-col :xs="24" :span="24">
-                      <el-form-item label="Tags" prop="tags">
-                        <el-select class="w-100"
-                        v-model="form.tags"
-                        multiple
-                        filterable
-                        placeholder="Technical Tags"
-                      >
-                        <el-option
-                          v-for="option in tags.rows"
-                          :key="option.id"
-                          :label="option.label"
-                          :value="option.id"
-                        ></el-option>
-                      </el-select>
-                      </el-form-item>
-                    </el-col>
-                  </el-row> -->
 
                   <div class="pt-2 d-sm-flex justify-content-end">
                     <el-form-item>

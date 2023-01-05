@@ -11,8 +11,8 @@ export interface ICategoryTag extends ITag {
  }
 
  export interface IUserGroup {
-  id?: number,
-  name?: string,
+  id: number,
+  name: string,
   isActive?: boolean,
   workshops?: {id: number, name: string}[]
  }
@@ -29,7 +29,12 @@ export interface IUserGroupsResponse extends basicServerResponse {
   rows: IUserGroup[]
 }
 
-export interface IPlatform extends ITag, ITag { }
+export interface IPlatform {
+  id: number,
+  name: string,
+  orgId?: string,
+  region?: string
+ }
 
 export interface IWorkshopsResponse extends basicServerResponse {
   rows: IWorkshop[]
@@ -49,25 +54,23 @@ export interface IWorkshop {
   workshop_url?: string,
   manifest?: string,
   tags: ITag[],
-
   categories?: ITag[],
-  platforms?: IPlatform[],
-  permissions_groups?: string[],
-  is_public?: boolean,
-  is_internal?: boolean,
-  ws_localized: IWorkshopLocalizationForm[]
-
+  environments?: IPlatform[],
+  user_groups?: IWorkshopUserGroup[],
+  localizations: IWorkshopLocalizationForm[]
 }
 
+export interface IWorkshopUserGroup {
+  id: number,
+  name: string,
+  isActive: boolean,
+  created_at?: Date,
+  updated_at?: Date 
+}
 export interface IWorkshopForm extends IWorkshop{
   groups?: number[]
-  techTags?: number[],
-  bizTags?: number[],
-  user_groups?: any,
-  platforms?: IPlatform[],
-  permissions_groups?: string[],
-  is_public?: boolean,
-  is_internal?: boolean,
+  techTags: number[],
+  bizTags: number[],
 }
 
 export interface IWorkshopLocalizationForm {
