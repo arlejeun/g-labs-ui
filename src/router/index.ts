@@ -18,6 +18,14 @@ const router = createRouter({
     // },
     ...routes,
   ],
+  
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  },
 })
 
 // router.beforeEach((to, _, next) => {
@@ -38,7 +46,6 @@ router.beforeEach((to, _, next) => {
   console.log('path ' + to.path)
   next()
 })
-
 
 registerGuard(router);
 

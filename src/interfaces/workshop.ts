@@ -141,15 +141,13 @@ export interface WsFilterClient {
   categories: string[],
   tags: string[]
 }
-
-export interface WsQueryDTO extends WsFilter, BasicQueryDTO {
-}
-
 export interface BasicQueryDTO {
   page: number,
   pageSize: number
 }
 
+export interface WsQueryDTO extends WsFilter, BasicQueryDTO {
+}
 export interface TagQueryDTO extends BasicQueryDTO {
   searchString?: string,
   category?: string

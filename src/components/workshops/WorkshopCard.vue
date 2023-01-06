@@ -48,6 +48,7 @@ function workshopDefaultName(workshop: IWorkshop) {
 function goToWorkshop(workshop: IWorkshop) {
   if (workshop.name && workshop.active) {
     router.push({name: 'workshops-all', params: {all: workshopDefaultName(workshop)}});
+    
   }
 }
 

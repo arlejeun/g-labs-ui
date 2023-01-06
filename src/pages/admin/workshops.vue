@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import TagFormatter from "@/components/testing/TagFormatter.vue";
 import DateTimeFormatter from "@/components/testing/DateTimeFormatter.vue";
-import type { IWorkshop, IWorkshopAdminTable, TagQueryDTO } from "@/interfaces/workshop";
+import type { IWorkshop, IWorkshopAdminTable, TagQueryDTO, WsQueryDTO } from "@/interfaces/workshop";
 import { useWorkshopStore } from "@/stores/workshop";
 import { Filter, Plus } from '@element-plus/icons-vue'
 
@@ -36,11 +36,12 @@ const small = ref(false)
 const disabled = ref(false)
 const background = ref(true)
 const filterActive = ref(false)
-const query = computed((): TagQueryDTO => {
+const query = computed((): WsQueryDTO => {
 	return {
 		searchString: search.value,
 		page: currentPage.value,
-		pageSize: pageSize.value
+		pageSize: pageSize.value,
+		tags: []
 	}
 })
 
@@ -242,7 +243,7 @@ onMounted(() => {
 					</template>
 
 					<div class="card-body row px-0">
-						<WorkshopForm :workshop="currentWorkshop" :edit-mode="true"></WorkshopForm>
+						<WorkshopForm :workshop="currentWorkshop" :edit-mode="editMode"></WorkshopForm>
 					</div>
 
 				</el-card>

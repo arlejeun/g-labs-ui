@@ -402,8 +402,8 @@ onMounted(() => {
               <div class="pt-2 d-sm-flex justify-content-end">
                 <el-form-item>
                   <el-button @click="resetForm(workshopFormRef)">Reset</el-button>
-                  <el-button type="primary" v-show="editMode" @click="addForm(workshopFormRef)">Add</el-button>
-                  <el-button type="primary" v-show="!editMode" @click="submitForm(workshopFormRef)">Save changes</el-button>
+                  <el-button type="primary" v-show="!editMode" @click="addForm(workshopFormRef)">Add</el-button>
+                  <el-button type="primary" v-show="editMode" @click="submitForm(workshopFormRef)">Save changes</el-button>
                 </el-form-item>
               </div>
 
