@@ -60,7 +60,7 @@ async function mockSignOut() {
             <!-- Nav item Listing -->
             <li class="nav-item dropdown">
               <router-link class="nav-link text-white fw-bolder" to="/workshops">
-                Workshops
+                Home
               </router-link>
             </li>
 
@@ -267,8 +267,8 @@ async function mockSignOut() {
                 </router-link>
               </li>
               <li>
-                <router-link class="dropdown-item" to="/account/organizations">
-                  <i class="bi bi-boxes fa-fw me-2" />Organizations
+                <router-link class="dropdown-item" to="/account/provisioning">
+                  <i class="bi bi-boxes fa-fw me-2" />Provisioning
                 </router-link>
               </li>
               <li>

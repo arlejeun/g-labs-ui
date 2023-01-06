@@ -50,6 +50,7 @@ export interface IWorkshop {
   image_filename: string,
   level: number,
   duration: string,
+  provisioned: boolean,
   modified_at: string,
   workshop_url?: string,
   manifest?: string,
@@ -68,20 +69,20 @@ export interface IWorkshopUserGroup {
   updated_at?: Date 
 }
 export interface IWorkshopForm extends IWorkshop{
-  groups?: number[]
+  groups: number[]
   techTags: number[],
   bizTags: number[],
+  envs: number[]
 }
 
 export interface IWorkshopLocalizationForm {
-  id: number,
-  locale?: string,
-  title?: string,
-  description?: string,
+  id?: number,
+  locale: string,
+  title: string,
+  description: string,
   active: boolean,
   manifest?: string
 }
-
 
 
 export interface IWorkshopMenuItem {
@@ -132,13 +133,13 @@ export enum WS {
 
 export interface WsFilter {
   searchString?: string,
-  categories?: string[],
-  tags?: string[]
+  tags: string[]
 }
 
-export interface WsQueryDTO extends WsFilter {
-  page: number,
-  pageSize: number
+export interface WsFilterClient {
+  searchString?: string,
+  categories: string[],
+  tags: string[]
 }
 
 export interface WsQueryDTO extends WsFilter, BasicQueryDTO {

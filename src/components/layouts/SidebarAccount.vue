@@ -98,9 +98,9 @@
               </li>
               <li class="nav-item">
                 <router-link
-                  class="nav-link" :class="{active:matchRoute('/account/organizations')}"
-                  to="/account/organizations"
-                ><i class="bi bi-gear fa-fw me-2" />Organizations</router-link>
+                  class="nav-link" :class="{active:matchRoute('/account/provisioning')}"
+                  to="/account/provisioning"
+                ><i class="bi bi-gear fa-fw me-2" />Provisioning</router-link>
               </li>
               
               <li class="nav-item">

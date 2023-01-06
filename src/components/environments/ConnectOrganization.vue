@@ -137,8 +137,6 @@ function loginWithGenesysCloud() {
               in</el-button>
           </div>
 
-          <!-- <el-button @click="loginWithGenesysCloud" type="primary" :icon="Switch">Log in to Genesys</el-button> -->
-
         </div>
 
       </div>
@@ -229,12 +227,16 @@ function loginWithGenesysCloud() {
 
 .active-org ul.summary {
   display: block;
-  padding: 3px 0px;
+  padding: 5px 0px;
 }
 
 .active-org .summary li {
   display: block;
-  padding: 3px 0px;
+  padding: 10px 5px;
+}
+
+.active-org .summary li span {
+  margin: 5px 5px;
 }
 
 .org-status.active {

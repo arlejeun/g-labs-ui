@@ -71,7 +71,7 @@ function isOrgActive(org: IDriveOrg): boolean {
     <div class="card border bg-transparent">
       <!-- Card header -->
       <div class="card-header bg-transparent border-bottom">
-        <h4 class="card-header-title text-primary">Organization Settings</h4>
+        <h4 class="card-header-title text-primary">Provisioning of your Demo environments</h4>
       </div>
 
       <!-- Card body START -->
