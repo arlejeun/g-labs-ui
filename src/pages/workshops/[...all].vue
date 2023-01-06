@@ -165,6 +165,61 @@ onBeforeRouteUpdate(async (to, from) => {
   text-align: center;
 }
 
+.ws-body > {
+  h2, h3, h4, h5, h6 {
+  font-weight: 400;
+  line-height: 1.1;
+}
+
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+  font-weight: inherit;
+}
+
+h2 {
+  font-size: 2.5rem;
+  line-height: 110% !important;
+  margin: 2.5rem 0 1.5rem 0;
+}
+
+h3 {
+  font-size: 2rem;
+  line-height: 110% !important;
+  margin: 2rem 0 1rem 0;
+}
+
+h4 {
+  font-size: 1.5rem;
+  line-height: 110% !important;
+  margin: 1.5rem 0 0.75rem 0;
+}
+
+h5 {
+  font-size: 1rem;
+  line-height: 110% !important;
+  margin: 1rem 0 0.2rem 0;
+}
+
+h6 {
+  font-size: 0.5rem;
+  line-height: 110% !important;
+  margin: 0.5rem 0 0.2rem 0;
+}
+
+p {
+    margin: 1rem 0;
+}
+
+figcaption h4 {
+    font-weight: 300 !important;
+    opacity: .85;
+    font-size: 1em;
+    text-align: center;
+    margin-top: -1.5em;
+}
+}
+
+
+
 .el-tree {
   margin-left: 15px;
   background-color: inherit;
@@ -172,11 +227,11 @@ onBeforeRouteUpdate(async (to, from) => {
 
 .tree-is-top>.el-tree-node__content {
   font-size: 18px;
-  color: #ff6428;
+  color: var(--bs-orange);
 }
 
 .el-tree-node.is-current>.el-tree-node__content {
-  color: #ff6428;
+  color: var(--bs-orange);
 }
 </style>
 

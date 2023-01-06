@@ -45,7 +45,7 @@ const form = ref({} as IWorkshopForm)
 			<div class="row">
 				<h3 class="fs-3 text-primary mt-4">Add Workshop</h3>
 			</div>
-			<workshop-form :model="form" :editMode="false"></workshop-form>
+			<workshop-form :editMode="false"></workshop-form>
 
 		</div>
 	</section>

@@ -3,12 +3,33 @@ import type { PropType } from 'vue'
 import type { IWorkshop } from '@/interfaces/workshop'
 import router from '@/router';
 import { computed } from '@vue/reactivity';
+import type { ITag } from '@/interfaces/workshop';
+import { useWorkshopStore } from '@/stores/workshop';
+
+const wStore = useWorkshopStore()
+const { workshopsQuery } = storeToRefs(wStore)
+const { loadWorkshops } = wStore
 
 const props = defineProps({
   workshop: {
     type: Object as PropType<IWorkshop>,
     required: true
   }
+})
+
+const applyTagFilter = (tag: ITag) => {
+  const tagFilter = []
+  tagFilter[0] = tag.id.toString()
+  const query = {...workshopsQuery.value, tags: tagFilter}
+  loadWorkshops(query)
+}
+
+const catTags = computed(() => {
+  return props.workshop?.tags?.filter(x => x.category == 'Business')
+})
+
+const techTags = computed(() => {
+  return props.workshop?.tags?.filter(x => x.category == 'Technical')
 })
 
 const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT
@@ -27,22 +48,13 @@ function workshopDefaultName(workshop: IWorkshop) {
 function goToWorkshop(workshop: IWorkshop) {
   if (workshop.name && workshop.active) {
     router.push({name: 'workshops-all', params: {all: workshopDefaultName(workshop)}});
+    
   }
 }
 
 const workThumbnail = computed(() => `${WORKSHOPS_BASE}resources/images/${props.workshop.image_filename}`)
 
 
-//const imageOptions = ref({ src: 'https://place.dog/300/200' })
-//const imageOptions = ref({ src: `https://gdemo.demo.genesys.com/api/gdemo-assets/${props.workshop.image}` })
-//const { isLoading, error } = useImage(imageOptions)
-// const change = () => {
-//   const time = new Date().getTime()
-//   imageOptions.value.src = `https://place.dog/300/200?t=${time}`
-// }
-
-// const imageOptions = ref({scr: props.workshop.image})
-// const { isLoading, error } = useImage(imageOptions) 
 </script>
 
 <template>
@@ -68,12 +80,27 @@ const workThumbnail = computed(() => `${WORKSHOPS_BASE}resources/images/${props.
         <p class="mb-1"><small>{{ workshop.description }}</small></p>
 
         <!-- List -->
-        <ul class="nav nav-divider mb-2 mb-sm-3">
-          <li class="text-primary me-1" v-for="(tag) in workshop.tags" :key="tag.id">
-            <el-tag class="me-2">{{ tag.name }}</el-tag>
-            <!-- <small><u>{{ tag.name }}</u></small> -->
+        <ul class="nav nav-divider mt-2 mb-2 mb-sm-3">
+          <li class="text-primary me-1" v-for="(tag) in catTags" :key="tag.id">
+            <!-- <el-tag class="me-2">{{ tag.name }}</el-tag> -->
+            <el-button @click="applyTagFilter(tag)"
+                type="primary"
+                size="small"
+                >{{ tag.name }}</el-button
+              >
+          </li>
+          <li class="text-primary me-1" v-for="(tag) in techTags" :key="tag.id">
+            <!-- <el-tag class="me-2">{{ tag.name }}</el-tag> -->
+            <el-button @click="applyTagFilter(tag)"
+                type="info"
+                size="small"   
+                plain             
+                >{{ tag.name }}</el-button
+              >
           </li>
         </ul>
+
+ 
 
         <ul class="nav nav-divider mb-2 mb-sm-3">
           <li class="me-2"><i class="me-1 bi bi-stopwatch"></i>

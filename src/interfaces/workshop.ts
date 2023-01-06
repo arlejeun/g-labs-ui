@@ -11,8 +11,8 @@ export interface ICategoryTag extends ITag {
  }
 
  export interface IUserGroup {
-  id?: number,
-  name?: string,
+  id: number,
+  name: string,
   isActive?: boolean,
   workshops?: {id: number, name: string}[]
  }
@@ -29,7 +29,12 @@ export interface IUserGroupsResponse extends basicServerResponse {
   rows: IUserGroup[]
 }
 
-export interface IPlatform extends ITag, ITag { }
+export interface IPlatform {
+  id: number,
+  name: string,
+  orgId?: string,
+  region?: string
+ }
 
 export interface IWorkshopsResponse extends basicServerResponse {
   rows: IWorkshop[]
@@ -45,50 +50,39 @@ export interface IWorkshop {
   image_filename: string,
   level: number,
   duration: string,
+  provisioned: boolean,
   modified_at: string,
   workshop_url?: string,
   manifest?: string,
   tags: ITag[],
-
   categories?: ITag[],
-  platforms?: IPlatform[],
-  permissions_groups?: string[],
-  is_public?: boolean,
-  is_internal?: boolean,
-
+  environments?: IPlatform[],
+  user_groups?: IWorkshopUserGroup[],
+  localizations: IWorkshopLocalizationForm[]
 }
 
+export interface IWorkshopUserGroup {
+  id: number,
+  name: string,
+  isActive: boolean,
+  created_at?: Date,
+  updated_at?: Date 
+}
 export interface IWorkshopForm extends IWorkshop{
-  groups?: number[]
-  techTags?: number[],
-  bizTags?: number[],
-  user_groups?: any,
-  platforms?: IPlatform[],
-  permissions_groups?: string[],
-  is_public?: boolean,
-  is_internal?: boolean,
-
-  /*
-    image: string,
-    is_public?: boolean,
-    is_internal?: boolean,
-    permissions_groups: string[],
-    categories: ICategory[],
-    tags: ITag[],
-    platforms: IPlatform[],
-    active?: boolean,
-    id: string,
-    title: string,
-    level: number,
-    duration: string,
-    description: string,
-    workshop_url: URL
-    modified_at?: Date,
-    author?: string,
-    name?: string
-  */
+  groups: number[]
+  techTags: number[],
+  bizTags: number[],
+  envs: number[]
 }
 
+export interface IWorkshopLocalizationForm {
+  id?: number,
+  locale: string,
+  title: string,
+  description: string,
+  active: boolean,
+  manifest?: string
+}
 
 
 export interface IWorkshopMenuItem {
@@ -139,23 +133,21 @@ export enum WS {
 
 export interface WsFilter {
   searchString?: string,
-  categories?: string[],
-  tags?: string[]
+  tags: string[]
 }
 
-export interface WsQueryDTO extends WsFilter {
+export interface WsFilterClient {
+  searchString?: string,
+  categories: string[],
+  tags: string[]
+}
+export interface BasicQueryDTO {
   page: number,
   pageSize: number
 }
 
 export interface WsQueryDTO extends WsFilter, BasicQueryDTO {
 }
-
-export interface BasicQueryDTO {
-  page: number,
-  pageSize: number
-}
-
 export interface TagQueryDTO extends BasicQueryDTO {
   searchString?: string,
   category?: string

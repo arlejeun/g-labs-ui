@@ -1,20 +1,14 @@
 <script lang="ts" setup>
 import TagFormatter from "@/components/testing/TagFormatter.vue";
 import DateTimeFormatter from "@/components/testing/DateTimeFormatter.vue";
-import type { ICategoryTag, ITag, IWorkshop, IWorkshopAdminTable, TagQueryDTO } from "@/interfaces/workshop";
-import { useAdminStore } from "@/stores/admin";
+import type { IWorkshop, IWorkshopAdminTable, TagQueryDTO, WsQueryDTO } from "@/interfaces/workshop";
 import { useWorkshopStore } from "@/stores/workshop";
-import { Filter, Plus, Search } from '@element-plus/icons-vue'
-import type { FormInstance } from "element-plus/es/components/form";
-import type { FormRules } from "element-plus/es/tokens/form";
+import { Filter, Plus } from '@element-plus/icons-vue'
 
 const wsStore = useWorkshopStore()
 const { workshops } = storeToRefs(wsStore)
-const { loadWorkshops, updateWorkshop, removeWorkshop, addWorkshop } = wsStore
+const { loadWorkshops, removeWorkshop, provisionWorkshop } = wsStore
 
-const filterTag = (value: string, row: ICategoryTag) => {
-	return row.category === value
-}
 
 /** Pagination */
 const handlePaginationSizeChange = (val: number) => {
@@ -42,11 +36,12 @@ const small = ref(false)
 const disabled = ref(false)
 const background = ref(true)
 const filterActive = ref(false)
-const query = computed((): TagQueryDTO => {
+const query = computed((): WsQueryDTO => {
 	return {
 		searchString: search.value,
 		page: currentPage.value,
-		pageSize: pageSize.value
+		pageSize: pageSize.value,
+		tags: []
 	}
 })
 
@@ -69,28 +64,24 @@ const filterTableData = computed(() =>
 			data.title.toLowerCase().includes(search.value.toLowerCase())
 	)
 )
-const handleProvision = (index: number, row: ICategoryTag) => {
-	console.log(index, row)
+const handleProvision = (index: number, row: IWorkshop) => {
+	provisionWorkshop(row.owner, row.name)
 	disabledForm.value = false
 }
 
-const handleActivate = (index: number, row: ICategoryTag) => {
-	console.log(index, row)
-	disabledForm.value = false
-}
-const handleEdit = (index: number, row: ICategoryTag) => {
-	console.log(index, row)
+// const handleActivate = (index: number, row: ICategoryTag) => {
+// 	disabledForm.value = false
+// }
+const handleEdit = (index: number, row: IWorkshop) => {
 	disabledForm.value = false
 }
 
 const handleDelete = (index: number, row: IWorkshop) => {
-	console.log(index, row)
 	removeWorkshop(row.id)
 }
 
 const handleRowClick = (row: IWorkshop) => {
 	currentWorkshop.value = row
-	console.log(row)
 }
 
 const handleWorkshopAdd = () => {
@@ -100,50 +91,38 @@ const handleWorkshopAdd = () => {
 }
 
 
-const tagFormRef = ref<FormInstance>()
-const rules = reactive<FormRules>({
-	name: [
-		{ required: true, message: 'Please enter name', trigger: 'blur' },
-		{ min: 2, max: 40, message: 'Length should be 2 to 30', trigger: 'blur' },
-	],
-	label: [
-		{ required: true, message: 'Please enter name', trigger: 'blur' },
-		{ min: 2, max: 40, message: 'Length should be 2 to 30', trigger: 'blur' },
-	],
-})
+// const editWorkshopForm = async (formEl: FormInstance | undefined) => {
+// 	if (!formEl) return
+// 	await formEl.validate((valid, fields) => {
+// 		if (valid) {
+// 			//TODO: Update workshop
+// 			updateWorkshop(currentWorkshop.value)
+// 			console.log('Submit!')
+// 			disabledForm.value = true
+// 		} else {
+// 			console.log('error submit!', fields)
+// 		}
+// 	})
+// }
 
-const editWorkshopForm = async (formEl: FormInstance | undefined) => {
-	if (!formEl) return
-	await formEl.validate((valid, fields) => {
-		if (valid) {
-			//TODO: Update workshop
-			updateWorkshop(currentWorkshop.value)
-			console.log('Submit!')
-			disabledForm.value = true
-		} else {
-			console.log('error submit!', fields)
-		}
-	})
-}
+// const addTagForm = async (formEl: FormInstance | undefined) => {
+// 	if (!formEl) return
+// 	await formEl.validate((valid, fields) => {
+// 		if (valid) {
+// 			addWorkshop(currentWorkshop.value)
+// 			disabledForm.value = true
+// 			editMode.value = true
+// 		} else {
+// 			console.log('error submit!', fields)
+// 		}
+// 	})
+// }
 
-const addTagForm = async (formEl: FormInstance | undefined) => {
-	if (!formEl) return
-	await formEl.validate((valid, fields) => {
-		if (valid) {
-			addWorkshop(currentWorkshop.value)
-			disabledForm.value = true
-			editMode.value = true
-		} else {
-			console.log('error submit!', fields)
-		}
-	})
-}
-
-const resetForm = (formEl: FormInstance | undefined) => {
-	if (!formEl) return
-	formEl.resetFields()
-	disabledForm.value = true
-}
+// const resetForm = (formEl: FormInstance | undefined) => {
+// 	if (!formEl) return
+// 	formEl.resetFields()
+// 	disabledForm.value = true
+// }
 
 watch(filterTableData, () => {
 	if (workshops.value.records > 0) {
@@ -157,7 +136,7 @@ const columns = ref({} as IWorkshopAdminTable)
 columns.value = {
 	id: {
 		label: 'ID',
-		width: 40
+		width: 50
 	},
 	owner: {
 		label: 'Owner',
@@ -169,7 +148,7 @@ columns.value = {
 	},
 	tags: {
 		label: 'Tags',
-		width: 200,
+		width: 250,
 		formatter: 'tagformatter'
 	},
 
@@ -212,7 +191,7 @@ onMounted(() => {
 							</template>
 						</template>
 					</el-table-column>
-					<el-table-column width="320" align="right">
+					<el-table-column align="right">
 						<template #header>
 							<el-row>
 								<el-input v-model="search" placeholder="Type to search">
@@ -226,7 +205,7 @@ onMounted(() => {
 						</template>
 						<template #default="scope">
 							<el-button size="small" @click="handleProvision(scope.$index, scope.row)">Provision</el-button>
-							<el-button size="small" @click="handleActivate(scope.$index, scope.row)">Activate</el-button>
+							<!-- <el-button size="small" @click="handleActivate(scope.$index, scope.row)">Activate</el-button> -->
 							<el-button size="small" @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
 							<el-button size="small" type="danger"
 								@click="handleDelete(scope.$index, scope.row)">Delete</el-button>
@@ -238,7 +217,7 @@ onMounted(() => {
 
 				<div class="mt-4 row justify-content-center">
 					<el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize"
-						:page-sizes="[10, 25, 50, 500]" :small="small" :disabled="disabled" :background="background"
+						:page-sizes="[5, 25, 50, 500]" :small="small" :disabled="disabled" :background="background"
 						layout="total, sizes, prev, pager, next, jumper" :total="totalRecords"
 						@size-change="handlePaginationSizeChange" @current-change="handlePaginationCurrentChange" />
 				</div>
@@ -264,56 +243,15 @@ onMounted(() => {
 					</template>
 
 					<div class="card-body row px-0">
-						<WorkshopForm :workshop="currentWorkshop" :edit-mode="false"></WorkshopForm>
+						<WorkshopForm :workshop="currentWorkshop" :edit-mode="editMode"></WorkshopForm>
 					</div>
 
 				</el-card>
-				<!-- <div class="card "> -->
-					
-					
-					<!-- <div class="card-body border row px-0">
-						<WorkshopForm :workshop="currentWorkshop" :edit-mode="false"></WorkshopForm> -->
-						<!-- <el-form ref="tagFormRef" :model="currentWorkshop" :rules="rules" :disabled="disabledForm"
-							class="row" label-position="top">
-							<div class="col-xs-12 col-12">
-								<el-form-item label="Tag Name" prop="name">
-									<el-input v-model="currentWorkshop.name" class="w-100 m-2" />
-								</el-form-item>
-							</div>
-
-							<div class="col-xs-12 col-12">
-								<el-form-item label="Owner" prop="owner">
-									<el-input v-model="currentWorkshop.owner" class="w-100 m-2" />
-								</el-form-item>
-							</div>
-
-							<div class="col-xs-12 col-12">
-								<el-form-item label="Tag Label" prop="label">
-									<el-input v-model="currentWorkshop.tags" class="w-100 m-2" />
-								</el-form-item>
-							</div>
-
-							<div class="pt-2 d-sm-flex justify-content-end">
-								<el-form-item class="mb-0">
-									<el-button v-show="editMode" type="primary"
-										@click="editWorkshopForm(tagFormRef)">Edit</el-button>
-									<el-button v-show="!editMode" type="primary"
-										@click="addTagForm(tagFormRef)">Add</el-button>
-									<el-button @click="resetForm(tagFormRef)">Reset</el-button>
-								</el-form-item>
-							</div>
-
-
-						</el-form> -->
-					<!-- </div> -->
-
-
-				<!-- </div> -->
+				
 			</div>
 
 
 		</div>
-
 
 	</section>
 
