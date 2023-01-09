@@ -133,7 +133,9 @@ export enum WS {
 
 export interface WsFilter {
   searchString?: string,
-  tags: string[]
+  tags: string[],
+  active?: boolean, 
+
 }
 
 export interface WsFilterClient {

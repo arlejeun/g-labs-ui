@@ -9,18 +9,10 @@
           <div class="row">
             <div class="col-12 order-12 order-sm-1 col-sm-8">
               <h1 class="title-text" role="heading">
-                Experience as a Service℠
+                {{ $t('home.title')}}
               </h1>
               <p class="text-white">
-                This website is a dedicated resource for curated workshops and
-                training Modules created by the teams at Genesys. The workshops
-                will teach you how to build the foundation of an empathetic
-                customer experience — delivered through Experience as a
-                Service℠. While it’s enabled by technology, Experience as a
-                Service doesn’t happen through technology alone. It’s also an
-                engagement you make across your business for your employees’
-                good, for your customers’ good and for the good of your
-                business.
+                {{ $t('home.description')}}
               </p>
             </div>
             <div class="col-12 order-1 order-sm-12 col-sm-4 text-center">
@@ -39,9 +31,9 @@
               </div>
               <div class="hightlight-section-content align-self-center">
                 <h6 class="heading pb-0 text-primary">
-                  Available Workshops
+                  {{ $t('home.submenu1.title')}}
                 </h6>
-                <p><small>New workshops and content added frequently</small></p>
+                <p><small> {{ $t('home.submenu1.desc')}}</small></p>
               </div>
             </div>
 
@@ -53,9 +45,9 @@
               </div>
               <div class="hightlight-section-content align-self-center">
                 <h6 class="heading text-primary">
-                  Created by experts
+					{{ $t('home.submenu2.title')}}
                 </h6>
-                <p><small>Created by specialists in the field from Genesys</small></p>
+                <p><small>{{ $t('home.submenu2.desc')}}</small></p>
               </div>
             </div>
             <div class="w-100 d-inline d-sm-none d-block spacer-mob-sm" />
@@ -66,10 +58,10 @@
               </div>
               <div class="hightlight-section-content align-self-center">
                 <h6 class="heading text-primary">
-                  Available for access anywhere
+					{{ $t('home.submenu3.title')}}
                 </h6>
                 <p>
-                  <small>Globally available without restriction and mobile friendly</small>
+                  <small>{{ $t('home.submenu3.desc')}}</small>
                 </p>
               </div>
             </div>
@@ -331,34 +323,34 @@
 
 			<!-- Right side START -->
       <div class="col-lg-6">
-				<h3 class="text-primary">Drive your own Experience</h3>
-				<p class="mb-3 mb-lg-5">Genesys Drive perfectly combines what you need to deliver best in class solutions to your customers. Be on the driver seat to build integrations and personalize experiences with interactive workshops.</p>
+				<h3 class="text-primary">{{ $t('home.subtitle.title') }}</h3>
+				<p class="mb-3 mb-lg-5">{{ $t('home.subtitle.desc') }}</p>
 
 				<!-- Features START -->
 				<div class="row g-4">
 					<!-- Item -->
 					<div class="col-sm-6">
 						<div class="icon-lg bg-success bg-opacity-10 text-success rounded-circle"><i class="bi bi-boxes"></i></div>
-						<h5 class="mt-2">Deploy everywhere</h5>
-						<p class="mb-0">Departure defective arranging rapturous did. Conduct denied adding worthy little.</p>
+						<h5 class="mt-2">{{ $t('home.item1.title') }}</h5>
+						<p class="mb-0">{{ $t('home.item1.desc') }}</p>
 					</div>
 					<!-- Item -->
 					<div class="col-sm-6">
 						<div class="icon-lg bg-danger bg-opacity-10 text-danger rounded-circle"><i class="bi bi-stopwatch-fill"></i></div>
-						<h5 class="mt-2">Quick Services</h5>
-						<p class="mb-0">Supposing so be resolving breakfast am or perfectly. </p>
+						<h5 class="mt-2">{{ $t('home.item2.title') }}</h5>
+						<p class="mb-0">{{ $t('home.item2.desc') }}</p>
 					</div>
 					<!-- Item -->
 					<div class="col-sm-6">
 						<div class="icon-lg bg-orange bg-opacity-10 text-orange rounded-circle"><i class="bi bi-shield-fill-check"></i></div>
-						<h5 class="mt-2">High Security</h5>
-						<p class="mb-0">Arranging rapturous did believe him all had supported. </p>
+						<h5 class="mt-2">{{ $t('home.item3.title') }}</h5>
+						<p class="mb-0">{{ $t('home.item3.desc') }}</p>
 					</div>
 					<!-- Item -->
 					<div class="col-sm-6">
 						<div class="icon-lg bg-info bg-opacity-10 text-info rounded-circle"><i class="bi bi-lightning-fill"></i></div>
-						<h5 class="mt-2">24 Hours Alert</h5>
-						<p class="mb-0">Rapturous did believe him all had supported.</p>
+						<h5 class="mt-2">{{ $t('home.item4.title') }}</h5>
+						<p class="mb-0">{{ $t('home.item4.desc') }}</p>
 					</div>		
 				</div>
 				<!-- Features END -->

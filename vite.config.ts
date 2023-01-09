@@ -1,6 +1,6 @@
 import { URL, fileURLToPath } from "node:url";
 import { defineConfig, loadEnv } from "vite";
-
+import { resolve, dirname } from 'node:path';
 import type { UserConfig} from "vite"
 import type { ServerOptions as ServerOptions } from 'node:https';
 
@@ -10,9 +10,11 @@ import Layouts from "vite-plugin-vue-layouts";
 import Components from "unplugin-vue-components/vite";
 import AutoImport from "unplugin-auto-import/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
+import VueI18n from '@intlify/unplugin-vue-i18n/vite'
 import Markdown from "vite-plugin-vue-markdown";
 import DefineOptions from "unplugin-vue-define-options/vite";
 import fs from "fs";
+import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }): UserConfig => {
@@ -70,7 +72,7 @@ export default defineConfig(({ mode }): UserConfig => {
       }),
       Layouts(),
       AutoImport({
-        imports: ["vue", "vue-router", "@vueuse/head", "@vueuse/core", "pinia"],
+        imports: ["vue", "vue-router", "@vueuse/head", "@vueuse/core", "pinia", "vue-i18n"],
         resolvers: [ElementPlusResolver()],
         vueTemplate: true,
         dirs: ["src/composables", "src/store"],
@@ -88,6 +90,14 @@ export default defineConfig(({ mode }): UserConfig => {
         headEnabled: true,
       }),
       DefineOptions(),
+          // https://github.com/intlify/bundle-tools/tree/main/packages/unplugin-vue-i18n
+      VueI18n({
+        //runtimeOnly: true,
+        compositionOnly: true,
+        //fullInstall: true,
+        include: path.resolve(__dirname, './src/i18n/locales/**')
+        //include: [path.resolve(__dirname, './src/i18n/locales/**')],
+      }),
     ],
     define: { "process.env": {} },
     resolve: {
@@ -100,3 +110,7 @@ export default defineConfig(({ mode }): UserConfig => {
     }
   };
 });
+function VueI18nPlugin(arg0: { include: string; /* options */ }): import("vite").PluginOption {
+  throw new Error("Function not implemented.");
+}
+

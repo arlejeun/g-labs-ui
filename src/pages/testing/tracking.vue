@@ -4,6 +4,7 @@
 
 <template>
 
+  <HelloI18n/>
   <div class="container">
 	<Analytics/>
   </div>

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import TagFormatter from "@/components/testing/TagFormatter.vue";
 import DateTimeFormatter from "@/components/testing/DateTimeFormatter.vue";
-import type { IWorkshop, IWorkshopAdminTable, TagQueryDTO, WsQueryDTO } from "@/interfaces/workshop";
+import type { IWorkshop, IWorkshopAdminTable, WsQueryDTO } from "@/interfaces/workshop";
 import { useWorkshopStore } from "@/stores/workshop";
 import { Filter, Plus } from '@element-plus/icons-vue'
 
@@ -41,6 +41,7 @@ const query = computed((): WsQueryDTO => {
 		searchString: search.value,
 		page: currentPage.value,
 		pageSize: pageSize.value,
+		active: false,
 		tags: []
 	}
 })
@@ -74,6 +75,7 @@ const handleProvision = (index: number, row: IWorkshop) => {
 // }
 const handleEdit = (index: number, row: IWorkshop) => {
 	disabledForm.value = false
+	editMode.value = true
 }
 
 const handleDelete = (index: number, row: IWorkshop) => {
@@ -88,6 +90,7 @@ const handleWorkshopAdd = () => {
 	//currentWorkshop.value = { id: 0, name: '', owner: '', title: '', description: '' }
 	disabledForm.value = false
 	editMode.value = false
+	currentWorkshop.value = {} as IWorkshop 
 }
 
 
@@ -229,7 +232,7 @@ onMounted(() => {
 					<template #header>
 						<div class="card-header row justify-content-between px-0">
 						<div class="col">
-							<h5 class="text-primary">Edit Workshop</h5>
+							<h5 class="text-primary">Workshop Details</h5>
 						</div>
 						<div class="col-2">
 							<el-button-group>

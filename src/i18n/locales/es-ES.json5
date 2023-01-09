@@ -1,0 +1,49 @@
+{
+workshops: {
+    title: 'Talleres',
+    desc: 'Los talleres le enseñarán cómo construir la base de una experiencia del cliente empática, proporcionada a través de la Experiencia como Servicio℠ (Experience as a Service℠). Si bien es posible gracias a la tecnología, la Experiencia como Servicio no se consigue únicamente a través de la tecnología. También es un compromiso que usted asume en toda su empresa por el bien de sus empleados, por el bien de sus clientes y por el bien de su empresa.',
+    connectButton: 'Connect to Genesys',
+    checkButton: 'Check Active Session',
+    launchButton: 'Launch Genesys',
+    searchFor: 'Busca aqui',
+},
+
+title: 'Experiencia como servicio℠',
+description: 'Este sitio web es un recurso dedicado a talleres y módulos de formación creados por los equipos de Genesys. Los talleres le enseñarán cómo construir la base de una experiencia del cliente empática, proporcionada a través de la Experiencia como Servicio℠ (Experience as a Service℠). Si bien es posible gracias a la tecnología, la Experiencia como Servicio no se consigue únicamente a través de la tecnología. También es un compromiso que usted asume en toda su empresa por el bien de sus empleados, por el bien de sus clientes y por el bien de su empresa.',
+submenu1: {
+    title: 'Disponible talleres',
+    desc: 'Nuevos talleres y contenido añadido con frecuencia',
+},
+submenu2: {
+    title: 'Creado por expertos',
+    desc: 'Creado por especialistas en la materia de Genesys',
+},
+submenu3: {
+    title: 'Disponible para acceder desde cualquier lugar',
+    desc: 'Disponible globalmente sin restricciones y compatible con dispositivos móviles',
+},
+
+subtitle: {
+    title: 'Drive your own Experience',
+    desc: 'Genesys Drive perfectly combines what you need to deliver best in class solutions to your customers. Be on the driver seat to build integrations and personalize experiences with interactive workshops.'
+},
+item1: {
+    title: 'Deploy everywhere',
+    desc: 'Departure defective arranging rapturous did. Conduct denied adding worthy little.',
+},
+item2: {
+    title: 'Quick Services',
+    desc: 'Supposing so be resolving breakfast am or perfectly.',
+},
+item3: {
+    title: 'High Security',
+    desc: 'Arranging rapturous did believe him all had supported.',
+},
+item4: {
+    title: '24 Hours Alert',
+    desc: 'Rapturous did believe him all had supported.',
+},
+
+
+
+}

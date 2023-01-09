@@ -13,14 +13,14 @@ import {
 	Menu,
 	CircleCheck
 } from '@element-plus/icons-vue'
-import type { WsFilter, WsFilterClient, WsQueryDTO } from '@/interfaces/workshop';
+import type { IWorkshop, WsFilter, WsFilterClient, WsQueryDTO } from '@/interfaces/workshop';
 import router from '@/router';
 import type { FormInstance } from 'element-plus/es/components/form';
 import type { FormRules } from 'element-plus/es/tokens/form';
 import { useAdminStore } from '@/stores/admin';
 
 const userStore = useUserStore()
-const { user, isAdmin } = storeToRefs(userStore)
+const { user, isAdmin, localization } = storeToRefs(userStore)
 
 const workspaceStore = useWorkspaceStore()
 const { isTokenActive, gsysCloudClient } = storeToRefs(workspaceStore)
@@ -164,9 +164,18 @@ const resetForm = (formEl: FormInstance | undefined) => {
 	formEl.resetFields()
 }
 
+// const matchLocalization = (ws: IWorkshop): boolean => {
+// 	return true || 
+// }
 
 const availableWorkshops = computed(() => {
-	return workshops.value?.rows
+	if (localization.value.length > 0 && localization.value != 'en-US') {
+		return workshops.value?.rows?.filter(ws => ws?.localizations?.some(loc => loc.locale == localization.value))
+	}
+	else {
+		return workshops.value?.rows
+	}
+	
 })
 
 const availableWorkshopsCount = computed(() => {
@@ -196,23 +205,16 @@ Title and Tabs START -->
 		<div class="container position-relative">
 			<div class="row">
 				<div class="col-xs-12 col-lg-9">
-					<h3 class="fs-3 text-primary mt-4">Workshops</h3>
-					<p class="text-secondary">Genesys Workshops provide detailed instructions and open source code
-						repositories
-						to assist partners and customers in jump-starting your custom integrations with third-party
-						products and
-						complex solutions within Genesys Cloud.</p>
+					<h3 class="fs-3 text-primary mt-4">{{$t('workshops.title')}}</h3>
+					<p class="text-secondary">{{$t('workshops.desc')}}</p>
 				</div>
 				<div v-if="!isMobile" class="col pt-4">
 					<div v-show="!isTokenActive" class="row justify-content-end ms-4 ps-4 g-3">
-						<el-button  type="warning" @click.prevent="connectToCloud" text bg>Connect to
-						Genesys</el-button>
+						<el-button  type="warning" @click.prevent="connectToCloud" text bg>{{$t('workshops.connectButton')}}</el-button>
 					</div>
 					<div v-show="isTokenActive" class="row justify-content-end ms-4 ps-4 g-3">
-					<el-button type="success" @click.prevent="connectToCloud" text bg>Check Active
-						 Session<CircleCheck style="width: 1em; height: 1em;margin-left: 8px; margin-right: 8px"/></el-button>
-					<el-button type="primary" @click.prevent="launchGenesysCloud" text bg>Launch
-						 Genesys<MagicStick style="width: 1em; height: 1em;margin-left: 8px; margin-right: 8px" /></el-button>
+					<el-button type="success" @click.prevent="connectToCloud" text bg>{{$t('workshops.checkButton')}}<CircleCheck style="width: 1em; height: 1em;margin-left: 8px; margin-right: 8px"/></el-button>
+					<el-button type="primary" @click.prevent="launchGenesysCloud" text bg>{{ $t('workshops.launchButton') }}<MagicStick style="width: 1em; height: 1em;margin-left: 8px; margin-right: 8px" /></el-button>
 					</div>
 				</div>
 			</div>
@@ -225,7 +227,7 @@ Title and Tabs START -->
 					<div class="d-flex justify-content-between mt-2">
 						<!-- Filter collapse button -->
 
-						<el-input v-model="filterForm.searchString" @change="handleSearchChange" class="w-50" placeholder="Search for"
+						<el-input v-model="filterForm.searchString" @change="handleSearchChange" class="w-50" :placeholder="$t('workshops.searchFor')"
 							:prefix-icon="Search" />
 
 

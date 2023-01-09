@@ -1,10 +1,12 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-//import { abilitiesPlugin } from '@casl/vue'
 
+//import { abilitiesPlugin } from '@casl/vue'
 // import ability from '@/plugins/casl/ability'
+
 import gtag from 'vue-gtag-next'
 import Notifications from '@kyvg/vue3-notification'
+
 
 
 //import ElementPlus from 'element-plus'
@@ -28,6 +30,8 @@ import { CustomNavigationClient } from '@/router/NavigationClient'
 import Vue3EasyDataTable from 'vue3-easy-data-table';
 import 'vue3-easy-data-table/dist/style.css';
 
+import 'nprogress'
+
 // Import Fontawesome
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -38,6 +42,7 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 
 import router from './router'
 import App from '@/App.vue'
+import i18n from './modules/i18n'
 
 library.add(fas)
 
@@ -91,6 +96,8 @@ msalInstance.addEventCallback((event) => {
 
 
 app.use(msalPlugin, msalInstance);
+
+app.use(i18n);
 
 
 
