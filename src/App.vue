@@ -34,6 +34,22 @@ onBeforeUnmount(() => {
 
 <style lang="scss">
 
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  background: var(--bs-orange);
+  opacity: 0.75;
+  position: fixed;
+  z-index: 1031;
+  top: 70px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+}
+
+
 .logo {
   display: block;
   margin: 0 auto 2rem;

@@ -30,6 +30,8 @@ import { CustomNavigationClient } from '@/router/NavigationClient'
 import Vue3EasyDataTable from 'vue3-easy-data-table';
 import 'vue3-easy-data-table/dist/style.css';
 
+import 'nprogress'
+
 // Import Fontawesome
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'

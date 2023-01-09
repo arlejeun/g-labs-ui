@@ -4,8 +4,10 @@ import generatedRoutes from 'virtual:generated-pages'
 import { useUserStore } from '@/stores/user'
 import { trackRouter } from "vue-gtag-next";
 import { registerGuard } from "./Guard";
+import NProgress from 'nprogress'
 
 const routes = setupLayouts(generatedRoutes)
+const currentRoute = useRoute()
 
 const router = createRouter({
   //history: createWebHistory(),
@@ -42,9 +44,16 @@ const router = createRouter({
 //   }
 // })
 
-router.beforeEach((to, _, next) => {
+router.beforeEach((to, from, next) => {
   console.log('path ' + to.path)
+  if (to.path !== from.path) {
+    NProgress.start()
+  }
   next()
+})
+
+router.afterEach(() => {
+  NProgress.done()
 })
 
 registerGuard(router);
