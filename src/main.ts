@@ -1,10 +1,12 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-//import { abilitiesPlugin } from '@casl/vue'
 
+//import { abilitiesPlugin } from '@casl/vue'
 // import ability from '@/plugins/casl/ability'
+
 import gtag from 'vue-gtag-next'
 import Notifications from '@kyvg/vue3-notification'
+
 
 
 //import ElementPlus from 'element-plus'
@@ -38,6 +40,7 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 
 import router from './router'
 import App from '@/App.vue'
+import i18n from './modules/i18n'
 
 library.add(fas)
 
@@ -91,6 +94,8 @@ msalInstance.addEventCallback((event) => {
 
 
 app.use(msalPlugin, msalInstance);
+
+app.use(i18n);
 
 
 

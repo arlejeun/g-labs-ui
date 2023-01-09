@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   drive-backend:
-    image: 'drive-frontend:latest'
+    image: 'glabs-ui:latest'
     restart: always
     networks:
       - glabs-frontend-local

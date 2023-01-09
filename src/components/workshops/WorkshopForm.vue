@@ -27,7 +27,7 @@ const { fetchTags, fetchUserGroups } = adminStore
 
 const wStore = useWorkshopStore()
 const { workshopMeta } = storeToRefs(wStore)
-const { addWorkshop, updateWorkshop } = wStore
+const { addWorkshop, updateWorkshop, removeLocalizedWorkshop } = wStore
 
 const showInfoSection = ref(true)
 const showPublishSection = ref(false)
@@ -130,7 +130,13 @@ const addLocalization = (formEl: FormInstance | undefined) => {
 }
 
 const removeLocalization = (loc: string) => {
-  form.value.localizations.splice(form.value.localizations.findIndex(x => x.locale == loc), 1)
+  const localizationIndex = form.value.localizations.findIndex(x => x.locale == loc)
+  if (localizationIndex >= 0) {
+    if (Object.keys(form.value.localizations[localizationIndex]).includes('id')) {
+      removeLocalizedWorkshop(form.value.localizations[localizationIndex].id) 
+    }
+    form.value.localizations.splice(localizationIndex, 1)
+   }
 }
 
 const form = ref({} as IWorkshopForm)
@@ -206,7 +212,7 @@ onMounted(() => {
 
               <div class="row justify-content-between pb-3 px-0">
                 <div class="col">
-                  <h5 class="">Workshop Information</h5>
+                  <h6 class="">General Information</h6>
                 </div>
                 <div class="col-2">
                   <el-button-group>
@@ -256,11 +262,22 @@ onMounted(() => {
 
                 <el-row :gutter="20">
                   <el-col :xs="24" :span="24">
+                    <el-form-item label="Image filename" prop="image_filename">
+                      <el-input v-model="form.image_filename" />
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+
+
+                <el-row :gutter="20">
+                  <el-col :xs="24" :span="24">
                     <el-form-item label="Description" prop="desc">
                       <el-input :rows="3" type="textarea" v-model="form.description" />
                     </el-form-item>
                   </el-col>
                 </el-row>
+
+
 
                 <el-row :gutter="20">
                   <el-col :xs="24" :span="24">
@@ -285,7 +302,7 @@ onMounted(() => {
                   </el-col>
                   <el-col :xs="6" :span="6">
                     <el-form-item label="Active">
-                      <el-switch v-model="form.active" />
+                      <el-switch v-model="form.active" :disabled="!form.provisioned"/>
                     </el-form-item>
                   </el-col>
                 </el-row>
@@ -316,11 +333,11 @@ onMounted(() => {
 
               </div>
 
-              <el-divider></el-divider>
+              <el-divider v-show="form.provisioned"></el-divider>
 
-              <div class="row justify-content-between pb-3 px-0">
+              <div v-show="form.provisioned" class="row justify-content-between pb-3 px-0">
                 <div class="col">
-                  <h5 class="">Workshop Publication</h5>
+                  <h6 class="">Publication & Localization</h6>
                 </div>
                 <div class="col-2">
                   <el-button-group>
@@ -341,14 +358,6 @@ onMounted(() => {
                   <el-col :xs="24" :span="24">
                     <el-form-item label="Workshop URL" prop="workshop_url">
                       <el-input v-model="form.workshop_url" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-
-                <el-row :gutter="20">
-                  <el-col :xs="24" :span="24">
-                    <el-form-item label="Image filename" prop="image_filename">
-                      <el-input v-model="form.image_filename" />
                     </el-form-item>
                   </el-col>
                 </el-row>
@@ -394,10 +403,10 @@ onMounted(() => {
                   </el-row>
 
                 </div>
+
+                <el-divider></el-divider>
+
               </div>
-
-              <el-divider></el-divider>
-
 
               <div class="pt-2 d-sm-flex justify-content-end">
                 <el-form-item>

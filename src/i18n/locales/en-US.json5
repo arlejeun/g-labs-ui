@@ -1,0 +1,48 @@
+{
+  workshops: {
+    title: 'Workshops',
+    desc: 'Genesys Workshops provide detailed instructions and open source code repositories to assist partners and customers in jump-starting your custom integrations with third-party products and complex solutions within Genesys Cloud.',
+    connectButton: 'Connect to Genesys',
+    checkButton: 'Check Active Session',
+    launchButton: 'Launch Genesys',
+    searchFor: 'Search for',
+  },
+
+  home: {
+    title: 'EXPERIENCE AS A SERVICE℠',
+    description: 'This website is a dedicated resource for curated workshops and training Modules created by the teams at Genesys. The workshops will teach you how to build the foundation of an empathetic customer experience — delivered through Experience as a Service℠. While it’s enabled by technology, Experience as a Service doesn’t happen through technology alone. It’s also an engagement you make across your business for your employees’ good, for your customers’ good and for the good of your business.',
+    submenu1: {
+      title: 'Available workshops',
+      desc: 'New workshops and content added frequently',
+    },
+    submenu2: {
+      title: 'Created by experts',
+      desc: 'Created by specialists in the field from Genesys',
+    },
+    submenu3: {
+      title: 'Available for access anywhere',
+      desc: 'Globally available without restriction and mobile friendly',
+    },
+
+    subtitle: {
+      title: 'Drive your own Experience',
+      desc: 'Genesys Drive perfectly combines what you need to deliver best in class solutions to your customers. Be on the driver seat to build integrations and personalize experiences with interactive workshops.',
+    },
+    item1: {
+      title: 'Deploy everywhere',
+      desc: 'Departure defective arranging rapturous did. Conduct denied adding worthy little.',
+    },
+    item2: {
+      title: 'Quick Services',
+      desc: 'Supposing so be resolving breakfast am or perfectly.',
+    },
+    item3: {
+      title: 'High Security',
+      desc: 'Arranging rapturous did believe him all had supported.',
+    },
+    item4: {
+      title: '24 Hours Alert',
+      desc: 'Rapturous did believe him all had supported.',
+    },
+  },
+}

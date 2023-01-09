@@ -3,6 +3,20 @@
 import { useSocketStore } from '@/stores/socket'
 import socketioService from './services/socketio.service';
 
+import { useI18n } from 'vue-i18n'
+import { useUserStore } from './stores/user';
+
+const { t, locale } = useI18n()
+const store = useUserStore();
+
+const { localization } = storeToRefs(store)
+
+watch(localization,(newVal) => { //watch the getter
+  //t.locale.value = newVal.value;
+  locale.value = newVal;
+},{
+  immediate:true
+});
 
 const { notifyUser } = useSocketStore()
 socketioService.setupSocketConnection(notifyUser)
