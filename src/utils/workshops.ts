@@ -16,29 +16,41 @@ const shortCodes = [
       </div>`
   },
   {
-    reg: "{{% notice warning %}}(([^{}]|\n)*){{% /notice %}}",
+    reg: "{{% notice warning %}}((.|\n)*?){{% /notice %}}",
     replace: `<blockquote class="bq bq-warn">
       <p>%%variable%%</p>
       </blockquote>`
   },
   {
-    reg: "{{% notice info %}}(([^{}]|\n)*){{% /notice %}}",
+    reg: "{{% notice info %}}((.|\n)*?){{% /notice %}}",
     replace: `<blockquote class="bq bq-info">
               <p>%%variable%%</p>
             </blockquote>`
   },
   {
-    reg: "{{% notice note %}}(([^{}]|\n)*){{% /notice %}}",
+    reg: "{{% notice note %}}((.|\n)*?){{% /notice %}}",
     replace: `<blockquote class="bq bq-note">
       <p>%%variable%%</p>
       </blockquote>`
   },
   {
-    reg: "{{% notice tip %}}(([^{}]|\n)*){{% /notice %}}",
+    reg: "{{% notice tip %}}((.|\n)*?){{% /notice %}}",
     replace: `<blockquote class="bq bq-tip">
       <p>%%variable%%</p>
       </blockquote>`
-  }
+  },
+  {
+    reg: "{{% .* %}}((.|\n)*?){{% /.* %}}",
+    replace: ''
+  },
+  {
+    reg: "{{< .* >}}",
+    replace: ''
+  },
+  {
+    reg: "{{% .* %}}",
+    replace: ''
+  },
 ] as IShortCode[]
 
 

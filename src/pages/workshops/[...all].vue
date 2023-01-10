@@ -8,7 +8,7 @@ const title = useTitle()
 const showNav = ref(true)
 const showEnv = ref(true)
 const wStore = useWorkshopStore()
-const { workshopCreadcrub } = storeToRefs(wStore)
+const { workshopCreadcrub, nextButtonName } = storeToRefs(wStore)
 const { nextStep } = wStore
 const toggleNavigation = () => {
   showNav.value = !showNav.value
@@ -22,7 +22,6 @@ const toggleEnv = () => {
 const addProgress = () => {
   nextStep()
   navRef.value.setNewCurrentKey()
-  navRef.value.setChecked()
 }
 
 onBeforeRouteUpdate(async (to, from) => {
@@ -87,7 +86,9 @@ onBeforeRouteUpdate(async (to, from) => {
             </div>
             <el-divider />
             <div>
-              <el-button type="primary" style="float: right;" @click="addProgress" size="large">Next</el-button>
+              <el-button type="primary" style="float: right;" @click="addProgress" size="large">{{
+                nextButtonName
+              }}</el-button>
             </div>
           </div>
 
