@@ -89,6 +89,7 @@ export interface IWorkshopMenuItem {
   name: string
   weight: number
   path: string
+  chapter?: boolean
   locale?: string
   body?: string
   menus?: Array<IWorkshopMenuItem>
@@ -96,12 +97,14 @@ export interface IWorkshopMenuItem {
   "en-US"?: IWorkshopMenuItem
   "es-ES"?: IWorkshopMenuItem
   "pt-PT"?: IWorkshopMenuItem
+  //  [key: string]?: IWorkshopMenuItem
 }
 
 export interface ITree {
   id: number
   index: number[]
   path: string
+  chapter: boolean,
   body?: string
   label: string
   isTop?: boolean
@@ -114,6 +117,7 @@ export interface ITree {
 export type IPathMap = {
   path: string,
   index: number[],
+  chapter: boolean,
   key: number
 }
 
@@ -134,7 +138,7 @@ export enum WS {
 export interface WsFilter {
   searchString?: string,
   tags: string[],
-  active?: boolean, 
+  active?: boolean,
 
 }
 

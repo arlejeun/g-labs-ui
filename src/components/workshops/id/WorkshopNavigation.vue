@@ -38,15 +38,12 @@ onBeforeRouteUpdate(async (to, from) => {
   treeRef.value?.setCurrentKey(workshopTreeKey.value, true);
 })
 
-const setChecked = () => {
+const setNewCurrentKey = () => {
+  treeRef.value?.setCurrentKey(workshopTreeKey.value, true)
   treeRef.value!.setCheckedKeys(workshopProgress.value, false)
 }
 
-const setNewCurrentKey = () => {
-  treeRef.value?.setCurrentKey(workshopTreeKey.value, true)
-}
-
-defineExpose({ setChecked, setNewCurrentKey })
+defineExpose({ setNewCurrentKey })
 </script>
 
 <template>
