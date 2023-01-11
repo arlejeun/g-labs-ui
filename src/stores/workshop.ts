@@ -144,7 +144,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
       `${WORKSHOPS_BASE}${workshopName.value}/images/`
     );
 
-    return processPage(page) || "Sorry, this page has no content";
+    return processPage(page, workshopName.value) || "Sorry, this page has no content";
   });
 
   const workshopEmpty = computed(() => {
