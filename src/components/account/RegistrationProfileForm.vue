@@ -21,6 +21,10 @@ if (countries.value?.length == 0) fetchCountries()
 
 const registrationFormRef = ref<FormInstance>()
 const registrationRules = reactive<FormRules>({
+  username: [
+    { required: true, message: 'Please input first name', trigger: 'blur' },
+    { min: 2, max: 30, message: 'Length should be 2 to 30', trigger: 'blur' },
+  ],
   first_name: [
     { required: true, message: 'Please input first name', trigger: 'blur' },
     { min: 2, max: 30, message: 'Length should be 2 to 30', trigger: 'blur' },
@@ -119,6 +123,13 @@ const updateCountryUser = () => {
               <el-col :xs="24" :span="12">
                 <el-form-item label="Last Name" prop="last_name">
                   <el-input v-model="myUser.last_name" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row :gutter="20">
+              <el-col :xs="24" :span="12">
+                <el-form-item label="Username" prop="username">
+                  <el-input v-model="myUser.username" />
                 </el-form-item>
               </el-col>
             </el-row>

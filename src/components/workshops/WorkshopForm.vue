@@ -48,7 +48,7 @@ const workshopRules = reactive<FormRules>({
   ],
   name: [
     { required: true, message: 'Please input github repo name', trigger: 'blur' },
-    { min: 2, max: 50, message: 'Length should be 2 to 50', trigger: 'blur' },
+    { min: 2, max: 100, message: 'Length should be 2 to 100', trigger: 'blur' },
   ],
 
   owner: [
@@ -303,6 +303,14 @@ onMounted(() => {
                   <el-col :xs="6" :span="6">
                     <el-form-item label="Active">
                       <el-switch v-model="form.active" :disabled="!form.provisioned"/>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+
+                <el-row :gutter="20">
+                  <el-col :xs="24" :span="24">
+                    <el-form-item label="Workshop URL" prop="workshop_url">
+                      <el-input v-model="form.workshop_url" />
                     </el-form-item>
                   </el-col>
                 </el-row>
