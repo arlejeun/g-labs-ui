@@ -9,15 +9,15 @@ export interface ITag {
 
 export interface ICategoryTag extends ITag {
   used?: number,
-  workshops?: {id: number, name: string}[]
- }
+  workshops?: { id: number, name: string }[]
+}
 
- export interface IUserGroup {
+export interface IUserGroup {
   id: number,
   name: string,
   isActive?: boolean,
-  workshops?: {id: number, name: string}[]
- }
+  workshops?: { id: number, name: string }[]
+}
 
 export interface basicServerResponse {
   page: number,
@@ -40,7 +40,7 @@ export interface IPlatform {
   name: string,
   orgId?: string,
   region?: string
- }
+}
 
 export interface IWorkshopsResponse extends basicServerResponse {
   rows: IWorkshop[]
@@ -72,9 +72,9 @@ export interface IWorkshopUserGroup {
   name: string,
   isActive: boolean,
   created_at?: Date,
-  updated_at?: Date 
+  updated_at?: Date
 }
-export interface IWorkshopForm extends IWorkshop{
+export interface IWorkshopForm extends IWorkshop {
   groups: number[]
   techTags: number[],
   bizTags: number[],
@@ -95,6 +95,7 @@ export interface IWorkshopMenuItem {
   name: string
   weight: number
   path: string
+  chapter?: boolean
   locale?: string
   body?: string
   menus?: Array<IWorkshopMenuItem>
@@ -102,12 +103,14 @@ export interface IWorkshopMenuItem {
   "en-US"?: IWorkshopMenuItem
   "es-ES"?: IWorkshopMenuItem
   "pt-PT"?: IWorkshopMenuItem
+  //  [key: string]?: IWorkshopMenuItem
 }
 
 export interface ITree {
   id: number
   index: number[]
   path: string
+  chapter: boolean,
   body?: string
   label: string
   isTop?: boolean
@@ -120,6 +123,7 @@ export interface ITree {
 export type IPathMap = {
   path: string,
   index: number[],
+  chapter: boolean,
   key: number
 }
 
@@ -140,7 +144,7 @@ export enum WS {
 export interface WsFilter {
   searchString?: string,
   tags: string[],
-  active?: boolean, 
+  active?: boolean,
 
 }
 
@@ -180,5 +184,10 @@ export interface IWorkshopAdminTableElt {
 }
 
 export interface IWorkshopAdminTable {
-  [x:string]: IWorkshopAdminTableElt
+  [x: string]: IWorkshopAdminTableElt
+}
+
+export interface IShortCode {
+  reg: string,
+  replace: string
 }

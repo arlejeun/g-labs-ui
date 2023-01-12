@@ -18,8 +18,7 @@ import { useAxios } from "@vueuse/integrations/useAxios";
 import { useNotification } from "@kyvg/vue3-notification";
 import { handleAxiosError } from "@/utils/axios";
 import { useUserStore } from "@/stores/user";
-import { processPath } from "@/utils/workshops"
-import sanitizeHtml from "sanitize-html";
+import { processPath, processPage } from "@/utils/workshops"
 import type { Ref } from "vue";
 
 const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT;
@@ -37,7 +36,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
 
   const editingWorkshops = ref(true)
 
-  const workshopsQuery = ref({page: 1, pageSize:25} as WsQueryDTO)
+  const workshopsQuery = ref({ page: 1, pageSize: 25 } as WsQueryDTO)
   const workshopMeta = ref({} as IWorkshop)
 
   const workshopTree = ref([] as ITree[]);
@@ -56,7 +55,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
     if (tagsLoV.value.length < 1) {
       const { execute } = useAxios(GLabsApiClient);
       const result = await execute(`/tags?page=1&pageSize=300`, {
-       method: "GET"
+        method: "GET"
       });
       if (result.isFinished.value && !result.error.value) {
         tagsLoV.value = [...result?.data?.value.rows];
@@ -108,6 +107,17 @@ export const useWorkshopStore = defineStore("workshop", () => {
     return route.params.all?.toString()?.indexOf("/");
   });
 
+  const nextButtonName = computed(() => {
+    let res = 'Next'
+    if (treeIndex.value == workShopPathMap.value.length - 1) {
+      res = 'End of Course'
+    }
+    else if (workShopPathMap.value[treeIndex.value + 1]?.chapter) {
+      res = 'End of Chapter'
+    }
+    return res
+  })
+
   const getWorkshopUrl = computed(() => {
     return WORKSHOPS_BASE + workshopName.value + "/";
   });
@@ -129,22 +139,13 @@ export const useWorkshopStore = defineStore("workshop", () => {
       content = content[index].children || [];
     });
 
-    page = _processPage(page)
-    return page || "Sorry, this page has no content";
-  });
-
-  const _processPage = (page: string) => {
-    let res = page.replaceAll(
+    page = page.replaceAll(
       "/images/",
       `${WORKSHOPS_BASE}${workshopName.value}/images/`
     );
 
-    res = sanitizeHtml(res, {
-      allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
-      allowedIframeHostnames: ["www.youtube.com"],
-    });
-    return res
-  }
+    return processPage(page, workshopName.value) || "Sorry, this page has no content";
+  });
 
   const workshopEmpty = computed(() => {
     workshops.value.records > 0;
@@ -175,6 +176,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
         branch.index = [...(index || [])];
         branch.label = locItem.name;
         branch.body = locItem.body;
+        branch.chapter = !!locItem.chapter
         branch.path = processPath(locItem.path);
         branch.id = treeIndex.value;
         branch.disabled = true;
@@ -184,6 +186,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
           path: branch.path,
           index: [...branch.index],
           key: branch.id,
+          chapter: branch.chapter
         });
         if (locItem.menus && locItem.menus.length > 0) {
           branch.children = [..._buildTree(locItem.menus, branch.index)];
@@ -287,33 +290,34 @@ export const useWorkshopStore = defineStore("workshop", () => {
   };
 
   const addWorkshop = async (ws: IWorkshopForm) => {
-    
+
     const { execute } = useAxios(GLabsApiClient);
     const { techTags, bizTags, groups, envs, localizations, ...wsEdit } = ws;
 
-    const wsEditDTO = {...wsEdit, 
-      tags: { connect: [...bizTags, ...techTags].map((x) => { return {'id': x}})},
-      user_groups: {connect: groups?.map(x => {return {'id': x }})},
-      environments: {connect: envs?.map(x => {return {'id': x }})}
+    const wsEditDTO = {
+      ...wsEdit,
+      tags: { connect: [...bizTags, ...techTags].map((x) => { return { 'id': x } }) },
+      user_groups: { connect: groups?.map(x => { return { 'id': x } }) },
+      environments: { connect: envs?.map(x => { return { 'id': x } }) }
     }
 
     // Provisioned is available when workshop is provisioned meaning the manifest was generated
     // Active is true when workshop is available in search
     wsEditDTO.provisioned = false;
     wsEditDTO.active = false;
-    
+
     //const result = await execute(`/users/${user.value.id}`, {method: 'PATCH', data: userProperty}, )
     const result = await execute(`/workshops`, {
       method: "POST",
       data: wsEditDTO,
     });
     if (result.isFinished.value && !result.error.value) {
-         workshops.value?.rows?.push(result.data.value);
-        notify({
-          title: "Workshop API",
-          text: "Your workshop metadata was created successfully",
-          duration: 2000,
-          type: "success",
+      workshops.value?.rows?.push(result.data.value);
+      notify({
+        title: "Workshop API",
+        text: "Your workshop metadata was created successfully",
+        duration: 2000,
+        type: "success",
       });
     }
     if (result.error.value) {
@@ -326,17 +330,17 @@ export const useWorkshopStore = defineStore("workshop", () => {
         duration: -1,
         type: "error",
       });
-    } 
+    }
 
   };
 
   const editWorkshop = (workshop: any) => {
-    const index = workshops.value?.rows?.findIndex( x => x.id == workshop.id)
+    const index = workshops.value?.rows?.findIndex(x => x.id == workshop.id)
     if (index >= 0) {
-      workshops.value.rows[index] = {...workshop};
+      workshops.value.rows[index] = { ...workshop };
       //loadWorkshops(workshopsQuery.value)
     }
-      
+
   };
 
   const nextStep = () => {
@@ -349,62 +353,64 @@ export const useWorkshopStore = defineStore("workshop", () => {
     }
   }
 
-  const loadWorkshops = async (query: WsQueryDTO ) => {
-      const { execute } = useAxios(GLabsApiClient);
-      let myQuery = Object.assign({active: true}, {...query})
-      let result, queryParams;
-      queryParams = `page=${myQuery.page}&pageSize=${myQuery.pageSize}&active=${myQuery.active}`;
-      if (myQuery.searchString) {
-        queryParams += `&searchString=${myQuery.searchString}`   
-      } 
-      if (myQuery?.tags && myQuery?.tags?.length > 0) {
-        queryParams += `&tags=${myQuery?.tags?.join(',')}`   
-      } 
+  const loadWorkshops = async (query: WsQueryDTO) => {
+    const { execute } = useAxios(GLabsApiClient);
+    let myQuery = Object.assign({ active: true }, { ...query })
+    let result, queryParams;
+    queryParams = `page=${myQuery.page}&pageSize=${myQuery.pageSize}&active=${myQuery.active}`;
+    if (myQuery.searchString) {
+      queryParams += `&searchString=${myQuery.searchString}`
+    }
+    if (myQuery?.tags && myQuery?.tags?.length > 0) {
+      queryParams += `&tags=${myQuery?.tags?.join(',')}`
+    }
 
-      result = await execute(`/workshops?${queryParams}`, {
-        method: "GET"
+    result = await execute(`/workshops?${queryParams}`, {
+      method: "GET"
+    });
+    if (result.isFinished.value && !result.error.value) {
+      workshopsQuery.value = { ...myQuery }
+      workshops.value = { ...result?.data?.value };
+    }
+    if (result.error.value) {
+      notify({
+        title: "Workshops API",
+        text: `${handleAxiosError(
+          result.error.value,
+          "Impossible to get your workshops at the moment"
+        )}`,
+        duration: -1,
+        type: "error",
       });
-      if (result.isFinished.value && !result.error.value) {
-        workshopsQuery.value = {...myQuery}
-        workshops.value = {...result?.data?.value};
-      }
-      if (result.error.value) {
-        notify({
-          title: "Workshops API",
-          text: `${handleAxiosError(
-            result.error.value,
-            "Impossible to get your workshops at the moment"
-          )}`,
-          duration: -1,
-          type: "error",
-        });
-      }
+    }
   };
 
   //TODO: Update workshop
   const updateWorkshop = async (ws: IWorkshopForm) => {
-    
+
     const { execute } = useAxios(GLabsApiClient);
     const { techTags, bizTags, groups, envs, localizations, ...wsEdit } = ws;
 
-    const wsEditDTO = {...wsEdit, 
-      tags: { set: [...bizTags, ...techTags].map((x) => { return {'id': x}})},
-      user_groups: {set: groups?.map(x => {return {'id': x }})},
-      environments: {set: envs?.map(x => {return {'id': x }})},
-      localizations: {create: localizations} }
-    
+    const wsEditDTO = {
+      ...wsEdit,
+      tags: { set: [...bizTags, ...techTags].map((x) => { return { 'id': x } }) },
+      user_groups: { set: groups?.map(x => { return { 'id': x } }) },
+      environments: { set: envs?.map(x => { return { 'id': x } }) },
+      localizations: { create: localizations }
+    }
+
     //const result = await execute(`/users/${user.value.id}`, {method: 'PATCH', data: userProperty}, )
     const result = await execute(`/workshops/${wsEditDTO.id}`, {
       method: "PATCH",
       data: wsEditDTO,
     });
     if (result.isFinished.value && !result.error.value) {
-        editWorkshop(result.data.value)
-        notify({
-          title: "Workshop API",
-          text: "Your workshop was updated successfully",
-          duration: 2000,
-          type: "success",
+      editWorkshop(result.data.value)
+      notify({
+        title: "Workshop API",
+        text: "Your workshop was updated successfully",
+        duration: 2000,
+        type: "success",
       });
     }
     if (result.error.value) {
@@ -417,11 +423,11 @@ export const useWorkshopStore = defineStore("workshop", () => {
         duration: -1,
         type: "error",
       });
-    } 
+    }
 
 
   };
-  
+
   const removeWorkshop = async (workshopId: number) => {
     const index = workshops.value?.rows?.findIndex(rec => rec.id == workshopId)
     const { execute } = useAxios(GLabsApiClient);
@@ -429,12 +435,12 @@ export const useWorkshopStore = defineStore("workshop", () => {
       method: "DELETE"
     });
     if (result.isFinished.value && !result.error.value) {
-       workshops.value?.rows.splice(index, 1);
-        notify({
-          title: "Workshop API",
-          text: "Your workshop is deleted successfully",
-          duration: 2000,
-          type: "success",
+      workshops.value?.rows.splice(index, 1);
+      notify({
+        title: "Workshop API",
+        text: "Your workshop is deleted successfully",
+        duration: 2000,
+        type: "success",
       });
     }
     if (result.error.value) {
@@ -447,7 +453,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
         duration: -1,
         type: "error",
       });
-    } 
+    }
   };
 
   const removeLocalizedWorkshop = async (index: number | undefined) => {
@@ -457,16 +463,16 @@ export const useWorkshopStore = defineStore("workshop", () => {
     const workshopId = workshops.value?.rows?.findIndex(rec => rec.id == index)
     workshops.value?.rows.splice(workshopId, 1);
     const { execute } = useAxios(GLabsApiClient);
-   
+
     const result = await execute(`/workshops/localized/${workshopId}`, {
       method: "DELETE"
     });
     if (result.isFinished.value && !result.error.value) {
-        notify({
-          title: "Workshop API",
-          text: "Your localized workshop is deleted successfully",
-          duration: 2000,
-          type: "success",
+      notify({
+        title: "Workshop API",
+        text: "Your localized workshop is deleted successfully",
+        duration: 2000,
+        type: "success",
       });
     }
     if (result.error.value) {
@@ -479,22 +485,22 @@ export const useWorkshopStore = defineStore("workshop", () => {
         duration: -1,
         type: "error",
       });
-    } 
+    }
   };
 
   const provisionWorkshop = async (owner: string, repo: string) => {
-    
+
     const { execute } = useAxios(GLabsApiClient);
-   
+
     const result = await execute(`/workshops/provision/${owner}/${repo}`, {
       method: "POST"
     });
     if (result.isFinished.value && !result.error.value) {
-        notify({
-          title: "Workshop API",
-          text: "Your workshop is being provisioned",
-          duration: 2000,
-          type: "success",
+      notify({
+        title: "Workshop API",
+        text: "Your workshop is being provisioned",
+        duration: 2000,
+        type: "success",
       });
     }
     if (result.error.value) {
@@ -507,7 +513,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
         duration: -1,
         type: "error",
       });
-    } 
+    }
   }
 
   return {
@@ -530,6 +536,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
     workshopTitle,
     urlParam,
     workshopMeta,
+    nextButtonName,
     loadWorkshops,
     loadWorkshop,
     addWorkshop,
