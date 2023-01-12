@@ -43,19 +43,15 @@ const shortCodes = [
       </div>`
   },
   {
-    reg: '\\[(.+?)\]\\({{< relref "(.*)" >}} "(.*?)"\\)',
+    reg: '\\[(.+?)\]\\({{< relref "(.*)" >}} (".*?")?\\)',
     replace: '<a href="%%variable1%%"  title="%%variable2%%">%%variable%%</a>'
   },
   {
-    reg: '\\[(.*)\\]{{< relref "(.*)" >}}',
+    reg: '{{< relref "(.*?)" >}}',
     replace: '%%variable%%'
   },
   {
-    reg: "{{< .* >}}",
-    replace: ''
-  },
-  {
-    reg: "{{% .* %}}",
+    reg: "{{.*?}}",
     replace: ''
   }
 ] as IShortCode[]
@@ -72,7 +68,7 @@ function regReplace(match: string, group: string, newVal: string, newVal1: strin
     res = processPath(res + '.').substr(1)
     res = `${location.origin}/workshops/${workshopName}${res}`
     match = match.replace('%%variable1%%', res)
-    match = match.replace('%%variable2%%', newVal2)
+    match = match.replace('%%variable2%%', (newVal2 || '').replace('"', ''))
   }
 
   return match.replace('%%variable%%', newVal)
