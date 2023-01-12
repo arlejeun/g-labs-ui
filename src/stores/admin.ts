@@ -2,23 +2,49 @@ import type { Ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useAxios } from '@vueuse/integrations/useAxios'
 import { GLabsApiClient } from '@/apis/glabs'
-import type { ICategoryTag, ITagsResponse, IUserGroup, IUserGroupsResponse, TagQueryDTO, UserGroupQueryDTO } from '@/interfaces/workshop'
+import type { ICategoryTag, ITagsResponse, IUserGroup, IUserGroupsResponse, IUsersResponse, TagQueryDTO, UserGroupQueryDTO, UsersQueryDTO, WsQueryDTO } from '@/interfaces/workshop'
 import { notify } from '@kyvg/vue3-notification'
 import { handleAxiosError } from '@/utils/axios'
+import type { IDriveUser } from '@/interfaces'
 
 export const useAdminStore = defineStore('admin', () => {
   
+  const users = ref({} as IUsersResponse)
   const tags = ref({} as ITagsResponse)
   const userGroups = ref({} as IUserGroupsResponse)
-
   const businessTags = computed(() => {
     return tags.value?.rows?.filter(x => x.category == 'Business')
   })
-
   const technicalTags = computed(() => {
     return tags.value?.rows?.filter(x => x.category == 'Technical')
   })
-  
+
+  const currentBaseQuery = ref({page: 1, pageSize:25} as WsQueryDTO)
+
+  const usersQuery = ref({} as UsersQueryDTO)
+
+  const companies = ref([])
+  const fetchCompaniesLoV = async () => {
+      const { execute } = useAxios(GLabsApiClient);
+      const result = await execute(`/users/companies`, {
+       method: "GET"
+      });
+      if (result.isFinished.value && !result.error.value) {
+        companies.value = {...result?.data?.value};
+      }
+      if (result.error.value) {
+        notify({
+          title: "Users API",
+          text: `${handleAxiosError(
+            result.error.value,
+            "Impossible to get the list of companies at the moment"
+          )}`,
+          duration: -1,
+          type: "error",
+        });
+      }
+  }
+
   const fetchTags = async (query: TagQueryDTO) => {
     let myQuery = Object.assign({}, {...query})
     let queryParams = `page=${myQuery.page}&pageSize=${myQuery.pageSize}`;
@@ -71,6 +97,45 @@ export const useAdminStore = defineStore('admin', () => {
       }
   }
 
+  const fetchUsers = async (query: UsersQueryDTO) => {
+    let myQuery = Object.assign({page:1, pageSize: 25}, {...query})
+    let queryParams = `page=${myQuery.page}&pageSize=${myQuery.pageSize}`;
+    if (myQuery.searchString) {
+      queryParams += `&searchString=${myQuery.searchString}`   
+    } 
+    if (myQuery.company) {
+      queryParams += `&company=${myQuery.company}`
+    }
+
+    if (myQuery.userStatus) {
+      queryParams += `&userStatus=${myQuery.userStatus}`
+    }
+
+    if (myQuery.userType) {
+      queryParams += `&userType=${myQuery.userType}`
+    }
+
+      const { execute } = useAxios(GLabsApiClient);
+      const result = await execute(`/users?${queryParams}`, {
+       method: "GET"
+      });
+      if (result.isFinished.value && !result.error.value) {
+        users.value = {...result?.data?.value} as IUsersResponse;
+        usersQuery.value = myQuery
+      }
+      if (result.error.value) {
+        notify({
+          title: "Users API",
+          text: `${handleAxiosError(
+            result.error.value,
+            "Impossible to get users at the moment"
+          )}`,
+          duration: -1,
+          type: "error",
+        });
+      }
+  }
+
   const updateTag = async (tag: ICategoryTag) => {
       const { execute } = useAxios(GLabsApiClient);
       const { used, workshops, ...data} = tag
@@ -105,7 +170,7 @@ export const useAdminStore = defineStore('admin', () => {
         });
       }
   }
-
+  
   const removeTag = async (tag: ICategoryTag) => {
       const { execute } = useAxios(GLabsApiClient);
       const result = await execute(`/tags/${tag.id}`, {
@@ -206,6 +271,10 @@ const updateUserGroup = async (ug: IUserGroup) => {
   }
 }
 
+const removeUser = async (user: IDriveUser) => {
+  
+}
+
 //TODO: Implementation add User group
 const addUserGroup = async (ug: IUserGroup) => {
 }
@@ -214,5 +283,5 @@ const addUserGroup = async (ug: IUserGroup) => {
 const removeUserGroup = async (ug: IUserGroup) => {
 }
 
-  return { tags, businessTags, technicalTags, userGroups, fetchTags, updateTag, removeTag, addTag, fetchUserGroups, updateUserGroup, addUserGroup, removeUserGroup }
+  return {users, usersQuery, tags, businessTags, technicalTags, userGroups, companies, fetchCompaniesLoV, fetchUsers, fetchTags, updateTag, removeTag, addTag, fetchUserGroups, updateUserGroup, addUserGroup, removeUserGroup, removeUser }
 })

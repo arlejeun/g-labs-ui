@@ -1,4 +1,10 @@
 <script setup lang="ts">
+
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore()
+const { user, isStatusActive, customer } = storeToRefs(userStore)
+
 </script>
 <template>
   <!-- **************** MAIN CONTENT START **************** -->
@@ -8,7 +14,8 @@
       <div class="container" style="max-width: inherit;">
         <div class="row justify-content-center">
           <SidebarAccount />
-          <CustomerRecord />
+          <!-- <CustomerRecord /> -->
+          <user-customer-record :myCustomer="customer"></user-customer-record>
         </div>
       </div>
     </section>

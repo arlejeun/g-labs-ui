@@ -5,10 +5,14 @@ import router from '@/router';
 import { computed } from '@vue/reactivity';
 import type { ITag } from '@/interfaces/workshop';
 import { useWorkshopStore } from '@/stores/workshop';
+import { useUserStore } from '@/stores/user';
 
 const wStore = useWorkshopStore()
 const { workshopsQuery } = storeToRefs(wStore)
 const { loadWorkshops } = wStore
+
+const store = useUserStore()
+const { localization } = storeToRefs(store)
 
 const props = defineProps({
   workshop: {
@@ -52,8 +56,13 @@ function goToWorkshop(workshop: IWorkshop) {
   }
 }
 
+const workshopLocalizedTitle = computed(() => props.workshop?.localizations?.find(loc => loc.locale == localization.value)?.title || props.workshop.title)
+const workshopLocalizedDesc = computed(() => props.workshop?.localizations?.find(loc => loc.locale == localization.value)?.description || props.workshop.description)
+
+
 const workThumbnail = computed(() => `${WORKSHOPS_BASE}resources/images/${props.workshop.image_filename}`)
 
+const wsTitle = ref({})
 
 </script>
 
@@ -76,8 +85,8 @@ const workThumbnail = computed(() => `${WORKSHOPS_BASE}resources/images/${props.
         </div> -->
 
         <!-- Title -->
-        <h5 class="card-title text-primary"><a href="">{{ workshop.title }}</a></h5>
-        <p class="mb-1"><small>{{ workshop.description }}</small></p>
+        <h5 class="card-title text-primary"><a href="">{{ workshopLocalizedTitle }}</a></h5>
+        <p class="mb-1"><small>{{ workshopLocalizedDesc }}</small></p>
 
         <!-- List -->
         <ul class="nav nav-divider mt-2 mb-2 mb-sm-3">

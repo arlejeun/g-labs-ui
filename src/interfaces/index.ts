@@ -123,6 +123,7 @@ export interface IDriveUserDTO extends IDriveBaseUser {
 export interface IDriveUserSettings {
   notifications_channels: string[];
   notifications: boolean;
+  locale: string;
   [x: string]: string | string[] | boolean;
 }
 export interface IDriveUserSettingsDTO {
@@ -208,3 +209,12 @@ export interface IDriveCountry {
 }
 
 
+export interface IUserAdminTableElt {
+  label: string,
+  formatter?: string,
+  width?: number | string
+}
+
+export interface IUserAdminTable {
+  [x:string]: IUserAdminTableElt
+}

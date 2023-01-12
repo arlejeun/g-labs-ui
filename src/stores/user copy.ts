@@ -121,26 +121,13 @@ export const useUserStore = defineStore("identity", () => {
     }
   }
 
-  async function updateUserProfile(selectedUser?: IDriveUser) {
+  async function updateUserProfile() {
     const { execute } = useAxios(GLabsApiClient);
-    let userProperty= {}
-    let endpointEditUser = `/users/me`
-    if (typeof selectedUser == 'undefined' ||typeof selectedUser?.id == 'undefined' ) {
-      const { customer, orgs, groups, settings, ...userPropertyC } = user.value
-      const { user_id, ...settingsNoUserId } = settings;
-      userPropertyC.settings = { create: settingsNoUserId };
-      userProperty = {...userPropertyC}
-    }
-
-    else {
-      endpointEditUser = `/users/${selectedUser.id}`
-      const { customer, orgs, groups, settings, ...userPropertyC } = selectedUser 
-      const { user_id, ...settingsNoUserId } = settings;
-      userPropertyC.settings = { create: settingsNoUserId };
-      userProperty = {...userPropertyC}
-    }
-    
-    const result = await execute(endpointEditUser, {
+    const { customer, orgs, groups, settings, ...userProperty } = user.value;
+    const { user_id, ...settingsNoUserId } = settings;
+    userProperty.settings = { create: settingsNoUserId };
+    //const result = await execute(`/users/${user.value.id}`, {method: 'PATCH', data: userProperty}, )
+    const result = await execute(`/users/me`, {
       method: "PATCH",
       data: userProperty,
     });

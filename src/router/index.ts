@@ -7,7 +7,6 @@ import { registerGuard } from "./Guard";
 import NProgress from 'nprogress'
 
 const routes = setupLayouts(generatedRoutes)
-const currentRoute = useRoute()
 
 const router = createRouter({
   //history: createWebHistory(),

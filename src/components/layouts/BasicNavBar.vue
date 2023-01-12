@@ -329,11 +329,17 @@ async function mockSignOut() {
           </li> -->
         </ul>
 
-        <select v-model="localization" class="nav flex-row locale-select">
+        <!-- <select v-model="localization" class="nav flex-row locale-select">
           <option value="en-US">English</option>
           <option value="es-ES">Spanish</option>
-          <option value="pt-PT">Portugase</option>
+          <option value="pt-PT">Portuguese</option>
         </select>
+       -->
+       <el-select v-show="!isMobile" size="small" v-model="localization" class="nav flex-row locale-select" filterable placeholder="Select Language">
+          <el-option label="English" value="en-US"></el-option>
+          <el-option label="Spanish" value="es-ES"></el-option>
+          <el-option label="Portuguese" value="pt-PT"></el-option>
+        </el-select>
 
 
       </div>
@@ -350,5 +356,6 @@ async function mockSignOut() {
 
 .locale-select {
   margin-left: 30px !important;
+  width: 110px;
 }
 </style>

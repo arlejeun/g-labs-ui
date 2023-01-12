@@ -42,7 +42,7 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 
 import router from './router'
 import App from '@/App.vue'
-import i18n from './modules/i18n'
+import i18n from './i18n'
 
 library.add(fas)
 

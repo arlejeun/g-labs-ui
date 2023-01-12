@@ -1,3 +1,5 @@
+import type { IDriveUser } from "."
+
 export interface ITag {
   id: number,
   name: string,
@@ -27,6 +29,10 @@ export interface ITagsResponse extends basicServerResponse {
 
 export interface IUserGroupsResponse extends basicServerResponse {
   rows: IUserGroup[]
+}
+
+export interface IUsersResponse extends basicServerResponse {
+  rows: IDriveUser[]
 }
 
 export interface IPlatform {
@@ -158,6 +164,13 @@ export interface TagQueryDTO extends BasicQueryDTO {
 
 export interface UserGroupQueryDTO extends BasicQueryDTO {
   searchString?: string
+}
+
+export interface UsersQueryDTO extends BasicQueryDTO {
+  searchString?: string,
+  company?: string,
+  userStatus?: string,
+  userType?: string
 }
 
 export interface IWorkshopAdminTableElt {

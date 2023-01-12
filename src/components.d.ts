@@ -41,6 +41,8 @@ declare module '@vue/runtime-core' {
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
     ElIcon: typeof import('element-plus/es')['ElIcon']
     ElInput: typeof import('element-plus/es')['ElInput']
+    ElMenu: typeof import('element-plus/es')['ElMenu']
+    ElMenuItem: typeof import('element-plus/es')['ElMenuItem']
     ElOption: typeof import('element-plus/es')['ElOption']
     ElPagination: typeof import('element-plus/es')['ElPagination']
     ElProgress: typeof import('element-plus/es')['ElProgress']
@@ -69,6 +71,11 @@ declare module '@vue/runtime-core' {
     IconEcosystem: typeof import('./components/icons/IconEcosystem.vue')['default']
     IconSupport: typeof import('./components/icons/IconSupport.vue')['default']
     IconTooling: typeof import('./components/icons/IconTooling.vue')['default']
+    ProfileAccessGroupsForm: typeof import('./components/account/ProfileAccessGroupsForm.vue')['default']
+    ProfileContactInfoForm: typeof import('./components/account/ProfileContactInfoForm.vue')['default']
+    ProfileCustomerRecord: typeof import('./components/account/ProfileCustomerRecord.vue')['default']
+    ProfileDeleteForm: typeof import('./components/account/ProfileDeleteForm.vue')['default']
+    ProfileSettingsForm: typeof import('./components/account/ProfileSettingsForm.vue')['default']
     RegistrationCustomerForm: typeof import('./components/account/RegistrationCustomerForm.vue')['default']
     RegistrationProfileForm: typeof import('./components/account/RegistrationProfileForm.vue')['default']
     RegistrationValidation: typeof import('./components/account/RegistrationValidation.vue')['default']
@@ -77,6 +84,12 @@ declare module '@vue/runtime-core' {
     SidebarAccount: typeof import('./components/layouts/SidebarAccount.vue')['default']
     TagFormatter: typeof import('./components/testing/TagFormatter.vue')['default']
     TheWelcome: typeof import('./components/TheWelcome.vue')['default']
+    UserCustomerRecord: typeof import('./components/account/UserCustomerRecord.vue')['default']
+    UserOrganizations: typeof import('./components/account/UserOrganizations.vue')['default']
+    UserProfileForm: typeof import('./components/account/UserProfileForm.vue')['default']
+    UsersFilter: typeof import('./components/admin/users/UsersFilter.vue')['default']
+    UsersPagination: typeof import('./components/admin/users/UsersPagination.vue')['default']
+    UsersTable: typeof import('./components/admin/users/UsersTable.vue')['default']
     WelcomeItem: typeof import('./components/WelcomeItem.vue')['default']
     WorkshopBreadcrumb: typeof import('./components/workshops/id/WorkshopBreadcrumb.vue')['default']
     WorkshopCard: typeof import('./components/workshops/WorkshopCard.vue')['default']
@@ -87,5 +100,8 @@ declare module '@vue/runtime-core' {
     WorkshopGenesysEnvironment: typeof import('./components/workshops/WorkshopGenesysEnvironment.vue')['default']
     WorkshopNavigation: typeof import('./components/workshops/id/WorkshopNavigation.vue')['default']
     WorkshopPagination: typeof import('./components/workshops/WorkshopPagination.vue')['default']
+  }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

@@ -94,39 +94,6 @@ const handleWorkshopAdd = () => {
 }
 
 
-// const editWorkshopForm = async (formEl: FormInstance | undefined) => {
-// 	if (!formEl) return
-// 	await formEl.validate((valid, fields) => {
-// 		if (valid) {
-// 			//TODO: Update workshop
-// 			updateWorkshop(currentWorkshop.value)
-// 			console.log('Submit!')
-// 			disabledForm.value = true
-// 		} else {
-// 			console.log('error submit!', fields)
-// 		}
-// 	})
-// }
-
-// const addTagForm = async (formEl: FormInstance | undefined) => {
-// 	if (!formEl) return
-// 	await formEl.validate((valid, fields) => {
-// 		if (valid) {
-// 			addWorkshop(currentWorkshop.value)
-// 			disabledForm.value = true
-// 			editMode.value = true
-// 		} else {
-// 			console.log('error submit!', fields)
-// 		}
-// 	})
-// }
-
-// const resetForm = (formEl: FormInstance | undefined) => {
-// 	if (!formEl) return
-// 	formEl.resetFields()
-// 	disabledForm.value = true
-// }
-
 watch(filterTableData, () => {
 	if (workshops.value.records > 0) {
 		loading.value = false
