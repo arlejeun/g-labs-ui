@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drive-frontend
+  namespace: drive
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: drive-frontend
+  template:
+    metadata:
+      labels:
+        name: drive-frontend
+    spec:
+      containers:
+        - name: drive-frontend
+          image: us-west1-docker.pkg.dev/techacc-platform-development/drive/drive-frontend:development
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+      imagePullSecrets:
+        - name: pullsecret
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: drive-frontend
+  namespace: drive
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+  selector:
+    name: drive-frontend
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: drive-frontend
+  namespace: drive
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: drive-dev.genesys.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: drive-frontend
+            port: 
+              number: 80
