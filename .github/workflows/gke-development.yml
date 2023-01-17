@@ -103,16 +103,6 @@ jobs:
           echo "Pullsecret already exists. Will use it."
         fi
 
-    # Create Certificate Secret
-    - name: Cert
-      run: |-
-        if ! kubectl get secret wildcard-demo-genesys-com-2022 -n $NAMESPACE; then
-          echo "Creating Kubernetes Secret for the TLS Certificate"
-          kubectl get secret wildcard-demo-genesys-com-2022 --namespace=default -o yaml | sed 's/namespace: .*/namespace: $GKE_NAMESPACE/' | kubectl apply -f -
-        else
-          echo "Certificate Secret already exists. Will use it."
-        fi
- 
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
       run: |-
