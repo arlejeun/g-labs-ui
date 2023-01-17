@@ -15,7 +15,7 @@ const { user, isStatusActive, customer } = storeToRefs(userStore)
         <div class="row justify-content-center">
           <SidebarAccount />
           <!-- <CustomerRecord /> -->
-          <user-customer-record :myCustomer="customer"></user-customer-record>
+          <profile-customer-record :myCustomer="customer"></profile-customer-record>
         </div>
       </div>
     </section>

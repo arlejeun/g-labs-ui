@@ -33,6 +33,7 @@ async function getProfileData() {
     console.log(e)
     // throw e;
   });
+
   if (inProgress.value === InteractionStatus.None) {
     GLABS_TOKEN.value = response?.idToken
     GLABS_STORAGE.value = { token: `${response?.idToken}` }

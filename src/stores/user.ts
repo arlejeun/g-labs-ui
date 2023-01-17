@@ -9,6 +9,7 @@ import type {
   IDriveOrg,
   ICustomerRegistrationDTO,
   IDriveOrgDTO,
+  IUserGroupsDTO,
 } from "@/interfaces";
 import defaultAvatarUrl from "@/assets/images/avatar/01.jpg";
 import { GLabsApiClient } from "@/apis/glabs";
@@ -165,6 +166,114 @@ export const useUserStore = defineStore("identity", () => {
     } 
   }
 
+  function extractUserGroupsFromUser (user: IDriveUser, selectedGroups: number[]) {
+    const {id, status, type, groups } = user
+    return {id: id, status: status, type: type, groups: {connect: selectedGroups.map((x: number) => { return {'id': x}})}}
+  }
+
+
+  async function updateUserGroupsProfile(udpatedUser: IDriveUser, groupIds: number[]) {
+    const payload = extractUserGroupsFromUser(udpatedUser, groupIds)
+    const { execute } = useAxios(GLabsApiClient);
+    let endpointEditUser = `/users/${udpatedUser.id}`
+    const result = await execute(endpointEditUser, {
+      method: "PATCH",
+      data: payload,
+    });
+    if (result.isFinished.value && !result.error.value) {
+        if (result.data.value.id == user.value.id) {
+          user.value = result.data.value
+        }
+        notify({
+          title: "Profile Record",
+          text: "Your user profile was updated successfully",
+          duration: 2000,
+          type: "success",
+      });
+    }
+    if (result.error.value) {
+      notify({
+        title: "User Profile API",
+        text: `${handleAxiosError(
+          result.error.value,
+          "Impossible to update the user profile at the moment"
+        )}`,
+        duration: -1,
+        type: "error",
+      });
+    } 
+  }
+
+  async function updateUserSettingsProfile(udpatedUser: IDriveUser, newSettings: IDriveUserSettings) {
+    const {user_id, ...settingsPayload } = newSettings
+    const payload = {id: udpatedUser.id, settings: {'create': settingsPayload}}
+    //const { user_id, ...settingsNoUserId } = settings;
+    //extractUserGroupsFromUser(udpatedUser, groupIds)
+    const { execute } = useAxios(GLabsApiClient);
+    let endpointEditUser = `/users/${udpatedUser.id}`
+    const result = await execute(endpointEditUser, {
+      method: "PATCH",
+      data: payload,
+    });
+    if (result.isFinished.value && !result.error.value) {
+        if (result.data.value.id == user.value.id) {
+          user.value = result.data.value
+        }
+        notify({
+          title: "Profile Record",
+          text: "Your user profile was updated successfully",
+          duration: 2000,
+          type: "success",
+      });
+    }
+    if (result.error.value) {
+      notify({
+        title: "User Profile API",
+        text: `${handleAxiosError(
+          result.error.value,
+          "Impossible to update the user profile at the moment"
+        )}`,
+        duration: -1,
+        type: "error",
+      });
+    } 
+  }
+
+  async function updateUserContactInfoProfile(udpatedUser: IDriveUser) {
+    const {groups, settings, customer, orgs, ...contactInfoPayload } = udpatedUser
+    //const { user_id, ...settingsNoUserId } = settings;
+    //extractUserGroupsFromUser(udpatedUser, groupIds)
+    const { execute } = useAxios(GLabsApiClient);
+    let endpointEditUser = `/users/${udpatedUser.id}`
+    const result = await execute(endpointEditUser, {
+      method: "PATCH",
+      data: contactInfoPayload,
+    });
+    if (result.isFinished.value && !result.error.value) {
+        if (result.data.value.id == user.value.id) {
+          user.value = result.data.value
+        }
+        notify({
+          title: "Profile Record",
+          text: "Your user profile was updated successfully",
+          duration: 2000,
+          type: "success",
+      });
+    }
+    if (result.error.value) {
+      notify({
+        title: "User Profile API",
+        text: `${handleAxiosError(
+          result.error.value,
+          "Impossible to update the user profile at the moment"
+        )}`,
+        duration: -1,
+        type: "error",
+      });
+    } 
+  }
+
+
   async function createUserProfile(userDTO: IDriveUserRegistration) {
     const { execute } = useAxios(GLabsApiClient);
     const result = await execute(`/users/register`, {
@@ -230,13 +339,17 @@ export const useUserStore = defineStore("identity", () => {
   async function updateCustomerProfile(cust: IDriveCustomer) {
     const { execute } = useAxios(GLabsApiClient);
     const data = generateCustomerPayload(cust);
-    customer.value = { ...cust };
     const result = await execute(`/customers/${cust.id}`, {
       data: data,
       method: "PATCH",
     });
     customerUpdateInProgress.value = false;
     if (result.isFinished.value && !result.error.value) {
+
+      if (result.data.value.customer && result.data.value.customer.id == cust.id) {
+        customer.value = result.data.value.customer;
+      }
+
       notify({
         title: "Customer Record",
         text: "Your customer record was updated successfully",
@@ -285,14 +398,17 @@ export const useUserStore = defineStore("identity", () => {
   }
 
 
-  const updateOrganization = async (org: IDriveOrgDTO) => {
+  const updateOrganization = async (id: number, org: IDriveOrgDTO) => {
     const { execute } = useAxios(GLabsApiClient);
-    const result = await execute(`/users/me/org/${org.id}`, {
+    const result = await execute(`/users/${id}/org/${org.id}`, {
       data: org,
       method: "PATCH",
     });
     // customerUpdateInProgress.value = false;
     if (result.isFinished.value && !result.error.value) {
+      if (result.data.value.id == user.value.id) {
+        user.value = result.data.value;
+      }
       notify({
         title: "Organization Settings",
         text: "Your organization settings were updated successfully",
@@ -353,6 +469,9 @@ export const useUserStore = defineStore("identity", () => {
     createCustomerProfile,
     updateCustomerProfile,
     updateOrganization,
+    updateUserGroupsProfile,
+    updateUserSettingsProfile,
+    updateUserContactInfoProfile,
     fetchUser,
     logout,
   };

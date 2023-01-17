@@ -5,7 +5,7 @@ import { useUserStore } from '@/stores/user'
 const userStore = useUserStore()  
 const  { isAdmin } = storeToRefs(userStore)
 
-const props = defineProps<{ org: IDriveOrg , active: boolean }>()
+const props = defineProps<{ org: IDriveOrg , active: boolean, userId: number }>()
 
 const showSettings = ref(false)
 
@@ -43,7 +43,7 @@ function toggleSettings() {
     </div>
 
     <div v-if="showSettings">
-      <AccountOrganizationSettingsForm :org="org"></AccountOrganizationSettingsForm>
+      <AccountOrganizationSettingsForm :org="props.org" :userId="props.userId"></AccountOrganizationSettingsForm>
     </div>
    
 

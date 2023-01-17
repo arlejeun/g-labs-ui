@@ -61,7 +61,7 @@ const regions = regionValues.map((x) => {
   return { value: x, label: x }
 })
 
-const props = defineProps<{ org: IDriveOrg }>()
+const props = defineProps<{ org: IDriveOrg, userId: number }>()
 
 const rules = reactive<FormRules>({
   first_name: [
@@ -82,8 +82,8 @@ const rules = reactive<FormRules>({
 })
 
 watchEffect(() => {
-  form.value = props.org
-  settings.value = props.org?.org_user_settings
+  form.value = {...props.org}
+  settings.value =  {...form.value.org_user_settings}
 })
 
 onMounted(() => {
@@ -99,7 +99,7 @@ async function submitForm (formEl: FormInstance | undefined) {
       console.log('submit!')
       const { org_user_settings,org_custom_settings, ...orgNoSettings } = form.value
       const orgPayload: IDriveOrgDTO = {...orgNoSettings, 'org_user_settings': {'create': settings.value},'org_custom_settings': {'create': form.value.org_custom_settings || {}} }
-      updateOrganization(orgPayload)
+      updateOrganization(props.userId, orgPayload)
     } else {
       console.log('error submit!', fields)
     }

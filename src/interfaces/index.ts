@@ -26,8 +26,11 @@ export interface IDriveGenericUser {
   date_approved: string;
   date_lastLogin: string;
   date_expired: string;
+  gen_contact_name?: string;
+  gen_contact_email?: string;
   [x: string]:
     | string
+    | undefined
     | number
     | IDriveOrg[]
     | IDriveUserSettings
@@ -104,6 +107,13 @@ export interface IDriveUserRegistration {
   country: ICountryConnect;
   //customer: ICustomerCreate,
   settings: ISettingsCreate;
+}
+
+export interface IUserGroupsDTO {
+  id: number,
+  status: string,
+  type: string,
+  groups: number[]
 }
 
 export interface IDriveBaseUser extends IDriveGenericUser {

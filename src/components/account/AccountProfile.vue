@@ -82,10 +82,12 @@ const profileScoreProgress = computed(() => {
       <!-- <Suspense> -->
         <!-- <test-form></test-form> -->
         <!-- <account-profile-form></account-profile-form> -->
+        <!-- <profile-access-groups-form :user="user" :admin="true"></profile-access-groups-form> -->        
+        <!-- <profile-access-groups-form :user="user"></profile-access-groups-form> -->
         <profile-contact-info-form :user="user"></profile-contact-info-form>
         <profile-settings-form :user="user"></profile-settings-form>
-        <!-- <profile-access-groups-form :user="user" :admin="true"></profile-access-groups-form> -->
-        <profile-access-groups-form :user="user"></profile-access-groups-form>
+        <profile-access-groups-form :user="user" :admin=false></profile-access-groups-form>
+        <!-- <test-groups :user="user" :admin="true"></test-groups> -->
         <profile-delete-form :user="user"></profile-delete-form>
         <!-- <account-profile-groups-form></account-profile-groups-form> -->
         <!--<account-delete></account-delete>-->

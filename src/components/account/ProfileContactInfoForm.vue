@@ -6,35 +6,43 @@ import { useCountryStore } from '@/stores/country'
 import type { IDriveUser } from '@/interfaces';
 
 const userStore = useUserStore()
-const { updateUserProfile } = userStore
+const { updateUserContactInfoProfile } = userStore
 
-const props = defineProps<{
-  user: IDriveUser,
-  admin?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    user: IDriveUser,
+    admin: boolean
+  }>(),
+  {
+    admin: false,
+  },
+);
 
 const { user: myUser, admin } = toRefs(props)
-const user = ref({} as IDriveUser)
-
-
-watchEffect(() => {
-  if (admin && admin.value) {
-    //lose reactivty when coming from users admin page form
-    user.value = {...myUser.value}
-  } else {
-    //keep user reactivty of the profile of me user
-    user.value = myUser.value
-  }
-})
-
-
+const userForm = ref({} as IDriveUser)
 const countryStore = useCountryStore()
 const { countries } = storeToRefs(countryStore)
 const { fetchCountries, selectCountry } = countryStore
 
-//Initialize countries only at the beginning
-if (countries.value?.length == 0) fetchCountries()
+watchEffect(() => {
+  if (myUser.value.email) {
+    if (countries && countries.value?.length == 0) {
+      fetchCountries()
+    }
+    if (admin && admin.value) {
+      //lose reactivty when coming from users admin page form
+      userForm.value = { ...myUser.value }
+      console.log(userForm.value)
+    } else {
+      //keep user reactivty of the profile of me user
+      //userForm.value = myUser.value
+      userForm.value = { ...myUser.value }
+      console.log(userForm.value)
+    }
+  }
+})
 
+//Initialize countries only at the beginning
 const personalFormRef = ref<FormInstance>()
 const personalRules = reactive<FormRules>({
   first_name: [
@@ -83,10 +91,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      //userStore.updatePersonalProfile(user)
-      //updateCountryUser()
-      //user.value.settings = {...settings.value}
-      updateUserProfile(user.value)
+      updateUserContactInfoProfile(userForm.value)
       console.log('submit!')
     } else {
       console.log('error submit!', fields)
@@ -112,7 +117,7 @@ const resetForm = (formEl: FormInstance | undefined) => {
     <div class="col">
 
       <!-- Personal info START -->
-      <div class="card mb-4 border">
+      <div class="card border">
         <!-- Card header -->
         <div class="card-header border-bottom">
           <h4 class="card-header-title">User Profile</h4>
@@ -124,37 +129,50 @@ const resetForm = (formEl: FormInstance | undefined) => {
 
           <h5 class="pb-3">Contact Information</h5>
 
-          <el-form ref="personalFormRef" :model="user" :rules="personalRules" label-width="120px" label-position="top"
-            class="demo-ruleForm" status-icon>
+          <el-form ref="personalFormRef" :model="userForm" :rules="personalRules" label-width="120px"
+            label-position="top" class="demo-ruleForm" status-icon>
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="First Name" prop="first_name">
-                  <el-input v-model="user.first_name" />
+                  <el-input v-model="userForm.first_name" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="Last Name" prop="last_name">
-                  <el-input v-model="user.last_name" />
+                  <el-input v-model="userForm.last_name" />
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="Job Function" prop="job">
-                  <el-input v-model="user.job_function" />
+                  <el-input v-model="userForm.job_function" />
                 </el-form-item>
               </el-col>
+
               <el-col :span="12">
                 <el-form-item label="Company" prop="company">
-                  <el-input v-model="user.company" />
+                  <el-input v-model="userForm.company" />
                 </el-form-item>
               </el-col>
+              
             </el-row>
+            
             <el-row :gutter="20">
+              <el-col :span="12">
+                <el-form-item label="Relation with Genesys" prop="type">
+                  <el-select v-model="userForm.type" filterable>
+                    <el-option label="Prospect" value="Prospect"></el-option>
+                    <el-option label="Partner" value="Partner"></el-option>
+                    <el-option label="Customer" value="Customer"></el-option>
+                    <el-option label="Employee" value="Internal"></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
 
               <el-col :span="12">
                 <el-form-item label="Country" prop="country_id">
-                  <el-select v-model="user.country_id" filterable placeholder="Select Country">
+                  <el-select v-model="userForm.country_id" filterable placeholder="Select Country">
                     <el-option v-for="item in countries" :key="item.id" :label="item.name" :value="item.id" />
                   </el-select>
                   <!-- <el-input v-model="user.country" /> -->
@@ -162,36 +180,51 @@ const resetForm = (formEl: FormInstance | undefined) => {
               </el-col>
             </el-row>
 
+            <el-row v-show="userForm.type!='Internal'" :gutter="20">
+              <el-col :span="12">
+                <el-form-item label="Genesys Contact Name" prop="gen_contact_name">
+                  <el-input v-model="userForm.gen_contact_name" />
+                </el-form-item>
+              </el-col>
+
+              <el-col :span="12">
+                <el-form-item label="Genesys Contact Email" prop="gen_contact_email">
+                  <el-input v-model="userForm.gen_contact_email" />
+                </el-form-item>
+              </el-col>
+              
+            </el-row>
+
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="Email" prop="email">
-                  <el-input v-model="user.email" />
+                  <el-input v-model="userForm.email" />
                 </el-form-item>
               </el-col>
               <el-col :span="12">
                 <el-form-item label="Phone Number" prop="phone_number">
-                  <el-input v-model="user.phone_number" />
+                  <el-input v-model="userForm.phone_number" />
                 </el-form-item>
               </el-col>
             </el-row>
 
             <div class="pt-2 d-sm-flex justify-content-end">
-            <el-form-item>
-              <el-button type="primary" @click="submitForm(personalFormRef)">Save changes</el-button>
-              <el-button @click="resetForm(personalFormRef)">Reset</el-button>
-            </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="submitForm(personalFormRef)">Save changes</el-button>
+                <el-button @click="resetForm(personalFormRef)">Reset</el-button>
+              </el-form-item>
             </div>
 
           </el-form>
 
-         
+
+        </div>
+
       </div>
-     
+
     </div>
 
   </div>
-
-</div>
 </template>
 
 

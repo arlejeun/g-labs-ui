@@ -88,7 +88,7 @@ async function mockSignOut() {
               </router-link>
             </li> -->
             <li class="nav-item dropdown">
-              <router-link class="nav-link text-white dropdown-toggle fw-bolder" to="/admin">
+              <router-link class="nav-link text-white dropdown-toggle fw-bolder" to="/admin/users">
                 Administration
               </router-link>
               <ul class="dropdown-menu" aria-labelledby="pagesMenu">

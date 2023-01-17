@@ -1,3 +1,12 @@
+<script setup lang="ts">import { useUserStore } from '@/stores/user';
+
+
+const userStore = useUserStore()
+const { user } = storeToRefs(userStore)
+const computedOrgs = computed(() => user.value.orgs || [])
+const userId = computed(() => user.value.id || 0)
+
+</script>
 <template>
 
   <!-- Header END -->
@@ -11,7 +20,7 @@
       <div class="container pe-2" style="max-width: inherit;">
         <div class="row justify-content-center">
           <SidebarAccount />
-          <AccountOrganizations />
+          <account-organizations :orgs="computedOrgs" :userId="userId"></account-organizations>
         </div>
       </div>
     </section>

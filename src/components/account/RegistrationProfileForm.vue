@@ -23,7 +23,7 @@ const registrationFormRef = ref<FormInstance>()
 const registrationRules = reactive<FormRules>({
   username: [
     { required: true, message: 'Please input first name', trigger: 'blur' },
-    { min: 2, max: 30, message: 'Length should be 2 to 30', trigger: 'blur' },
+    { min: 2, max: 60, message: 'Length should be 2 to 30', trigger: 'blur' },
   ],
   first_name: [
     { required: true, message: 'Please input first name', trigger: 'blur' },

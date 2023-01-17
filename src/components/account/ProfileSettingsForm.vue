@@ -6,31 +6,40 @@ import type { IDriveUser, IDriveUserSettings } from '@/interfaces';
 
 const userStore = useUserStore()
 const { localization } = storeToRefs(userStore)
-const { updateUserProfile } = userStore
+const { updateUserSettingsProfile } = userStore
 
-const props = defineProps<{
-  user: IDriveUser,
-  admin?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    user: IDriveUser,
+    admin?: boolean
+  }>(),
+  {
+    admin: false,
+  },
+);
 
 const { user: myUser, admin } = toRefs(props)
 const user = ref({} as IDriveUser)
 const settings = ref({} as IDriveUserSettings)
 
 watchEffect(() => {
-  if (admin && admin.value) {
-    user.value = { ...myUser.value }
-    if (myUser.value?.settings) {
-      settings.value = {...myUser.value.settings}
+  if (myUser.value.email) {
+
+    if (admin && admin.value) {
+      //lose reactivty when coming from users admin page form
+      user.value = { ...myUser.value }
+      if (myUser.value?.settings) {
+        settings.value = { ...myUser.value.settings }
+      }
+    } else {
+      user.value = myUser.value
+      if (myUser.value?.settings) {
+        settings.value = myUser.value.settings
+        settings.value.locale = localization.value
+      }
     }
-  } else {
-    user.value = myUser.value
-    if (myUser.value?.settings) {
-    settings.value = myUser.value.settings
-    settings.value.locale = localization.value
   }
-  }
- 
+
 })
 
 const settingsFormRef = ref<FormInstance>()
@@ -43,7 +52,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       //userStore.updatePersonalProfile(user)
       //updateCountryUser()
       //user.value.settings = {...settings.value}
-      updateUserProfile(user.value)
+      updateUserSettingsProfile(user.value, settings.value)
       console.log('submit!')
     } else {
       console.log('error submit!', fields)
@@ -68,7 +77,7 @@ const resetForm = (formEl: FormInstance | undefined) => {
   <div class="row">
     <div class="col">
 
-      <div class="card mb-4 border">
+      <div class="card border">
         <!-- Card header -->
         <div class="card-header">
           <h5 class="card-header-title">Account Settings</h5>

@@ -2,8 +2,37 @@
 import { useUserStore } from '@/stores/user'
 import type { IDriveOrg } from '@/interfaces'
 
-const userStore = useUserStore()
-const { orgs } = storeToRefs(userStore)
+//const userStore = useUserStore()
+//const { orgs } = storeToRefs(userStore)
+
+const props = withDefaults(
+  defineProps<{
+    orgs: IDriveOrg[],
+    userId: number,
+    admin?: boolean
+  }>(),
+  {
+    admin: false,
+  },
+);
+
+const { orgs: myOrgs, userId, admin } = toRefs(props)
+
+const orgs = ref([] as IDriveOrg[])
+
+
+watchEffect(() => {
+    if (userId.value) {
+      if (admin && admin.value) {
+      //lose reactivty when coming from users admin page form
+      orgs.value = [...myOrgs.value]
+    } else {
+      //keep user reactivty of the profile of me user
+      orgs.value = myOrgs.value
+    }
+  }
+})
+
 const selfManagedOrgs = computed(() => orgs.value.filter((organization) => organization.is_owned_by_gts))
 const showAvailableOrgs = ref(false)
 const hasManagedOrgs = computed(() => {
@@ -103,7 +132,7 @@ function isOrgActive(org: IDriveOrg): boolean {
 
             <div v-show="showAvailableOrgs" class="row">
               <div v-for="org in (availableOrgs)">
-              <AccountOrganizationSummary :org="org" :active="false"/>
+              <AccountOrganizationSummary :org="org" :userId="userId" :active="false"/>
             </div>
             </div>
           
@@ -113,60 +142,13 @@ function isOrgActive(org: IDriveOrg): boolean {
 
             <div class="row">
               <div v-for="org in (selfManagedOrgs)" class="mb-4">
-              <AccountOrganizationSummary :org="org" :active="true" />
+              <AccountOrganizationSummary :org="org" :userId="userId" :active="true" />
             </div>
             </div>
 
             
 
 
-          </div>
-          <!-- Tabs content item END -->
-
-          <!-- Tab content item START -->
-          <div class="tab-pane fade" id="tab-2">
-            <div class="row pt-1 pb-2 mb-2">
-              <div class="col">
-                <h6>Development Organizations (1)</h6>
-              </div>
-              <div class="col-auto">
-                <div class="mt-2 mt-md-0">
-                  <a href="#" class="btn btn-primary-soft mb-0 mr-1">Add Org</a>
-                </div>
-
-              </div>
-            </div>
-
-
-
-            <!-- Card item START -->
-            <!-- Card item START -->
-            <div class="card border mb-4">
-              <!-- Card header -->
-              <div class="card-header d-md-flex justify-content-md-between align-items-center">
-                <!-- Icon and Title -->
-                <div class="d-flex align-items-center">
-                  <div class="icon-lg bg-light rounded-circle flex-shrink-0"><i class="fa-solid fa-plane"></i>
-                  </div>
-                  <!-- Title -->
-                  <div class="ms-2">
-                    <h6 class="card-title mb-0">SC1</h6>
-                    <ul class="nav nav-divider small">
-                      <li class="nav-item">Region: us-europe</li>
-                      <li class="nav-item">Dev Org</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <!-- Button -->
-                <div class="mt-2 mt-md-0">
-                  <a href="#" class="btn btn-primary-soft mb-0 mr-1">Connect</a>
-                </div>
-              </div>
-
-            </div>
-            <!-- Card item END -->
-            <!-- Card item END -->
           </div>
           <!-- Tabs content item END -->
 

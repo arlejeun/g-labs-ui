@@ -307,14 +307,6 @@ onMounted(() => {
                   </el-col>
                 </el-row>
 
-                <el-row :gutter="20">
-                  <el-col :xs="24" :span="24">
-                    <el-form-item label="Workshop URL" prop="workshop_url">
-                      <el-input v-model="form.workshop_url" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-
 
                 <el-row>
                   <el-col :xs="24" :span="24">
@@ -362,13 +354,13 @@ onMounted(() => {
 
               <div v-show="showPublishSection">
 
-                <el-row :gutter="20">
+                <!-- <el-row :gutter="20">
                   <el-col :xs="24" :span="24">
                     <el-form-item label="Workshop URL" prop="workshop_url">
                       <el-input v-model="form.workshop_url" />
                     </el-form-item>
                   </el-col>
-                </el-row>
+                </el-row> -->
 
                 <el-divider v-show="localizationsCount > 0"></el-divider>
 
