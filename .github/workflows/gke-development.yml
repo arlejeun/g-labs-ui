@@ -1,4 +1,4 @@
-name: Build and Deploy to GKE Development
+name: Drive-Frontend GKE Develoopment
 
 on:
   push:
@@ -17,7 +17,7 @@ env:
 
 jobs:
   setup-build-publish-deploy:
-    name: Build and Deploy to GKE Development
+    name: Drive-Frontend GKE Develoopment
     runs-on: ubuntu-latest
     environment: development
 
