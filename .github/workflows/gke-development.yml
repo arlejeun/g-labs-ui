@@ -48,6 +48,7 @@ jobs:
           glabs-gc-oauth-client-id:${{ env.PROJECT_ID }}/glabs-gc-oauth-client-id
           glabs-google-analytics:${{ env.PROJECT_ID }}/glabs-google-analytics
           glabs-ab2c-client-id:${{ env.PROJECT_ID }}/glabs-ab2c-client-id
+          gke-pullsecret:${{ env.PROJECT_ID }}/gcp-gh-user-secret
 
     - name: Docker configuration
       run: |-
@@ -97,7 +98,7 @@ jobs:
       run: |-
         if ! kubectl get secret pullsecret -n $GKE_NAMESPACE; then
           echo "Creating Kubernetes Secret for the Pullsecret"
-          echo ${{ env.GCP_GH_USER }}>> "./key.json"
+          echo ${{ steps.secrets.outputs.gke-pullsecret }}>> "./key.json"
           kubectl create secret docker-registry pullsecret -n $GKE_NAMESPACE --docker-server=$GCP_LOCATION-docker.pkg.dev --docker-username=_json_key --docker-password="$(cat ./key.json)" --docker-email=gtsadmin@genesys.com
         else
           echo "Pullsecret already exists. Will use it."
