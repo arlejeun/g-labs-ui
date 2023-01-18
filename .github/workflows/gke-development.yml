@@ -37,7 +37,7 @@ jobs:
       name: 'Authenticate to Google Cloud'
       uses: 'google-github-actions/auth@v1'
       with:
-        credentials_json: '${{ secrets.GCP_GH_USER }}'
+        credentials_json: '${{ env.GCP_GH_USER }}'
         token_format: 'access_token'
 
     - id: 'secrets'
@@ -85,9 +85,9 @@ jobs:
     # Namespace
     - name: Namespace
       run: |-
-        if ! kubectl get namespaces $GKE_NAMESPACE; then
-          echo "Namespace ${{ secrets.GKE_NAMESPACE }} does not exist. Creating it.."
-          kubectl create namespace $GKE_NAMESPACE
+        if ! kubectl get namespaces ${{ env.GKE_NAMESPACE }}; then
+          echo "Namespace ${{ env.GKE_NAMESPACE }} does not exist. Creating it.."
+          kubectl create namespace ${{ env.GKE_NAMESPACE }}
         else
           echo "Namespace ${{ secrets.GKE_NAMESPACE }} already exists. Will use it."
         fi
@@ -97,7 +97,7 @@ jobs:
       run: |-
         if ! kubectl get secret pullsecret -n $GKE_NAMESPACE; then
           echo "Creating Kubernetes Secret for the Pullsecret"
-          echo ${{ secrets.GCP_GH_USER }}>> "./key.json"
+          echo ${{ env.GCP_GH_USER }}>> "./key.json"
           kubectl create secret docker-registry pullsecret -n $GKE_NAMESPACE --docker-server=$GCP_LOCATION-docker.pkg.dev --docker-username=_json_key --docker-password="$(cat ./key.json)" --docker-email=gtsadmin@genesys.com
         else
           echo "Pullsecret already exists. Will use it."
