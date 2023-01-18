@@ -111,6 +111,16 @@ jobs:
           echo "Pullsecret already exists. Will use it."
         fi
 
+    # Create Certificate Secret
+    - name: Cert
+      run: |-
+        if ! kubectl get secret cert-drive-dev-wildcard-2023 -n drive; then
+          echo "Creating Kubernetes Secret for the TLS Certificate"
+          kubectl get secret cert-drive-dev-wildcard-2023 --namespace=default -o yaml | sed 's/namespace: .*/namespace: drive/' | kubectl apply -f -
+        else
+          echo "Certificate Secret already exists. Will use it."
+        fi
+
     # Deploy the Docker image to the GKE cluster
     - name: Deploy
       run: |-
