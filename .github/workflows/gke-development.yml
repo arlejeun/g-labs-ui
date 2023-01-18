@@ -71,11 +71,11 @@ jobs:
     - name: Env Secrets
       run: |-
         echo "Creating Kubernetes Secret for the glabs frontend"
-        sed -i "s|INSERT_VITE_JIRA_TOKEN|${{ steps.secrets.outputs.glabs-jira-token }}|g" ".env.development"
-        sed -i "s|INSERT_OAUTH_ID|${{ steps.secrets.outputs.glabs-gc-oauth-client-id }}|g" ".env.development"
-        sed -i "s|INSERT_ANALYTICS_ID|${{ steps.secrets.outputs.glabs-google-analytics }}|g" ".env.development"
-        sed -i "s|INSERT_AB2C_APP_CLIENT_ID|${{ steps.secrets.outputs.glabs-ab2c-client-id }}|g" ".env.development"
-        cat ".env"
+        sed -i "s|INSERT_VITE_JIRA_TOKEN|${{ steps.secrets.outputs.glabs-jira-token }}|g" ".env.gke-development"
+        sed -i "s|INSERT_OAUTH_ID|${{ steps.secrets.outputs.glabs-gc-oauth-client-id }}|g" ".env.gke-development"
+        sed -i "s|INSERT_ANALYTICS_ID|${{ steps.secrets.outputs.glabs-google-analytics }}|g" ".env.gke-development"
+        sed -i "s|INSERT_AB2C_APP_CLIENT_ID|${{ steps.secrets.outputs.glabs-ab2c-client-id }}|g" ".env.gke-development"
+        cat ".env.gke-development"
 
     # Build the Docker image
     - name: Build
