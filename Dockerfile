@@ -18,9 +18,9 @@ RUN apk add git
 # where available (npm@5+)
 COPY --chown=node:node . /usr/src/app
 
-RUN rm .env.development
-RUN rm .env.staging
-RUN rm .env.production
+RUN rm .env.gke-development
+RUN rm .env.gke-staging
+RUN rm .env.gke-production
 
 #Switch user to node
 USER node
