@@ -9,24 +9,9 @@ const props = defineProps(['account'])
 const myUser = ref(props.account)
 
 const userStore = useUserStore()
-const { settings } = storeToRefs(userStore)
-const { createUserProfile } = userStore
+const { activateUserProvisioning } = userStore
 
-const countryStore = useCountryStore()
-const { countries } = storeToRefs(countryStore)
-const { fetchCountries, selectCountry } = countryStore
-
-//Initialize countries only at the beginning
-if (countries.value?.length == 0) fetchCountries()
-
-const typeOptions = [
-  { value: 1, label: 'Unknown' },
-  { value: 2, label: 'Internal' },
-  { value: 3, label: 'Partner' },
-  { value: 4, label: 'Customer' },
-  { value: 5, label: 'Prospect' },
-]
-const formSize = ref('')
+const provisionForm = ref({})
 const registrationFormRef = ref<FormInstance>()
 const registrationRules = reactive<FormRules>({
   first_name: [
@@ -75,39 +60,8 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      myUser.value.country = {connect: {"id": myUser.value.country_id}}
-      myUser.value.settings = {create: {"id_provider": myUser.value.idp}}
-      const {country_id, idp, ...userForm} = myUser.value
       //userStore.updatePersonalProfile(user)
-      createUserProfile(userForm)
-
-//        createUserProfile({
-//   "first_name": "Andrew",
-//   "last_name": "Filonov",
-//   "email": "lejeune.arnaud@gmail.com",
-//   "phone_number": "+61410935298",
-//   "company": "SalesForce",
-//   "job_function": "Sales Engineer",
-//   "country": {
-//     "connect": {"id": myUser.country_id}
-//   },
-//   "region": "EMEA",
-//   "department": "Marketing",
-//   "gen_contact_name": "John Doe",
-//   "gen_contact_email": "John.Doe@genesys.com",
-//   "avatar_url": "https://en.wikipedia.org/wiki/File:UEFI_variables_on_Linux_screenshot.png",
-//   "settings": {
-//     "create": {
-//       "notifications": true,
-//       "notifications_channels": [
-//         "Email"
-//       ],
-//       "id_provider": "Google"
-//     }
-//   }
-// }
-//)
-
+      //activateUserProvisioning()
       console.log('submit!')
     } else {
       console.log('error submit!', fields)
@@ -120,11 +74,6 @@ const resetForm = (formEl: FormInstance | undefined) => {
   formEl.resetFields()
 }
 
-const updateCountryUser = () => {
-  console.log(myUser.value?.country_id);
-  selectCountry(myUser.value?.country_id)
-
-}
 
 </script>
 
@@ -134,31 +83,147 @@ const updateCountryUser = () => {
     <div class="col">
 
       <div class="card mb-4 border">
-                <!-- Card header -->
-                <div class="card-header">
-                  <h4 class="card-header-title"></h4>
-                </div>
-                <div class="card-body">
-                  <div class="row">
-                    <div class="col-auto">
-                      <img src="@/assets/images/persons/pose-fs-9.png"/>
-                    </div>
-                    <div class="col">
-                      <el-alert
-                        title="Thank you for submitting your registration"
-                        type="info"
-                        description="more text description"
-                        show-icon
-                      />
-                    </div>
-                  </div>
-                  
-                </div>
+        <!-- Card header -->
+        <div class="card-header">
+          <h4 class="card-header-title"></h4>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-auto">
+              <img src="@/assets/images/persons/pose-fs-9.png" />
+            </div>
+            <div class="col">
+              <el-alert title="Thank you for submitting your registration" type="info" :closable="false"
+                description="The last step of the registration provision your account with a demo organization"
+                show-icon />
 
-              </div>
+                <el-alert title="Provision user with Genesys Demo organization" type="info"
+              description="Your customer information is required to be identified and personalize your experience with Genesys Cloud"
+              show-icon close-text="Gotcha" />
+
+
+                <el-form ref="registrationFormRef" :model="provisionForm" :rules="registrationRules" label-width="120px" label-position="top"
+            class="demo-ruleForm" status-icon>
+            <!-- <el-row :gutter="20">
+              <el-col :xs="24" :span="12">
+                <el-form-item label="Customer First Name" prop="first_name">
+                  <el-input v-model="customerForm.first_name" />
+                </el-form-item>
+              </el-col>
+              <el-col :xs="24" :span="12">
+                <el-form-item label="Customer Last Name" prop="last_name">
+                  <el-input v-model="customerForm.last_name" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row :xs="24" :gutter="20">
+              <el-col :span="18">
+                <el-form-item label="Address" prop="address">
+                  <el-input v-model="customerForm.address" />
+                </el-form-item>
+              </el-col>
+              <el-col :xs="24" :span="6">
+                <el-form-item label="Country" prop="country">
+                  <el-input v-model="customerForm.country" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row :gutter="20">
+              <el-col :xs="24" :span="8">
+                <el-form-item label="City" prop="city">
+                  <el-input v-model="customerForm.city" />
+                </el-form-item>
+              </el-col>
+              <el-col :xs="24" :span="8">
+                <el-form-item label="State" prop="state">
+                  <el-input v-model="customerForm.state" />
+                </el-form-item>
+              </el-col>
+              <el-col :xs="24" :span="8">
+                <el-form-item label="Zipcode" prop="zipcode">
+                  <el-input v-model="customerForm.zip" />
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-divider></el-divider>
+
+            <el-row :gutter="20">
+              <el-col>
+                <h4 class="card-header-title text-primary mt-2 pb-2">Emails
+                  <el-button @click.prevent="addEmail" type="primary" :text="true">
+                    <i class="text-primary bi bi-plus-circle"></i>
+                  </el-button>
+                </h4>
+              </el-col>
+            </el-row>
+
+            <el-row v-if="customerEmails" :gutter="20">
+
+              <el-col v-for="(email, index) in customerForm.emails" :key="index" :xs="24" :span="12">
+                <el-form-item :label="email.name" :prop="'emails.' + index + '.value'" :rules="rules.email">
+                  <el-input v-model="email.value">
+                    <template #append>
+                      <el-button @click.prevent="removeIdentifier(email, index)" :icon="Delete" />
+                    </template>
+                  </el-input>
+                </el-form-item>
+
+              </el-col>
+            </el-row>
+
+            <el-divider></el-divider>
+
+            <el-row :xs="24" :gutter="20">
+              <el-col>
+                <h4 class="card-header-title text-primary mt-2 pb-2">Phones
+                  <el-button @click.prevent="addPhoneNumber" type="primary" :text="true">
+                    <i class="text-primary bi bi-plus-circle"></i>
+                  </el-button>
+                </h4>
+              </el-col>
+            </el-row>
+
+            <el-row v-if="customerPhones" :gutter="20">
+
+              <el-col v-for="(phone, index) in customerForm.phones" :key="index" :xs="24" :span="12">
+                <el-form-item :label="phone.name" :prop="'phones.' + index + '.value'" :rules="rules.phone">
+                  <el-input v-model="phone.value">
+                    <template #append>
+                      <el-button @click.prevent="removeIdentifier(phone, index)" :icon="Delete" />
+                    </template>
+                  </el-input>
+                </el-form-item>
+
+              </el-col>
+            </el-row> -->
+
+
+            <el-divider></el-divider>
+
+            <div class="pt-2 d-sm-flex justify-content-end">
+              <el-form-item>
+                <el-button type="primary" @click.prevent="submitForm(registrationFormRef)">Activate</el-button>
+                <el-button @click="resetForm(registrationFormRef)">Reset</el-button>
+              </el-form-item>
+            </div>
+
+
+          </el-form>
+
+            </div>
+
+          </div>
+
+        </div>
+
       </div>
 
-  </div>
+    </div>
+
+
+        </div>
   <!-- Main content END -->
 </template>
 

@@ -101,13 +101,14 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   await formEl.validate((valid, fields) => {
     if (valid) {
       const {emails, phones, messengers, ...customerFormDTO} = customerForm.value
-      const customerPayload = { user_id: myRegistrationUser.value.user_id, ...generateCustomerPayload(customerFormDTO)}
-      
-      //const customerPayload = {'create': generateCustomerPayload(customerFormDTO)}
-      //myRegistrationUser.value.customer = customerPayload
-      // createUserProfile(myRegistrationUser.value)
+      const storedUserId = localStorage.getItem('registration_uid')
+      let storedUid = -1
+      if ( typeof storedUserId == 'string') {
+        storedUid = parseInt(storedUserId)
+      }
+      const uid = myRegistrationUser.value.user_id || storedUid 
+      const customerPayload = { user_id: uid, ...generateCustomerPayload(customerFormDTO)}
       createCustomerProfile(customerPayload)
-      
     } else {
       console.log('error submit!', fields)
     }

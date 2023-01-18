@@ -16,6 +16,7 @@ export interface IDriveGenericUser {
   first_name: string;
   last_name: string;
   email: string;
+  username: string;
   phone_number: string;
   avatar_url: string;
   job_function: string;
@@ -107,6 +108,8 @@ export interface IDriveUserRegistration {
   country: ICountryConnect;
   //customer: ICustomerCreate,
   settings: ISettingsCreate;
+  gen_contact_name: string;
+  gen_contact_email: string;
 }
 
 export interface IUserGroupsDTO {

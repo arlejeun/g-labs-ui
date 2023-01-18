@@ -3,7 +3,6 @@
 import type { FormInstance, FormRules, ElProgress } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import { useCountryStore } from '@/stores/country'
-import type { IDriveUser, IDriveUserDTO } from '@/interfaces';
 
 const props = defineProps(['account'])
 const myUser = ref(props.account)
@@ -146,8 +145,18 @@ const updateCountryUser = () => {
               </el-col>
             </el-row>
             <el-row :gutter="20">
+              <el-col :span="12">
+                <el-form-item label="Relation with Genesys" prop="type">
+                  <el-select v-model="myUser.type" filterable>
+                    <el-option label="Prospect" value="Prospect"></el-option>
+                    <el-option label="Partner" value="Partner"></el-option>
+                    <el-option label="Customer" value="Customer"></el-option>
+                    <el-option label="Employee" value="Internal"></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
 
-              <el-col :xs="24" :span="12">
+              <el-col :span="12">
                 <el-form-item label="Country" prop="country_id">
                   <el-select v-model="myUser.country_id" filterable placeholder="Select Country">
                     <el-option v-for="item in countries" :key="item.id" :label="item.name" :value="item.id" />
@@ -155,6 +164,21 @@ const updateCountryUser = () => {
                   <!-- <el-input v-model="user.country" /> -->
                 </el-form-item>
               </el-col>
+            </el-row>
+
+            <el-row v-show="myUser.type!='Internal'" :gutter="20">
+              <el-col :span="12">
+                <el-form-item label="Genesys Contact Name" prop="gen_contact_name">
+                  <el-input v-model="myUser.gen_contact_name" />
+                </el-form-item>
+              </el-col>
+
+              <el-col :span="12">
+                <el-form-item label="Genesys Contact Email" prop="gen_contact_email">
+                  <el-input v-model="myUser.gen_contact_email" />
+                </el-form-item>
+              </el-col>
+              
             </el-row>
 
             <el-row :gutter="20">

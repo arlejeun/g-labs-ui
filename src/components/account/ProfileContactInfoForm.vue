@@ -155,9 +155,7 @@ const resetForm = (formEl: FormInstance | undefined) => {
                   <el-input v-model="userForm.company" />
                 </el-form-item>
               </el-col>
-              
             </el-row>
-            
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="Relation with Genesys" prop="type">

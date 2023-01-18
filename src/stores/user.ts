@@ -80,8 +80,8 @@ export const useUserStore = defineStore("identity", () => {
     }
     if (result.error.value) {
       if (result.error.value?.response?.data?.message == "User not found") {
-        router.replace("/registration");
-        status.value = "Registration";
+        router.replace("/registration#profile");
+        status.value = "RegistrationProfile";
         registrationStep.value = 0;
         notify({
           title: "Registration",
@@ -94,11 +94,27 @@ export const useUserStore = defineStore("identity", () => {
         });
       } else if (
         result.error.value?.response?.data?.message ==
-        "User not active - status=NeedsApproval"
+        "User not active - status=RegistrationProfile"
       ) {
-        router.replace("/registration/activate");
+        router.replace("/registration#customer");
+        registrationStep.value = 1;
+        status.value = "RegistrationCustomer";
+        notify({
+          title: "Account Validation",
+          text: `${handleAxiosError(
+            result.error.value,
+            "Your account is under review from Genesys Teams."
+          )}`,
+          duration: -1,
+          type: "info",
+        });
+      } else if (
+        result.error.value?.response?.data?.message ==
+        "User not active - status=RegistrationCustomer"
+      ) {
+        router.replace("/registration#activation");
         registrationStep.value = 2;
-        status.value = "NeedsApproval";
+        status.value = "RegistrationOrganization";
         notify({
           title: "Account Validation",
           text: `${handleAxiosError(
@@ -283,6 +299,7 @@ export const useUserStore = defineStore("identity", () => {
     if (result.isFinished.value && !result.error.value) {
       console.log(result.data.value);
       userDTO.user_id = result.data.value.id;
+      localStorage.setItem('registration_uid', userDTO.user_id.toString())
       setUserRegistration(userDTO);
       registrationStep.value = 1;
       status.value = "Registration - Customer";
@@ -292,6 +309,7 @@ export const useUserStore = defineStore("identity", () => {
         duration: 2000,
         type: "success",
       });
+      router.replace("/registration#customer");
     }
     if (result.error.value) {
       notify({
@@ -299,6 +317,92 @@ export const useUserStore = defineStore("identity", () => {
         text: `${handleAxiosError(
           result.error.value,
           "Impossible to create the user profile at the moment"
+        )}`,
+        duration: -1,
+        type: "error",
+      });
+    } 
+  }
+
+  async function createCustomerProfile(cust: ICustomerRegistrationDTO) {
+    const { execute } = useAxios(GLabsApiClient);
+    const result = await execute(`/customers`, { method: "POST", data: cust });
+    if (result.isFinished.value && !result.error.value) {
+      registrationStep.value = 2;
+      status.value = "Registration - Waiting for Approval";
+      notify({
+        title: "Account Registration",
+        text: "Your customer profile was created successfully",
+        duration: 2000,
+        type: "success",
+      });
+      router.replace("/registration#activation");
+    }
+
+    if (result.error.value) {
+      notify({
+        title: "Account Registration",
+        text: `${handleAxiosError(
+          result.error.value,
+          "Impossible to create the customer profile at the moment"
+        )}`,
+        duration: -1,
+        type: "error",
+      });
+    } 
+  }
+
+  const activateUserProvisioning = async () => {
+    await createOrgProfile({}); //
+    await activateUser(1); //activate user
+    await provisionGCUser();
+    localStorage.removeItem('registration_uid')
+  }
+
+  const provisionGCUser = async () => {
+    console.log('Provisioning GC User')
+  }
+
+  const activateUser = async (userId: number) => {
+    console.log('Activation user')
+  }
+
+  async function createOrgProfile(org: any) {
+    const { execute } = useAxios(GLabsApiClient);
+
+    const pcnInfo = {
+      region: "us_east_1",
+      name: "purecloudnow",
+      org_uuid: 'f657a486-0a31-413f-bcf9-f453b0b3d6db',
+      is_owned_by_gts: true,
+      org_user_settings: {
+          create: {
+              routing_account_name: 'arnaud.lejeune',
+              routing_region: 'EMEA Partner',
+              routing_skill1: 'Lima',
+              routing_skill2: 'Gold'
+          },
+      },
+    }
+
+    const result = await execute(`/users/me/org`, { method: "POST", data: pcnInfo });
+    if (result.isFinished.value && !result.error.value) {
+      registrationStep.value = 2;
+      status.value = "Registration - Waiting for Approval";
+      notify({
+        title: "Account Registration",
+        text: "Your organization was added to your profile successfully",
+        duration: 2000,
+        type: "success",
+      });
+    }
+
+    if (result.error.value) {
+      notify({
+        title: "Account Registration",
+        text: `${handleAxiosError(
+          result.error.value,
+          "Impossible to assign a demo org to your profile at the moment"
         )}`,
         duration: -1,
         type: "error",
@@ -369,34 +473,6 @@ export const useUserStore = defineStore("identity", () => {
       });
     } 
   }
-
-  async function createCustomerProfile(cust: ICustomerRegistrationDTO) {
-    const { execute } = useAxios(GLabsApiClient);
-    const result = await execute(`/customers`, { method: "POST", data: cust });
-    if (result.isFinished.value && !result.error.value) {
-      registrationStep.value = 2;
-      status.value = "Registration - Waiting for Approval";
-      notify({
-        title: "Account Registration",
-        text: "Your customer profile was created successfully",
-        duration: 2000,
-        type: "success",
-      });
-    }
-
-    if (result.error.value) {
-      notify({
-        title: "Account Registration",
-        text: `${handleAxiosError(
-          result.error.value,
-          "Impossible to create the customer profile at the moment"
-        )}`,
-        duration: -1,
-        type: "error",
-      });
-    } 
-  }
-
 
   const updateOrganization = async (id: number, org: IDriveOrgDTO) => {
     const { execute } = useAxios(GLabsApiClient);
@@ -473,6 +549,7 @@ export const useUserStore = defineStore("identity", () => {
     updateUserSettingsProfile,
     updateUserContactInfoProfile,
     fetchUser,
+    activateUserProvisioning,
     logout,
   };
 

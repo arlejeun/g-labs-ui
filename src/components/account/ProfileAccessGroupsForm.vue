@@ -31,7 +31,7 @@ const lov = computed(() => {
 })
 
 onMounted(() => {
-  if (!userGroupsLoV.value?.records) {
+  if (admin.value && !userGroupsLoV.value?.records) {
     fetchUserGroups({ page: 1, pageSize: 200 })
     //formGroups.value = user.value?.groups?.map(x => x.id) || []
   }
