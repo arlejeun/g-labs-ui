@@ -16,9 +16,10 @@ RUN apk add git
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)
+
 COPY --chown=node:node . /usr/src/app
 
-RUN rm .env.development
+RUN rm .env
 RUN rm .env.staging
 RUN rm .env.production
 
@@ -28,7 +29,7 @@ USER node
 #Install NPM packages
 RUN npm install && npm cache clean --force
 
-RUN npm run build
+RUN npm run build-development
 
 #Build step 2
 FROM httpd:2.4.53-alpine
