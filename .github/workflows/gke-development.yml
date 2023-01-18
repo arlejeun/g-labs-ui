@@ -1,4 +1,4 @@
-name: Drive-Frontend GKE Develoopment
+name: Drive-Frontend GKE Development
 
 on:
   push:
@@ -17,7 +17,7 @@ env:
 
 jobs:
   setup-build-publish-deploy:
-    name: Drive-Frontend GKE Develoopment
+    name: Drive-Frontend GKE Development
     runs-on: ubuntu-latest
     environment: development
 
@@ -31,6 +31,13 @@ jobs:
       with:
         fetch-depth: 0
         ref: development
+
+    # Node Snyk Workflow
+    - name: Run Snyk to check for vulnerabilities
+      uses: snyk/actions/node@master
+      continue-on-error: true
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
     # Configure Access Token
     - id: 'auth'
