@@ -4,9 +4,9 @@
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check build-only",
-    "build-development": "vite build --mode development",
-    "build-staging": "vite build --mode staging",
-    "build-production": "vite build --mode production",
+    "build-development": "vite build --mode gke-development",
+    "build-staging": "vite build --mode gke-staging",
+    "build-production": "vite build --mode gke-production",
     "preview": "vite preview --host",
     "test:unit": "vitest --environment jsdom --root src/",
     "build-only": "vite build",

@@ -19,7 +19,7 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }): UserConfig => {
 
-  const env = loadEnv(mode, process.cwd(),'')
+  const env = {...loadEnv(mode, process.cwd())}; //loadEnv(mode, process.cwd(),'')
   let httpsConfig = false as boolean | ServerOptions
   const serverDevHost = env.SERVER_HOST || 'localhost' as string | boolean
   const serverDevPort = Number(env.SERVER_PORT) || 5173 as number
