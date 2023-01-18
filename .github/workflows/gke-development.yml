@@ -98,7 +98,7 @@ jobs:
       run: |-
         if ! kubectl get secret pullsecret -n $GKE_NAMESPACE; then
           echo "Creating Kubernetes Secret for the Pullsecret"
-          echo ${{ steps.secrets.outputs.gke-pullsecret }}>> "./key.json"
+          echo ${{ steps.secrets.outputs.gke-pullsecret }} | base64 -d >> "./key.json"
           kubectl create secret docker-registry pullsecret -n $GKE_NAMESPACE --docker-server=$GCP_LOCATION-docker.pkg.dev --docker-username=_json_key --docker-password="$(cat ./key.json)" --docker-email=gtsadmin@genesys.com
         else
           echo "Pullsecret already exists. Will use it."
