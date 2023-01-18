@@ -65,7 +65,6 @@ jobs:
         sed -i "s|INSERT_OAUTH_ID|${{ steps.secrets.outputs.glabs-gc-oauth-client-id }}|g" ".env"
         sed -i "s|INSERT_ANALYTICS_ID|${{ steps.secrets.outputs.glabs-google-analytics }}|g" ".env"
         sed -i "s|INSERT_AB2C_APP_CLIENT_ID|${{ steps.secrets.outputs.glabs-ab2c-client-id }}|g" ".env"
-        echo ${{ .env }}
 
     # Build the Docker image
     - name: Build

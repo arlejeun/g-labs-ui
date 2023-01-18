@@ -18,6 +18,10 @@ RUN apk add git
 # where available (npm@5+)
 COPY --chown=node:node . /usr/src/app
 
+RUN rm .env.development
+RUN rm .env.staging
+RUN rm .env.production
+
 #Switch user to node
 USER node
 
