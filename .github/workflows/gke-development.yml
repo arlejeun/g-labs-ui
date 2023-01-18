@@ -112,4 +112,4 @@ jobs:
     # Re-Deploy for clean image
     - name: Restart
       run: |-
-        kubectl rollout restart deployment/drive-frontend -n $NAMESPACE
+        kubectl rollout restart deployment/drive-frontend -n $GKE_NAMESPACE
