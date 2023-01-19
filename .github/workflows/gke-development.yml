@@ -71,11 +71,11 @@ jobs:
     - name: Env Secrets
       run: |-
         echo "Creating Kubernetes Secret for the glabs frontend"
-        sed -i "s|INSERT_VITE_JIRA_TOKEN|${{ steps.secrets.outputs.glabs-jira-token }}|g" ".env.development"
-        sed -i "s|INSERT_OAUTH_ID|${{ steps.secrets.outputs.glabs-gc-oauth-client-id }}|g" ".env.development"
-        sed -i "s|INSERT_ANALYTICS_ID|${{ steps.secrets.outputs.glabs-google-analytics }}|g" ".env.development"
-        sed -i "s|INSERT_AB2C_APP_CLIENT_ID|${{ steps.secrets.outputs.glabs-ab2c-client-id }}|g" ".env.development"
-        cat ".env"
+        sed -i "s|INSERT_VITE_JIRA_TOKEN|${{ steps.secrets.outputs.glabs-jira-token }}|g" ".env.gke-development"
+        sed -i "s|INSERT_OAUTH_ID|${{ steps.secrets.outputs.glabs-gc-oauth-client-id }}|g" ".env.gke-development"
+        sed -i "s|INSERT_ANALYTICS_ID|${{ steps.secrets.outputs.glabs-google-analytics }}|g" ".env.gke-development"
+        sed -i "s|INSERT_AB2C_APP_CLIENT_ID|${{ steps.secrets.outputs.glabs-ab2c-client-id }}|g" ".env.gke-development"
+        cat ".env.gke-development"
 
     # Build the Docker image
     - name: Build
@@ -109,6 +109,16 @@ jobs:
           kubectl create secret docker-registry pullsecret -n $GKE_NAMESPACE --docker-server=$GCP_LOCATION-docker.pkg.dev --docker-username=_json_key --docker-password="$(cat ./key.json)" --docker-email=gtsadmin@genesys.com
         else
           echo "Pullsecret already exists. Will use it."
+        fi
+
+    # Create Certificate Secret
+    - name: Cert
+      run: |-
+        if ! kubectl get secret cert-drive-dev-wildcard-2023 -n drive; then
+          echo "Creating Kubernetes Secret for the TLS Certificate"
+          kubectl get secret cert-drive-dev-wildcard-2023 --namespace=default -o yaml | sed 's/namespace: .*/namespace: drive/' | kubectl apply -f -
+        else
+          echo "Certificate Secret already exists. Will use it."
         fi
 
     # Deploy the Docker image to the GKE cluster

@@ -17,10 +17,18 @@ spec:
         - name: drive-frontend
           image: us-west1-docker.pkg.dev/techacc-platform-development/drive/drive-frontend:development
           imagePullPolicy: Always
+          volumeMounts:
+          - mountPath: "/mnt/certs/"
+            name: cert-drive-dev-wildcard-2023
+            readOnly: true
           ports:
             - containerPort: 80
       imagePullSecrets:
         - name: pullsecret
+      volumes:
+        - name: cert-drive-dev-wildcard-2023
+          secret:
+            secretName: cert-drive-dev-wildcard-2023
 
 ---
 
@@ -47,6 +55,10 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
     kubernetes.io/ingress.class: "nginx"
 spec:
+  tls:
+  - hosts:
+    - drive-dev.genesys.com
+    secretName: cert-drive-dev-wildcard-2023
   rules:
   - host: drive-dev.genesys.com
     http:
