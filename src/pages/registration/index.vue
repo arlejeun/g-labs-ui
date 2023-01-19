@@ -10,7 +10,7 @@ import { useRouteHash } from '@vueuse/router';
 const { accounts } = useMsal();
 const registrationUser = ref({} as IDriveBaseUser)
 const userStore = useUserStore()
-//const { registrationStep } = storeToRefs(userStore)
+const { user } = storeToRefs(userStore)
 const registrationStep = ref(-1)
 const stepHash = useRouteHash()
 // import jwt_decode from 'jwt-decode';
@@ -55,9 +55,7 @@ onMounted(() => {
 
 watchEffect(() => {
   decodeStepFromHash(stepHash.value)
-  console.log('On Watch : ' + JSON.stringify(accounts.value))
   registrationUser.value = decodeToken4User(accounts.value)
-  console.log('Registration watch: ' + GLABS_TOKEN.value)
 })
 </script>
 
@@ -82,8 +80,8 @@ watchEffect(() => {
          
           <registration-profile-form v-if="registrationStep==0" :account="registrationUser"/>
           <!-- <registration-profile-form :account="registrationUser"/> -->
-          <registration-customer-form v-if="registrationStep==1"/>
-          <registration-validation v-if="registrationStep==2"></registration-validation> 
+          <registration-customer-form v-if="registrationStep==1" :user="user"/>
+          <registration-validation v-if="registrationStep==2" :user="user"></registration-validation> 
 
         </div>
         <!-- <SidebarAccount /> -->

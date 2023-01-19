@@ -10,6 +10,7 @@ import type {
   ICustomerRegistrationDTO,
   IDriveOrgDTO,
   IUserGroupsDTO,
+  GCUserInfo,
 } from "@/interfaces";
 import defaultAvatarUrl from "@/assets/images/avatar/01.jpg";
 import { GLabsApiClient } from "@/apis/glabs";
@@ -48,7 +49,7 @@ export const useUserStore = defineStore("identity", () => {
   // msal authentication
 
   const isActive = computed(() => status.value == "Active");
-  const isRegistering = computed(() => status.value == "Registration");
+  const isRegistering = computed(() => status.value.includes("Registration"));
 
   const username = computed(() =>
     user.value?.first_name
@@ -73,10 +74,16 @@ export const useUserStore = defineStore("identity", () => {
 
     if (result.isFinished.value && !result.error.value) {
       user.value = result.data.value as IDriveUser;
-      status.value = "Active";
+      status.value = user.value.status;
       customer.value = user.value?.customer;
       settings.value = user.value?.settings;
       orgs.value = user.value?.orgs;
+      if (status.value == 'RegistrationCustomer') {
+        router.replace("/registration#customer");
+      }
+      if (status.value == 'RegistrationOrganization') {
+        router.replace("/registration#activation");
+      }
     }
     if (result.error.value) {
       if (result.error.value?.response?.data?.message == "User not found") {
@@ -289,7 +296,6 @@ export const useUserStore = defineStore("identity", () => {
     } 
   }
 
-
   async function createUserProfile(userDTO: IDriveUserRegistration) {
     const { execute } = useAxios(GLabsApiClient);
     const result = await execute(`/users/register`, {
@@ -298,17 +304,17 @@ export const useUserStore = defineStore("identity", () => {
     });
     if (result.isFinished.value && !result.error.value) {
       console.log(result.data.value);
+      user.value = result.data.value
+      status.value = user.value.status;
       userDTO.user_id = result.data.value.id;
       localStorage.setItem('registration_uid', userDTO.user_id.toString())
       setUserRegistration(userDTO);
-      registrationStep.value = 1;
-      status.value = "Registration - Customer";
-      notify({
-        title: "Account Registration",
-        text: "Your user profile was created successfully",
-        duration: 2000,
-        type: "success",
-      });
+      // notify({
+      //   title: "Account Registration",
+      //   text: "Your user profile was created successfully",
+      //   duration: 2000,
+      //   type: "success",
+      // });
       router.replace("/registration#customer");
     }
     if (result.error.value) {
@@ -324,12 +330,34 @@ export const useUserStore = defineStore("identity", () => {
     } 
   }
 
-  async function createCustomerProfile(cust: ICustomerRegistrationDTO) {
+  async function updateUserStatus (userId: number, status: {status: String}) {
+    const { execute } = useAxios(GLabsApiClient);
+    const result = await execute(`/users/${userId}`, { method: "PATCH", data: status });
+    if (result.isFinished.value) {
+      user.value = result.data.value
+    }
+    if (result.error.value) {
+      notify({
+        title: "User Status",
+        text: `${handleAxiosError(
+          result.error.value,
+          "Impossible to update the status of your user profile at the moment"
+        )}`,
+        duration: -1,
+        type: "error",
+      });
+    } 
+  }
+
+  async function createCustomerProfile(id: number, cust: ICustomerRegistrationDTO) {
+    
+    const res = await updateUserStatus(id, {status: 'RegistrationCustomer'})
+    console.log('Response ' + res)
     const { execute } = useAxios(GLabsApiClient);
     const result = await execute(`/customers`, { method: "POST", data: cust });
     if (result.isFinished.value && !result.error.value) {
-      registrationStep.value = 2;
-      status.value = "Registration - Waiting for Approval";
+      //registrationStep.value = 2;
+      status.value = user.value.status;
       notify({
         title: "Account Registration",
         text: "Your customer profile was created successfully",
@@ -350,48 +378,26 @@ export const useUserStore = defineStore("identity", () => {
         type: "error",
       });
     } 
+
+    await updateUserStatus(id, {status: 'RegistrationOrganization'})
+
   }
 
-  const activateUserProvisioning = async () => {
-    await createOrgProfile({}); //
-    await activateUser(1); //activate user
-    await provisionGCUser();
+  const activateUserProvisioning = async (id: number, pcnUser: GCUserInfo) => {
+    await provisionGCUser(pcnUser);
     localStorage.removeItem('registration_uid')
+    await updateUserStatus(id, {status: 'Active'})
+    router.replace("/workshops");
   }
 
-  const provisionGCUser = async () => {
-    console.log('Provisioning GC User')
-  }
-
-  const activateUser = async (userId: number) => {
-    console.log('Activation user')
-  }
-
-  async function createOrgProfile(org: any) {
+  const provisionGCUser = async (pcnUser: GCUserInfo) => {
     const { execute } = useAxios(GLabsApiClient);
-
-    const pcnInfo = {
-      region: "us_east_1",
-      name: "purecloudnow",
-      org_uuid: 'f657a486-0a31-413f-bcf9-f453b0b3d6db',
-      is_owned_by_gts: true,
-      org_user_settings: {
-          create: {
-              routing_account_name: 'arnaud.lejeune',
-              routing_region: 'EMEA Partner',
-              routing_skill1: 'Lima',
-              routing_skill2: 'Gold'
-          },
-      },
-    }
-
-    const result = await execute(`/users/me/org`, { method: "POST", data: pcnInfo });
+    const result = await execute(`/orchestrator/CreateGCUser`, { method: "POST", data: pcnUser });
     if (result.isFinished.value && !result.error.value) {
-      registrationStep.value = 2;
-      status.value = "Registration - Waiting for Approval";
+      status.value = user.value.status;
       notify({
         title: "Account Registration",
-        text: "Your organization was added to your profile successfully",
+        text: "You have been provisioned a dedicated user into our Genesys Cloud demo organization",
         duration: 2000,
         type: "success",
       });
@@ -407,8 +413,53 @@ export const useUserStore = defineStore("identity", () => {
         duration: -1,
         type: "error",
       });
-    } 
+    console.log('Provisioning GC User')
   }
+}
+
+
+  // async function createOrgProfile(org: any) {
+  //   const { execute } = useAxios(GLabsApiClient);
+
+  //   const pcnInfo = {
+  //     region: "us_east_1",
+  //     name: "purecloudnow",
+  //     org_uuid: 'f657a486-0a31-413f-bcf9-f453b0b3d6db',
+  //     is_owned_by_gts: true,
+  //     org_user_settings: {
+  //         create: {
+  //             routing_account_name: 'arnaud.lejeune',
+  //             routing_region: 'EMEA Partner',
+  //             routing_skill1: 'Lima',
+  //             routing_skill2: 'Gold'
+  //         },
+  //     },
+  //   }
+
+  //   const result = await execute(`/users/me/org`, { method: "POST", data: pcnInfo });
+  //   if (result.isFinished.value && !result.error.value) {
+  //     registrationStep.value = 2;
+  //     status.value = "Registration - Waiting for Approval";
+  //     notify({
+  //       title: "Account Registration",
+  //       text: "Your organization was added to your profile successfully",
+  //       duration: 2000,
+  //       type: "success",
+  //     });
+  //   }
+
+  //   if (result.error.value) {
+  //     notify({
+  //       title: "Account Registration",
+  //       text: `${handleAxiosError(
+  //         result.error.value,
+  //         "Impossible to assign a demo org to your profile at the moment"
+  //       )}`,
+  //       duration: -1,
+  //       type: "error",
+  //     });
+  //   } 
+  // }
 
   function setUserRegistration(userDTO: IDriveUserRegistration) {
     registrationUser.value = userDTO;

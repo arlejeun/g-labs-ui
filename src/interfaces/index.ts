@@ -21,6 +21,7 @@ export interface IDriveGenericUser {
   avatar_url: string;
   job_function: string;
   company: string;
+  status: string;
   date_created: string;
   country_id: number;
   date_updated: string;
@@ -79,7 +80,7 @@ export interface ICustomerRegistrationCreate extends ICustomerRegistrationDTO {
 export interface ICustomerRegistrationForm extends ICustomerRegistration {
   emails: IDriveIdentifier[];
   phones: IDriveIdentifier[];
-  messengers: IDriveIdentifier[];
+  messengers?: IDriveIdentifier[];
 }
 
 // export interface ICustomerCreate {
@@ -230,4 +231,16 @@ export interface IUserAdminTableElt {
 
 export interface IUserAdminTable {
   [x:string]: IUserAdminTableElt
+}
+
+export interface GCUserInfo {
+  org_name: string,
+  email: string,
+  username: string,
+  name: string,
+  phoneNumber: string,
+  skills: string[],
+  country: string,
+  title: string,
+  state: string
 }

@@ -2,13 +2,45 @@
 
 import type { FormInstance, FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
-import type { IDriveCustomerForm, IDriveIdentifier } from '@/interfaces';
+import type { ICustomerRegistrationForm, IDriveCustomer, IDriveCustomerDTO, IDriveCustomerForm, IDriveIdentifier, IDriveUser } from '@/interfaces';
 import { Delete } from '@element-plus/icons-vue'
+import { generateCustomerPayload } from '@/utils/axios';
 
 
 const userStore = useUserStore()
-const { customer, customerUpdateInProgress, isMobile } = storeToRefs(userStore)
-//const customer = ref(user.value?.customer?.[0] as IDriveCustomer)
+const { isMobile } = storeToRefs(userStore)
+const { createCustomerProfile } = userStore
+
+const props = defineProps<{
+  user: IDriveUser,
+}>();
+
+const { user: myRegistrationUser } = toRefs(props)
+
+const user = ref({} as IDriveUser)
+
+const customerDTO = ref({
+  "first_name": myRegistrationUser.value.first_name,
+  "last_name": myRegistrationUser.value.last_name,
+  "address": "6975 Union Park Ave",
+  "city": "Daly City",
+  "state": "CA",
+  "zip": "94014",
+  "country": "United States",
+  "identifiers": [
+    {
+      "name": "Work Phone",
+      "type": "Voice",
+      "value": myRegistrationUser.value.phone_number
+    },
+    {
+      "name": "Work Email",
+      "type": "Email",
+      "value": myRegistrationUser.value.email
+    }
+  ]
+} as IDriveCustomer)
+
 
 // const { width } = useWindowSize()
 // const isMobile = computed(() => width.value < 750)
@@ -17,11 +49,9 @@ const customerFormRef = ref<FormInstance>()
 
 const emailDialogFormVisible = ref(false)
 const phoneDialogFormVisible = ref(false)
-const messengerDialogFormVisible = ref(false)
 
-const customerPhones = computed(() => customer?.value?.identifiers?.filter(x => x.type == 'Voice'))
-const customerEmails = computed(() => customer?.value?.identifiers?.filter(x => x.type == 'Email'))
-const customerMessengers = computed(() => customer?.value?.identifiers?.filter(x => (x.type != 'Email' && x.type != 'Voice')))
+const customerPhones = computed(() => customerDTO?.value?.identifiers?.filter(x => x.type == 'Voice'))
+const customerEmails = computed(() => customerDTO?.value?.identifiers?.filter(x => x.type == 'Email'))
 
 const hasWorkEmail = computed(() => customerEmails?.value?.filter(x => x.name == 'Work Email')?.length > 0)
 const hasPersonalEmail = computed(() => customerEmails?.value?.filter(x => x.name == 'Personal Email')?.length > 0)
@@ -31,6 +61,7 @@ const hasWorkPhone = computed(() => customerPhones?.value?.filter(x => x.name ==
 const hasMobilePhone = computed(() => customerPhones?.value?.filter(x => x.name == 'Mobile Phone')?.length > 0)
 const hasHomePhone = computed(() => customerPhones?.value?.filter(x => x.name == 'Home Phone')?.length > 0)
 
+const customerForm = ref({} as ICustomerRegistrationForm)
 
 const rules = reactive<FormRules>({
   first_name: [
@@ -75,12 +106,15 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
-      console.log('submit!')
-      customerUpdateInProgress.value = true
-      const data = customerForm.value
-      const { emails, phones, messengers, ...customerProperties } = data;
-      userStore.updateCustomerProfile(customerProperties)
-      customerUpdateInProgress.value = true
+      const { emails, phones, messengers, ...customerFormDTO } = customerForm.value
+      const storedUserId = localStorage.getItem('registration_uid')
+      let storedUid = -1
+      if (typeof storedUserId == 'string') {
+        storedUid = parseInt(storedUserId)
+      }
+      const uid = myRegistrationUser.value.user_id || storedUid
+      const customerPayload = { user_id: uid, ...generateCustomerPayload(customerFormDTO) }
+      createCustomerProfile(uid as number, customerPayload)
     } else {
       console.log('error submit!', fields)
     }
@@ -100,10 +134,6 @@ const addEmail = () => {
   emailDialogFormVisible.value = true
 }
 
-const addMessenger = () => {
-  messengerDialogFormVisible.value = true
-}
-
 const phoneDialogForm = reactive({
   name: '',
   value: '',
@@ -115,15 +145,6 @@ const emailDialogForm = reactive({
   value: '',
   type: 'Email'
 })
-
-const messengerDialogForm = reactive({
-  name: '',
-  value: '',
-  type: '',
-  description: ''
-})
-
-const messengerTypeOptions = ['Whatsapp', 'FacebookId', 'TwitterId']
 
 const emailTypeOptions = reactive([
   {
@@ -162,52 +183,74 @@ const phoneTypeOptions = reactive([
   }
 ])
 
-const addMessengerSubmit = () => {
-  customer.value?.identifiers.push({ ...messengerDialogForm })
-  messengerDialogFormVisible.value = false
-}
-
 
 const addPhoneSubmit = () => {
   phoneTypeOptions.filter(opt => opt.label == phoneDialogForm.name)
-  customer.value?.identifiers.push({ ...phoneDialogForm })
+  customerDTO.value?.identifiers.push({ ...phoneDialogForm })
   phoneDialogFormVisible.value = false
 }
 
 const addEmailSubmit = () => {
   emailTypeOptions.filter(opt => opt.label == emailDialogForm.name)
-  customer.value?.identifiers.push({ ...emailDialogForm })
+  customerDTO.value?.identifiers.push({ ...emailDialogForm })
   emailDialogFormVisible.value = false
 }
 
 const formLabelWidth = '100px'
-const customerForm = ref({} as IDriveCustomerForm)
+
 
 watchEffect(() => {
-  customerForm.value = { ...customer.value, emails: customerEmails.value, phones: customerPhones.value, messengers: customerMessengers.value }
+  
+  if (myRegistrationUser.value.email) {
+    user.value = myRegistrationUser.value
+  }
+
+  customerDTO.value = {
+    "first_name": user.value.first_name,
+    "last_name": user.value.last_name,
+    "address": "6975 Union Park Ave",
+    "city": "Daly City",
+    "state": "CA",
+    "zip": "94014",
+    "country": "United States",
+    "identifiers": [
+      {
+        "name": "Work Phone",
+        "type": "Voice",
+        "value": user.value.phone_number
+      },
+      {
+        "name": "Work Email",
+        "type": "Email",
+        "value": user.value.email
+      }
+    ]
+  }
+  customerForm.value = { ...customerDTO.value, emails: customerEmails.value, phones: customerPhones.value }
 }
 )
 
 const removeIdentifier = ((identifier: IDriveIdentifier, idx: number) => {
-  customer.value.identifiers = customer.value.identifiers.filter((ident) => ident.name != identifier.name)
+  if (identifier.type == 'Email' && customerEmails.value.length > 1) {
+    customerDTO.value.identifiers = customerDTO.value.identifiers.filter((ident) => ident.name != identifier.name)
+  }
+  if (identifier.type == 'Voice' && customerPhones.value.length > 1) {
+    customerDTO.value.identifiers = customerDTO.value.identifiers.filter((ident) => ident.name != identifier.name)
+  }
 })
 
 </script>
 
 <template>
 
-  <div class="col-lg-9 col-xl-9" style="max-width: 1600px;">
-
-    <!-- Offcanvas menu button -->
-    <div class="d-grid mb-0 d-lg-none w-100">
-      <button class="btn btn-primary mb-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar"
-        aria-controls="offcanvasSidebar">
-        <i class="fas fa-sliders-h"></i> Menu
-      </button>
-    </div>
+  <div class="row">
 
     <div class="vstack gap-4">
 
+
+      <el-alert title="Customer Record" type="info"
+        description="Your customer information is required to be identified and personalize your experience with the Genesys Cloud demos organization"
+        show-icon close-text="Gotcha" />
 
       <!-- Personal info START -->
       <div class="card border">
@@ -223,12 +266,12 @@ const removeIdentifier = ((identifier: IDriveIdentifier, idx: number) => {
             class="demo-ruleForm" status-icon>
             <el-row :gutter="20">
               <el-col :xs="24" :span="12">
-                <el-form-item label="First Name" prop="first_name">
+                <el-form-item label="Customer First Name" prop="first_name">
                   <el-input v-model="customerForm.first_name" />
                 </el-form-item>
               </el-col>
               <el-col :xs="24" :span="12">
-                <el-form-item label="Last Name" prop="last_name">
+                <el-form-item label="Customer Last Name" prop="last_name">
                   <el-input v-model="customerForm.last_name" />
                 </el-form-item>
               </el-col>
@@ -282,7 +325,8 @@ const removeIdentifier = ((identifier: IDriveIdentifier, idx: number) => {
                 <el-form-item :label="email.name" :prop="'emails.' + index + '.value'" :rules="rules.email">
                   <el-input v-model="email.value">
                     <template #append>
-                      <el-button @click.prevent="removeIdentifier(email, index)" :icon="Delete" />
+                      <el-button :disabled="customerEmails.length < 2" @click.prevent="removeIdentifier(email, index)"
+                        :icon="Delete" />
                     </template>
                   </el-input>
                 </el-form-item>
@@ -298,7 +342,7 @@ const removeIdentifier = ((identifier: IDriveIdentifier, idx: number) => {
                   <el-button @click.prevent="addPhoneNumber" type="primary" :text="true">
                     <i class="text-primary bi bi-plus-circle"></i>
                   </el-button>
-                 </h4>
+                </h4>
               </el-col>
             </el-row>
 
@@ -308,7 +352,8 @@ const removeIdentifier = ((identifier: IDriveIdentifier, idx: number) => {
                 <el-form-item :label="phone.name" :prop="'phones.' + index + '.value'" :rules="rules.phone">
                   <el-input v-model="phone.value">
                     <template #append>
-                      <el-button @click.prevent="removeIdentifier(phone, index)" :icon="Delete" />
+                      <el-button :disabled="customerPhones.length < 2" @click.prevent="removeIdentifier(phone, index)"
+                        :icon="Delete" />
                     </template>
                   </el-input>
                 </el-form-item>
@@ -316,50 +361,17 @@ const removeIdentifier = ((identifier: IDriveIdentifier, idx: number) => {
               </el-col>
             </el-row>
 
-            <!-- <el-row :gutter="20">
-        <el-col v-for="item in customerPhones" :xs="24" :span="8">
-          <el-form-item :label="item.name" prop="phone">
-            <el-input v-model="item.value" />
-          </el-form-item>
-        </el-col>            
-      </el-row> -->
-
-            <el-divider></el-divider>
-
-            <el-row :gutter="20">
-              <el-col>
-                <h4 class="card-header-title text-primary mt-2 pb-2">Messaging
-                  <el-button @click.prevent="addMessenger" type="primary" :text="true">
-                    <i class="text-primary bi bi-plus-circle"></i>
-                  </el-button>
-                 </h4>
-              </el-col>
-            </el-row>
-
-            <el-row v-if="customerMessengers" :gutter="20">
-
-              <el-col v-for="(messenger, index) in customerForm.messengers" :key="index" :xs="24" :span="12">
-                <el-form-item :label="messenger.name">
-                  <el-input v-model="messenger.value">
-                    <template #append>
-                      <el-button @click.prevent="removeIdentifier(messenger, index)" :icon="Delete" />
-                    </template>
-                  </el-input>
-                </el-form-item>
-
-              </el-col>
-            </el-row>
 
             <el-divider></el-divider>
 
             <div class="pt-2 d-sm-flex justify-content-end">
-              <el-form-item v-show="!customerUpdateInProgress">
-              <el-button type="primary" @click.prevent="submitForm(customerFormRef)">Save changes</el-button>
-              <el-button @click="resetForm(customerFormRef)">Reset</el-button>
-            </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click.prevent="submitForm(customerFormRef)">Register</el-button>
+                <el-button @click="resetForm(customerFormRef)">Reset</el-button>
+              </el-form-item>
             </div>
 
-            
+
           </el-form>
 
         </div>
@@ -418,37 +430,6 @@ const removeIdentifier = ((identifier: IDriveIdentifier, idx: number) => {
     </template>
 
   </el-dialog>
-
-
-  <el-dialog v-model="messengerDialogFormVisible" :width="dialogWidth" title="Add Messenger">
-    <el-form :model="messengerDialogForm">
-      <el-form-item label="Type" :label-width="formLabelWidth">
-        <el-select v-model="messengerDialogForm.type" placeholder="Select Type">
-          <el-option v-for="item in messengerTypeOptions" :key="item" :label="item" :value="item" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="Name" :label-width="formLabelWidth">
-        <el-input v-model="messengerDialogForm.name" autocomplete="off" />
-      </el-form-item>
-      <el-form-item label="Value" :label-width="formLabelWidth">
-        <el-input v-model="messengerDialogForm.value" autocomplete="off" />
-      </el-form-item>
-      <el-form-item label="Description" :label-width="formLabelWidth">
-        <el-input v-model="messengerDialogForm.description" autocomplete="off" />
-      </el-form-item>
-    </el-form>
-
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="messengerDialogFormVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="addMessengerSubmit">
-          Confirm
-        </el-button>
-      </span>
-    </template>
-
-  </el-dialog>
-
 
 
   <!-- <pre>

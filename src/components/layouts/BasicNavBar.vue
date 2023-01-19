@@ -7,7 +7,7 @@ import { loginRequest } from '@/plugins/msal/msalConfig'
 const { instance } = useMsal();
 
 const store = useUserStore()
-const { avatarUrl, username, userEmail, isRegistering, isActive, localization, isMobile } = storeToRefs(store)
+const { avatarUrl, username, userEmail, isRegistering, isActive, localization, isMobile, isAdmin } = storeToRefs(store)
 const isAuthenticated = useIsAuthenticated();
 const { logout } = store
 
@@ -69,11 +69,11 @@ async function mockSignOut() {
               </router-link>
             </li>
 
-            <li class="nav-item dropdown">
+            <!-- <li class="nav-item dropdown">
               <router-link class="nav-link text-white fw-bolder" to="/testing/tracking">
                 Tracking
               </router-link>
-            </li>
+            </li> -->
             <!-- <li class="nav-item dropdown">
               <router-link class="nav-link text-white fw-bolder" to="/demos">
                 My Space
@@ -87,7 +87,7 @@ async function mockSignOut() {
                 Auth
               </router-link>
             </li> -->
-            <li class="nav-item dropdown">
+            <li v-if="isAdmin" class="nav-item dropdown">
               <router-link class="nav-link text-white dropdown-toggle fw-bolder" to="/admin/users">
                 Administration
               </router-link>

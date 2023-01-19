@@ -180,7 +180,9 @@ function resetForm (formEl: FormInstance | undefined) {
         <el-row :gutter="20">
 
           <el-col v-show="!isAdmin" :span="6">
-            <el-input v-model="settings.routing_region" disabled></el-input>
+            <el-form-item label="Region">
+              <el-input v-model="settings.routing_region" disabled></el-input>
+            </el-form-item>
           </el-col>
 
           <el-col v-show="isAdmin" :span="6">

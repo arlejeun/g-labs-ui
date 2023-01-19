@@ -28,6 +28,9 @@ const registrationRules = reactive<FormRules>({
     { required: true, message: 'Please input first name', trigger: 'blur' },
     { min: 2, max: 30, message: 'Length should be 2 to 30', trigger: 'blur' },
   ],
+  type: [
+  { required: true, message: 'Please select what applies to your profile', trigger: 'blur' },
+  ],
   last_name: [
     { required: true, message: 'Please input last name', trigger: 'blur' },
     { min: 2, max: 30, message: 'Length should be 2 to 30', trigger: 'blur' },
