@@ -50,7 +50,7 @@ export const msalInstance = new PublicClientApplication(msalConfig);
 // Add here scopes for id token to be used at MS Identity Platform endpoints.
 export const loginRequest = {
   //scopes: ['User.Read', 'openid'],
-  scopes: ['openid', 'https://glabsdev.onmicrosoft.com/drive-dev-api/drive.customers.read'],
+  scopes: ['openid', 'https://glabsdev.onmicrosoft.com/drive-dev-api/drive.customers.read', 'https://glabsdev.onmicrosoft.com/drive-dev-analytics/drive.analytics'],
 };
 
 // Add here the endpoints for MS Graph API services you would like to use.
