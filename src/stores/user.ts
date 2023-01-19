@@ -330,11 +330,12 @@ export const useUserStore = defineStore("identity", () => {
     } 
   }
 
-  async function updateUserStatus (userId: number, status: {status: String}) {
+  async function updateUserStatus (userId: number, statusDTO: {status: String}) {
     const { execute } = useAxios(GLabsApiClient);
-    const result = await execute(`/users/${userId}`, { method: "PATCH", data: status });
+    const result = await execute(`/users/${userId}`, { method: "PATCH", data: statusDTO });
     if (result.isFinished.value) {
       user.value = result.data.value
+      status.value = user.value.status
     }
     if (result.error.value) {
       notify({
@@ -352,11 +353,9 @@ export const useUserStore = defineStore("identity", () => {
   async function createCustomerProfile(id: number, cust: ICustomerRegistrationDTO) {
     
     const res = await updateUserStatus(id, {status: 'RegistrationCustomer'})
-    console.log('Response ' + res)
     const { execute } = useAxios(GLabsApiClient);
     const result = await execute(`/customers`, { method: "POST", data: cust });
     if (result.isFinished.value && !result.error.value) {
-      //registrationStep.value = 2;
       status.value = user.value.status;
       notify({
         title: "Account Registration",
