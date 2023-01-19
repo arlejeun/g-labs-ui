@@ -35,8 +35,8 @@ async function getProfileData() {
   });
 
   if (inProgress.value === InteractionStatus.None) {
-    GLABS_TOKEN.value = response?.idToken
-    GLABS_STORAGE.value = { token: `${response?.idToken}` }
+    GLABS_TOKEN.value = response?.accessToken
+    GLABS_STORAGE.value = { token: `${response?.accessToken}` }
     fetchUser()
     state.resolved = true;
     stopWatcher();
@@ -56,8 +56,8 @@ async function renewSilentToken() {
     console.log(e)
   });
   if (inProgress.value === InteractionStatus.None) {
-    GLABS_TOKEN.value = response?.idToken
-    GLABS_STORAGE.value = { token: `${response?.idToken}` }
+    GLABS_TOKEN.value = response?.accessToken
+    GLABS_STORAGE.value = { token: `${response?.accessToken}` }
     start()
   }
 }
