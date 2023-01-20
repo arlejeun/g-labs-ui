@@ -11,6 +11,7 @@ import type {
   IDriveOrgDTO,
   IUserGroupsDTO,
   GCUserInfo,
+  GCDeleteUser,
 } from "@/interfaces";
 import defaultAvatarUrl from "@/assets/images/avatar/01.jpg";
 import { GLabsApiClient } from "@/apis/glabs";
@@ -27,7 +28,7 @@ export const useUserStore = defineStore("identity", () => {
   const { width } = useWindowSize()
   
   // state properties vue composition of store
-  const registrationUser = ref({} as IDriveUserRegistration);
+  //const registrationUser = ref({} as IDriveUserRegistration);
   const user = ref({} as IDriveUser);
   const status = ref("LoggedOut");
   const registrationStep = ref(-1);
@@ -86,10 +87,11 @@ export const useUserStore = defineStore("identity", () => {
       }
     }
     if (result.error.value) {
-      if (result.error.value?.response?.data?.message == "User not found") {
+      if ((result.error.value?.response?.data?.message == "User not found") || 
+      result.error.value?.response?.data?.message == "Object not found!" ) {
         router.replace("/registration#profile");
         status.value = "RegistrationProfile";
-        registrationStep.value = 0;
+        // registrationStep.value = 0;
         notify({
           title: "Registration",
           text: `${handleAxiosError(
@@ -194,7 +196,6 @@ export const useUserStore = defineStore("identity", () => {
     return {id: id, status: status, type: type, groups: {connect: selectedGroups.map((x: number) => { return {'id': x}})}}
   }
 
-
   async function updateUserGroupsProfile(udpatedUser: IDriveUser, groupIds: number[]) {
     const payload = extractUserGroupsFromUser(udpatedUser, groupIds)
     const { execute } = useAxios(GLabsApiClient);
@@ -298,6 +299,8 @@ export const useUserStore = defineStore("identity", () => {
 
   async function createUserProfile(userDTO: IDriveUserRegistration) {
     const { execute } = useAxios(GLabsApiClient);
+    //const { oid, ...payload } = userDTO
+    //localStorage.setItem('registration_oid', oid)
     const result = await execute(`/users/register`, {
       method: "POST",
       data: userDTO,
@@ -308,13 +311,7 @@ export const useUserStore = defineStore("identity", () => {
       status.value = user.value.status;
       userDTO.user_id = result.data.value.id;
       localStorage.setItem('registration_uid', userDTO.user_id.toString())
-      setUserRegistration(userDTO);
-      // notify({
-      //   title: "Account Registration",
-      //   text: "Your user profile was created successfully",
-      //   duration: 2000,
-      //   type: "success",
-      // });
+      //setUserRegistration(userDTO);
       router.replace("/registration#customer");
     }
     if (result.error.value) {
@@ -356,14 +353,18 @@ export const useUserStore = defineStore("identity", () => {
     const { execute } = useAxios(GLabsApiClient);
     const result = await execute(`/customers`, { method: "POST", data: cust });
     if (result.isFinished.value && !result.error.value) {
-      status.value = user.value.status;
-      notify({
-        title: "Account Registration",
-        text: "Your customer profile was created successfully",
-        duration: 2000,
-        type: "success",
-      });
+      status.value = user.value?.status;
+      if (!status.value?.includes('Registration')) {
+        notify({
+          title: "Account Registration",
+          text: "Your customer profile was created successfully",
+          duration: 2000,
+          type: "success",
+        });
+      }
+      await updateUserStatus(id, {status: 'RegistrationOrganization'})
       router.replace("/registration#activation");
+
     }
 
     if (result.error.value) {
@@ -377,11 +378,9 @@ export const useUserStore = defineStore("identity", () => {
         type: "error",
       });
     } 
-
-    await updateUserStatus(id, {status: 'RegistrationOrganization'})
-
   }
 
+  // Registration
   const activateUserProvisioning = async (id: number, pcnUser: GCUserInfo) => {
     await provisionGCUser(pcnUser);
     localStorage.removeItem('registration_uid')
@@ -391,28 +390,42 @@ export const useUserStore = defineStore("identity", () => {
 
   const provisionGCUser = async (pcnUser: GCUserInfo) => {
     const { execute } = useAxios(GLabsApiClient);
-    const result = await execute(`/orchestrator/CreateGCUser`, { method: "POST", data: pcnUser });
+    const result = await execute(`/orchestrator/Provision-GC-Org`, { method: "POST", data: pcnUser });
     if (result.isFinished.value && !result.error.value) {
       status.value = user.value.status;
       notify({
-        title: "Account Registration",
-        text: "You have been provisioned a dedicated user into our Genesys Cloud demo organization",
+        title: "User provisioning",
+        text: "The provisioning of your Genesys Cloud user for a demo environment is under way.. It should be active soon",
         duration: 2000,
         type: "success",
       });
     }
+  }
+
+    const deprovisionGCUser = async (deleteUser: GCDeleteUser) => {
+      const { execute } = useAxios(GLabsApiClient);
+      const result = await execute(`/orchestrator/Deprovision-GC-Org`, { method: "DELETE", data: deleteUser });
+      if (result.isFinished.value && !result.error.value) {
+        status.value = user.value.status;
+        notify({
+          title: "User Deprovisioning",
+          text: "Your GC user will be deprovisioned.",
+          duration: 2000,
+          type: "success",
+        });
+      }
 
     if (result.error.value) {
       notify({
-        title: "Account Registration",
+        title: "User Deprovisioning",
         text: `${handleAxiosError(
           result.error.value,
-          "Impossible to assign a demo org to your profile at the moment"
+          "Impossible to deprovision your GC user at the moment"
         )}`,
         duration: -1,
         type: "error",
       });
-    console.log('Provisioning GC User')
+    console.log('Deprovisioning GC User')
   }
 }
 
@@ -460,9 +473,9 @@ export const useUserStore = defineStore("identity", () => {
   //   } 
   // }
 
-  function setUserRegistration(userDTO: IDriveUserRegistration) {
-    registrationUser.value = userDTO;
-  }
+  // function setUserRegistration(userDTO: IDriveUserRegistration) {
+  //   registrationUser.value = userDTO;
+  // }
 
   async function removeUserProfile() {
     const { execute } = useAxios(GLabsApiClient);
@@ -585,10 +598,10 @@ export const useUserStore = defineStore("identity", () => {
     userUpdateInProgress,
     orgsUpdateInProgress,
     registrationStep,
-    registrationUser,
+    //registrationUser,
     localization,
     isMobile,
-    setUserRegistration,
+    //setUserRegistration,
     createUserProfile,
     updateUserProfile,
     removeUserProfile,
@@ -600,6 +613,8 @@ export const useUserStore = defineStore("identity", () => {
     updateUserContactInfoProfile,
     fetchUser,
     activateUserProvisioning,
+    provisionGCUser,
+    deprovisionGCUser,
     logout,
   };
 

@@ -4,7 +4,6 @@
 const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
 const computedOrgs = computed(() => user.value.orgs || [])
-const userId = computed(() => user.value.id || 0)
 
 </script>
 <template>
@@ -20,7 +19,7 @@ const userId = computed(() => user.value.id || 0)
       <div class="container pe-2" style="max-width: inherit;">
         <div class="row justify-content-center">
           <SidebarAccount />
-          <account-organizations :orgs="computedOrgs" :userId="userId"></account-organizations>
+          <account-organizations :orgs="computedOrgs" :user="user"></account-organizations>
         </div>
       </div>
     </section>

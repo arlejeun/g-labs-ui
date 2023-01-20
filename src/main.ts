@@ -27,8 +27,11 @@ import { CustomNavigationClient } from '@/router/NavigationClient'
 // import '@/assets/scss/element/index.scss'
 // import 'element-plus/dist/index.css'
 
-import Vue3EasyDataTable from 'vue3-easy-data-table';
-import 'vue3-easy-data-table/dist/style.css';
+import 'element-plus/es/components/message/style/css'; // this is only needed if the page also used ElMessage
+import 'element-plus/es/components/message-box/style/css';
+
+// import Vue3EasyDataTable from 'vue3-easy-data-table';
+// import 'vue3-easy-data-table/dist/style.css';
 
 import 'nprogress'
 
@@ -51,7 +54,7 @@ const app = createApp(App)
 
 app.component('fa', FontAwesomeIcon)
 //app.component('MazPhoneNumberInput', MazPhoneNumberInput)
-app.component('EasyDataTable', Vue3EasyDataTable);
+//app.component('EasyDataTable', Vue3EasyDataTable);
 
 // app.use(abilitiesPlugin, ability, {
 //     useGlobalProperties: true,

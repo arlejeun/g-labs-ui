@@ -23,7 +23,7 @@ const user = ref({} as IDriveUser)
 const settings = ref({} as IDriveUserSettings)
 
 watchEffect(() => {
-  if (myUser.value.email) {
+  if (myUser.value?.email) {
 
     if (admin && admin.value) {
       //lose reactivty when coming from users admin page form

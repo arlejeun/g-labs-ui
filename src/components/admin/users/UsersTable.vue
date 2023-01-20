@@ -131,7 +131,7 @@ onMounted(() => {
 								</div>
 								<div v-show="currentUserSubView==3" class="col-10">
 									<!-- <user-organizations></user-organizations> -->
-									<account-organizations :orgs="props.row.orgs" :userId="props.row.id" :admin=true></account-organizations>
+									<account-organizations :orgs="props.row.orgs" :user="props.row" :admin=true></account-organizations>
 
 								</div>
 

@@ -104,6 +104,18 @@ const rules = reactive<FormRules>({
 
 })
 
+watchEffect(() => {
+  
+  if (myRegistrationUser?.value?.email) {
+    user.value = myRegistrationUser.value
+    customerDTO.value.first_name = user.value.first_name,
+    customerDTO.value.last_name = user.value.last_name,
+    customerDTO.value.identifiers = [...identifiersForm.value.identifiers]
+  }
+  customerForm.value = { ...customerDTO.value, emails: customerEmails.value, phones: customerPhones.value }
+}
+)
+
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
@@ -114,7 +126,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       if (typeof storedUserId == 'string') {
         storedUid = parseInt(storedUserId)
       }
-      const uid = myRegistrationUser.value.user_id || storedUid
+      const uid = myRegistrationUser.value?.user_id || storedUid
       const customerPayload = { user_id: uid, ...generateCustomerPayload(customerFormDTO) }
       createCustomerProfile(uid as number, customerPayload)
     } else {
@@ -199,20 +211,6 @@ const addEmailSubmit = () => {
 }
 
 const formLabelWidth = '100px'
-
-
-watchEffect(() => {
-  
-  if (myRegistrationUser.value.email) {
-    user.value = myRegistrationUser.value
-    customerDTO.value.first_name = user.value.first_name,
-    customerDTO.value.last_name = user.value.last_name,
-    customerDTO.value.identifiers = [...identifiersForm.value.identifiers]
-  }
-
-  customerForm.value = { ...customerDTO.value, emails: customerEmails.value, phones: customerPhones.value }
-}
-)
 
 const removeIdentifier = ((identifier: IDriveIdentifier, idx: number) => {
   if (identifier.type == 'Email' && customerEmails.value.length > 1) {

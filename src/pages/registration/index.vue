@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import type { IDriveBaseUser } from '@/interfaces';
 
-import { GLABS_TOKEN } from '@/apis/glabs'
 import { useMsal } from "@/composables/useMsal";
 import type { AccountInfo } from '@azure/msal-common';
 import { useUserStore } from '@/stores/user'
@@ -22,6 +21,7 @@ const decodeToken4User = (msalAccount: AccountInfo[]) => {
   userTemp.idp = msalAccount?.[0]?.idTokenClaims?.idp as string
   userTemp.email = msalAccount?.[0]?.idTokenClaims?.emails?.[0] as string
   userTemp.username = `${userTemp.first_name.toLocaleLowerCase()}.${userTemp.last_name.toLocaleLowerCase()}`
+  userTemp.azure_b2c_oid = msalAccount?.[0]?.idTokenClaims?.oid as string
   if (userTemp.email?.includes('genesys.com')) {
     userTemp.company = 'Genesys'
     userTemp.type = 'Internal'
@@ -79,7 +79,6 @@ watchEffect(() => {
         <div class="row">
          
           <registration-profile-form v-if="registrationStep==0" :account="registrationUser"/>
-          <!-- <registration-profile-form :account="registrationUser"/> -->
           <registration-customer-form v-if="registrationStep==1" :user="user"/>
           <registration-validation v-if="registrationStep==2" :user="user"></registration-validation> 
 
