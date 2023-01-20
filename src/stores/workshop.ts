@@ -110,10 +110,16 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const nextButtonName = computed(() => {
     let res = 'Next'
     if (treeIndex.value == workShopPathMap.value.length - 1) {
-      res = 'End of Course'
+      if (workShopPathMap.value.length == workshopProgress.value.length - 1 &&
+        !workshopProgress.value.includes(workShopPathMap.value.length - 1)) {
+        res = 'Course is completed!'
+      }
+      else {
+        res = 'Continue...'
+      }
     }
     else if (workShopPathMap.value[treeIndex.value + 1]?.chapter) {
-      res = 'End of Chapter'
+      res = 'Next Chapter'
     }
     return res
   })
@@ -186,7 +192,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
           path: branch.path,
           index: [...branch.index],
           key: branch.id,
-          chapter: branch.chapter
+          chapter: branch.index.length === 1 || (branch.index.length === 2 && branch.index[1] === 0)
         });
         if (locItem.menus && locItem.menus.length > 0) {
           branch.children = [..._buildTree(locItem.menus, branch.index)];
@@ -246,29 +252,30 @@ export const useWorkshopStore = defineStore("workshop", () => {
     router.push({ path: `/workshops/${wsId.value}/${nodePath}` });
   };
 
-  const loadWorkshop = async () => {
+  const loadWorkshop = async (isReload: boolean) => {
     if (!wsId.value) {
       return;
     }
     try {
+      const locale = localization.value || "en-US"
       const { execute } = useAxios(GLabsApiClient);
-      const result = await execute(`/workshops/name/${wsId.value}`);
+      const result = await execute(`/workshops/name/${wsId.value}/locale/${locale}`);
       if (result.isFinished.value && !result.error.value) {
         const resData = result.data.value;
-        workshopName.value = resData.name;
-        let mnf = resData.manifest;
+        workshopName.value = wsId.value;
+        let mnf = resData.localizations[0].manifest;
         mnf = mnf.replaceAll('\\"', "\\$");
         mnf = mnf.replaceAll('"', '"');
         mnf = mnf.replaceAll("\\$", '\\"');
         workshop.value = [JSON.parse(mnf).content] || [];
         rebuildTree();
-        setTreeIndexByPath(urlParam.value);
-
         const loc = localization.value || "en-US";
         const ws = workshop.value[0]
         let wsItem = ws?.[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem
         workshopTitle = wsItem?.name || wsId.value
-
+        if (!isReload) {
+          setTreeIndexByPath(urlParam.value);
+        }
       }
       if (result.error.value) {
         notify({
