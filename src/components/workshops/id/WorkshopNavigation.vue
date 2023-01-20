@@ -19,13 +19,14 @@ const defaultProps = {
 const treeRef = ref()
 
 watch(localization, () => {
-  rebuildTree()
-  setTreeIndexByKey();
-  setTimeout(() => { treeRef.value?.setCurrentKey(workshopTreeKey.value, true) }, 100);
+  loadWorkshop(true).then(() => {
+    setTreeIndexByKey();
+    setTimeout(() => { treeRef.value?.setCurrentKey(workshopTreeKey.value, true) }, 100);
+  });
 });
 
 onMounted(() => {
-  loadWorkshop().then(() => {
+  loadWorkshop(false).then(() => {
     setTreeIndexByPath(urlParam.value);
     treeRef.value?.setCurrentKey(workshopTreeKey.value, true);
   });

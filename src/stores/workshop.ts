@@ -110,7 +110,13 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const nextButtonName = computed(() => {
     let res = 'Next'
     if (treeIndex.value == workShopPathMap.value.length - 1) {
-      res = 'Course is completed!'
+      if (workShopPathMap.value.length == workshopProgress.value.length - 1 &&
+        !workshopProgress.value.includes(workShopPathMap.value.length - 1)) {
+        res = 'Course is completed!'
+      }
+      else {
+        res = 'Continue...'
+      }
     }
     else if (workShopPathMap.value[treeIndex.value + 1]?.chapter) {
       res = 'Next Chapter'
@@ -246,7 +252,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
     router.push({ path: `/workshops/${wsId.value}/${nodePath}` });
   };
 
-  const loadWorkshop = async () => {
+  const loadWorkshop = async (isReload: boolean) => {
     if (!wsId.value) {
       return;
     }
@@ -263,13 +269,13 @@ export const useWorkshopStore = defineStore("workshop", () => {
         mnf = mnf.replaceAll("\\$", '\\"');
         workshop.value = [JSON.parse(mnf).content] || [];
         rebuildTree();
-        setTreeIndexByPath(urlParam.value);
-
         const loc = localization.value || "en-US";
         const ws = workshop.value[0]
         let wsItem = ws?.[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem
         workshopTitle = wsItem?.name || wsId.value
-
+        if (!isReload) {
+          setTreeIndexByPath(urlParam.value);
+        }
       }
       if (result.error.value) {
         notify({
