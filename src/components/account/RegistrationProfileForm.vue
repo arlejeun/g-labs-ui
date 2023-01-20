@@ -8,8 +8,7 @@ const props = defineProps(['account'])
 const myUser = ref(props.account)
 
 const userStore = useUserStore()
-const { status, registrationStep } = storeToRefs(userStore)
-const { setUserRegistration, createUserProfile } = userStore
+const { createUserProfile } = userStore
 
 const countryStore = useCountryStore()
 const { countries } = storeToRefs(countryStore)
@@ -154,7 +153,7 @@ const updateCountryUser = () => {
                     <el-option label="Prospect" value="Prospect"></el-option>
                     <el-option label="Partner" value="Partner"></el-option>
                     <el-option label="Customer" value="Customer"></el-option>
-                    <el-option label="Employee" value="Internal"></el-option>
+                    <el-option v-show="myUser.type!='Internal'" label="Employee" value="Internal"></el-option>
                   </el-select>
                 </el-form-item>
               </el-col>

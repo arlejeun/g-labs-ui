@@ -25,7 +25,7 @@ const { countries } = storeToRefs(countryStore)
 const { fetchCountries, selectCountry } = countryStore
 
 watchEffect(() => {
-  if (myUser.value.email) {
+  if (myUser.value?.email) {
     if (countries && countries.value?.length == 0) {
       fetchCountries()
     }

@@ -33,7 +33,7 @@ onMounted(() => {
 })
 
 watchEffect(() => {
-  if(myUser.value.email) {
+  if(myUser.value?.email) {
     if (admin && admin.value) {
     //lose reactivty when coming from users admin page form
     user.value = { ...myUser.value }

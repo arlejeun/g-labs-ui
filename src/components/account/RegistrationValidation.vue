@@ -1,27 +1,24 @@
 <script setup lang="ts">
 
-import type { FormInstance, FormRules, ElProgress } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
-import { useCountryStore } from '@/stores/country'
-import type { GCUserInfo, IDriveUser, IDriveUserDTO } from '@/interfaces';
-import { getRandomInt } from '@/utils/number';
+import type { GCUserInfo, IDriveUser } from '@/interfaces';
+import { getPureCloudSkill1, getPureCloudSkill2, regionOptions, partnerRegionOptions } from '@/utils/gc';
 
-const militaryAlphabet = ["Alpha", "Bravo", "Charlie", "Delta", "Echo",
-			"Foxtrot", "Golf", "Hotel", "India", "Juliet", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa",
-			"Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-Ray", "Yankee", "Zulu"]
+// const militaryAlphabet = ["Alpha", "Bravo", "Charlie", "Delta", "Echo",
+// 			"Foxtrot", "Golf", "Hotel", "India", "Juliet", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa",
+// 			"Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-Ray", "Yankee", "Zulu"]
 
-const medals = ["Platinum", "Gold", "Silver", "Bronze"]
+// const medals = ["Platinum", "Gold", "Silver", "Bronze"]
 
-const getPureCloudSkill1 = (lastName: string) => {
-  const index = militaryAlphabet.findIndex( name => name.substring(0,1) == lastName.substring(0,1).toUpperCase())
-  return militaryAlphabet[index]
-}
+// const getPureCloudSkill1 = (lastName: string) => {
+//   const index = militaryAlphabet.findIndex( name => name.substring(0,1) == lastName.substring(0,1).toUpperCase())
+//   return militaryAlphabet[index]
+// }
 
-const getPureCloudSkill2 = () => {
-  return medals[getRandomInt(medals.length)]
-}
-
-
+// const getPureCloudSkill2 = () => {
+//   return medals[getRandomInt(medals.length)]
+// }
 
 const props = defineProps<{
   user: IDriveUser,
@@ -29,8 +26,10 @@ const props = defineProps<{
 
 const { user: myRegistrationUser } = toRefs(props)
 
-const regionOptions = ref([{ "label": "APAC", "value": "APAC" }, { "label": "CANADA", "value": "CANADA" }, { "label": "EMEA", "value": "EMEA" }, { "label": "LATAM", "value": "LATAM" }, { "label": "SCO US West", "value": "NA_USW" }, { "label": "SCO - US Central", "value": "NA_USC" }, { "label": "SCO - US East", "value": "NA_USE" }, { "label": "SCO - Velocity", "value": "NA_VELOCITY" }, { "label": "SCO - Architects", "value": "NA_ARCHITECTS" }, { "label": "SCO - Government", "value": "NA_GOVERNMENT" }, { "label": "US East", "value": "USE" }, { "label": "US Central", "value": "USC" }, { "label": "US West", "value": "USW" }])
-const partnerRegionOptions = ref([{ "label": "APAC Partner", "value": "APAC_Partner" }, { "label": "Canada Partner", "value": "Canada_Partner" }, { "label": "EMEA Partner", "value": "EMEA_Partner" }, { "label": "LATAM Partner", "value": "LATAM_Partner" }, { "label": "US Partner", "value": "US_Partner" }])
+const user = ref({} as IDriveUser)
+
+// const regionOptions = ref([{ "label": "APAC", "value": "APAC" }, { "label": "CANADA", "value": "CANADA" }, { "label": "EMEA", "value": "EMEA" }, { "label": "LATAM", "value": "LATAM" }, { "label": "SCO US West", "value": "NA_USW" }, { "label": "SCO - US Central", "value": "NA_USC" }, { "label": "SCO - US East", "value": "NA_USE" }, { "label": "SCO - Velocity", "value": "NA_VELOCITY" }, { "label": "SCO - Architects", "value": "NA_ARCHITECTS" }, { "label": "SCO - Government", "value": "NA_GOVERNMENT" }, { "label": "US East", "value": "USE" }, { "label": "US Central", "value": "USC" }, { "label": "US West", "value": "USW" }])
+// const partnerRegionOptions = ref([{ "label": "APAC Partner", "value": "APAC_Partner" }, { "label": "Canada Partner", "value": "Canada_Partner" }, { "label": "EMEA Partner", "value": "EMEA_Partner" }, { "label": "LATAM Partner", "value": "LATAM_Partner" }, { "label": "US Partner", "value": "US_Partner" }])
 
 const userStore = useUserStore()
 const { isMobile } = storeToRefs(userStore)
@@ -41,44 +40,9 @@ const provisionForm = ref({} as GCUserInfo)
 
 const registrationFormRef = ref<FormInstance>()
 const registrationRules = reactive<FormRules>({
-  first_name: [
-    { required: true, message: 'Please input first name', trigger: 'blur' },
+  region: [
+    { required: true, message: 'Please select the GC division matching with your location', trigger: 'blur' },
     { min: 2, max: 30, message: 'Length should be 2 to 30', trigger: 'blur' },
-  ],
-  last_name: [
-    { required: true, message: 'Please input last name', trigger: 'blur' },
-    { min: 2, max: 30, message: 'Length should be 2 to 30', trigger: 'blur' },
-  ],
-  email: [
-    {
-      type: 'string',
-      required: true,
-      pattern:
-        /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-      message: 'Please enter email address',
-      trigger: 'blur',
-    },
-    { min: 3, message: 'Please enter email', trigger: 'blur' },
-  ],
-  phone_number: [
-    {
-      required: true,
-      pattern: /^\+[1-9]\d{1,14}$/,
-      message: 'Please enter Phone number e.164 format',
-      trigger: 'blur'
-    },
-    { min: 3, message: 'Please enter email', trigger: 'blur' },
-  ],
-  company: [
-    { required: true, message: 'Please input last name', trigger: 'blur' },
-    { min: 2, max: 30, message: 'Length should be 2 to 30', trigger: 'blur' },
-  ],
-  country_id: [
-    {
-      required: true,
-      message: 'Please select Country',
-      trigger: 'change',
-    },
   ]
 })
 
@@ -88,14 +52,22 @@ const generateProvisioningPayload = () => {
     email: myRegistrationUser.value.email,
     username: myRegistrationUser.value.username,
     name: `${myRegistrationUser.value.first_name} ${myRegistrationUser.value.last_name}`,
-    phoneNumber: myRegistrationUser.value.phone_number,
+    //phoneNumber: myRegistrationUser.value.phone_number,
     skills: [getPureCloudSkill1(myRegistrationUser.value.last_name), getPureCloudSkill2()],
-    country: myRegistrationUser.value?.customer?.country,
+    //country: myRegistrationUser.value?.customer?.country,
     title: myRegistrationUser.value.job_function,
     state: 'active'
   }
 
 }
+
+
+watchEffect(() => {
+  if (myRegistrationUser?.value?.email) {
+    user.value = myRegistrationUser.value
+  }
+})
+
 
 //TODO: Check country code matches with phone number
 const submitForm = async (formEl: FormInstance | undefined) => {
@@ -107,7 +79,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       if (typeof storedUserId == 'string') {
         storedUid = parseInt(storedUserId)
       }
-      const uid = myRegistrationUser.value.id || storedUid
+      const uid = myRegistrationUser.value?.id || storedUid
       generateProvisioningPayload()
       activateUserProvisioning(uid, provisionForm.value)
       console.log('submit!')
@@ -169,93 +141,6 @@ const resetForm = (formEl: FormInstance | undefined) => {
                     </el-form-item>
                   </el-col>
                 </el-row>
-
-
-
-                
-                <!--
-            <el-row :xs="24" :gutter="20">
-              <el-col :span="18">
-                <el-form-item label="Address" prop="address">
-                  <el-input v-model="customerForm.address" />
-                </el-form-item>
-              </el-col>
-              <el-col :xs="24" :span="6">
-                <el-form-item label="Country" prop="country">
-                  <el-input v-model="customerForm.country" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <el-row :gutter="20">
-              <el-col :xs="24" :span="8">
-                <el-form-item label="City" prop="city">
-                  <el-input v-model="customerForm.city" />
-                </el-form-item>
-              </el-col>
-              <el-col :xs="24" :span="8">
-                <el-form-item label="State" prop="state">
-                  <el-input v-model="customerForm.state" />
-                </el-form-item>
-              </el-col>
-              <el-col :xs="24" :span="8">
-                <el-form-item label="Zipcode" prop="zipcode">
-                  <el-input v-model="customerForm.zip" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <el-divider></el-divider>
-
-            <el-row :gutter="20">
-              <el-col>
-                <h4 class="card-header-title text-primary mt-2 pb-2">Emails
-                  <el-button @click.prevent="addEmail" type="primary" :text="true">
-                    <i class="text-primary bi bi-plus-circle"></i>
-                  </el-button>
-                </h4>
-              </el-col>
-            </el-row>
-
-            <el-row v-if="customerEmails" :gutter="20">
-
-              <el-col v-for="(email, index) in customerForm.emails" :key="index" :xs="24" :span="12">
-                <el-form-item :label="email.name" :prop="'emails.' + index + '.value'" :rules="rules.email">
-                  <el-input v-model="email.value">
-                    <template #append>
-                      <el-button @click.prevent="removeIdentifier(email, index)" :icon="Delete" />
-                    </template>
-                  </el-input>
-                </el-form-item>
-
-              </el-col>
-            </el-row>
-
-            <el-divider></el-divider>
-
-            <el-row :xs="24" :gutter="20">
-              <el-col>
-                <h4 class="card-header-title text-primary mt-2 pb-2">Phones
-                  <el-button @click.prevent="addPhoneNumber" type="primary" :text="true">
-                    <i class="text-primary bi bi-plus-circle"></i>
-                  </el-button>
-                </h4>
-              </el-col>
-            </el-row>
-
-            <el-row v-if="customerPhones" :gutter="20">
-
-              <el-col v-for="(phone, index) in customerForm.phones" :key="index" :xs="24" :span="12">
-                <el-form-item :label="phone.name" :prop="'phones.' + index + '.value'" :rules="rules.phone">
-                  <el-input v-model="phone.value">
-                    <template #append>
-                      <el-button @click.prevent="removeIdentifier(phone, index)" :icon="Delete" />
-                    </template>
-                  </el-input>
-                </el-form-item>
-
-              </el-col>
-            </el-row> -->
 
 
                 <el-divider></el-divider>

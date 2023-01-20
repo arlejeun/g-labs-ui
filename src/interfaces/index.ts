@@ -111,6 +111,7 @@ export interface IDriveUserRegistration {
   settings: ISettingsCreate;
   gen_contact_name: string;
   gen_contact_email: string;
+  azure_b2c_oid: string;
 }
 
 export interface IUserGroupsDTO {
@@ -175,6 +176,7 @@ export interface IDriveBaseOrg extends IDriveBaseOrgPending {
   id: number;
   is_owned_by_gts: boolean;
   user_id: number;
+  status: string;
 }
 
 export interface IDriveOrg extends IDriveBaseOrg {
@@ -238,9 +240,14 @@ export interface GCUserInfo {
   email: string,
   username: string,
   name: string,
-  phoneNumber: string,
   skills: string[],
-  country: string,
+  region: string,
   title: string,
   state: string
+}
+
+export interface GCDeleteUser {
+  org_name: string,
+  email: string,
+  username: string
 }

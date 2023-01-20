@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import { useUserStore } from '@/stores/user'
-import type { IDriveOrg } from '@/interfaces'
-
-//const userStore = useUserStore()
-//const { orgs } = storeToRefs(userStore)
+import type { IDriveOrg, IDriveUser } from '@/interfaces'
 
 const props = withDefaults(
   defineProps<{
-    orgs: IDriveOrg[],
-    userId: number,
+    user: IDriveUser,
     admin?: boolean
   }>(),
   {
@@ -16,30 +11,29 @@ const props = withDefaults(
   },
 );
 
-const { orgs: myOrgs, userId, admin } = toRefs(props)
+const { user: myUser, admin } = toRefs(props)
+const user = ref({} as IDriveUser)
 
-const orgs = ref([] as IDriveOrg[])
-
+const orgs = computed(() => user.value?.orgs || [])
 
 watchEffect(() => {
-    if (userId.value) {
-      if (admin && admin.value) {
+  if (myUser.value?.email) {
+    if (admin && admin.value) {
       //lose reactivty when coming from users admin page form
-      orgs.value = [...myOrgs.value]
+      user.value = { ...myUser.value }
+      // orgs.value = [...myOrgs.value]
     } else {
       //keep user reactivty of the profile of me user
-      orgs.value = myOrgs.value
+      // orgs.value = myOrgs.value
+      user.value = myUser.value
     }
   }
 })
 
-const selfManagedOrgs = computed(() => orgs.value.filter((organization) => organization.is_owned_by_gts))
+const assignedOrgs = computed(() => orgs.value.filter((organization) => organization.is_owned_by_gts))
 const showAvailableOrgs = ref(false)
-const hasManagedOrgs = computed(() => {
-  selfManagedOrgs.value?.length > 0
-})
 
-const orgsName = computed(()=> {
+const orgsName = computed(() => {
   return orgs.value.map(o => o.name)
 })
 
@@ -71,15 +65,10 @@ const gtsOrgs = [
   }
 ] as IDriveOrg[]
 
-const availableOrgs = gtsOrgs.filter(o => !orgsName.value?.includes(o.name))
-// const availableOrgs = gtsOrgs.filter(orgs.value.name)
+const availableOrgs = computed(() => gtsOrgs.filter(o => !orgsName.value?.includes(o.name))) 
 
 const toggleAvailableOrgs = () => {
   showAvailableOrgs.value = !showAvailableOrgs.value
-}
-
-function isOrgActive(org: IDriveOrg): boolean {
-  return true
 }
 
 </script>
@@ -132,21 +121,21 @@ function isOrgActive(org: IDriveOrg): boolean {
 
             <div v-show="showAvailableOrgs" class="row">
               <div v-for="org in (availableOrgs)">
-              <AccountOrganizationSummary :org="org" :userId="userId" :active="false"/>
+                <AccountOrganizationSummary :org="org" :user="user" :assigned="false" />
+              </div>
             </div>
-            </div>
-          
+
             <div class="row mt-4">
-              <h6>Managed organizations associated to your profile ({{ selfManagedOrgs.length }})</h6>
+              <h6>Managed organizations associated to your profile ({{ assignedOrgs.length }})</h6>
             </div>
 
             <div class="row">
-              <div v-for="org in (selfManagedOrgs)" class="mb-4">
-              <AccountOrganizationSummary :org="org" :userId="userId" :active="true" />
-            </div>
+              <div v-for="org in (assignedOrgs)" class="mb-4">
+                <AccountOrganizationSummary :org="org" :user="user" :assigned="true" />
+              </div>
             </div>
 
-            
+
 
 
           </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { IDriveCustomerOrgSettings, IDriveOrg, IDriveOrgDTO } from '@/interfaces'
+import type { IDriveCustomerOrgSettings, IDriveOrg, IDriveOrgDTO, IDriveUser } from '@/interfaces'
 import type { FormInstance, FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 
@@ -61,7 +61,7 @@ const regions = regionValues.map((x) => {
   return { value: x, label: x }
 })
 
-const props = defineProps<{ org: IDriveOrg, userId: number }>()
+const props = defineProps<{ org: IDriveOrg, user: IDriveUser }>()
 
 const rules = reactive<FormRules>({
   first_name: [
@@ -99,7 +99,7 @@ async function submitForm (formEl: FormInstance | undefined) {
       console.log('submit!')
       const { org_user_settings,org_custom_settings, ...orgNoSettings } = form.value
       const orgPayload: IDriveOrgDTO = {...orgNoSettings, 'org_user_settings': {'create': settings.value},'org_custom_settings': {'create': form.value.org_custom_settings || {}} }
-      updateOrganization(props.userId, orgPayload)
+      updateOrganization(props.user?.id, orgPayload)
     } else {
       console.log('error submit!', fields)
     }
