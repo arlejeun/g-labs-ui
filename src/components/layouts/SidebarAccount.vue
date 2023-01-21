@@ -48,7 +48,7 @@
       <div class="offcanvas-body p-3 p-lg-0">
         <div class="card bg-light w-100">
           <!-- Edit profile button -->
-          <div class="position-absolute top-0 end-0 p-3">
+          <!-- <div class="position-absolute top-0 end-0 p-3">
             <a
               href="#"
               class="text-primary-hover"
@@ -57,7 +57,7 @@
             >
               <i class="bi bi-pencil-square" />
             </a>
-          </div>
+          </div> -->
 
           <!-- Card body START -->
           <div class="card-body p-3">
@@ -76,7 +76,7 @@
               </h6>
               <a
                 href="#"
-                class="text-reset text-primary-hover small"
+                class="text-reset text-primary-hover smaller"
               >{{userEmail}}</a>
               <hr>
             </div>
@@ -94,20 +94,20 @@
                 <router-link
                   class="nav-link" :class="{active:matchRoute('/account/customer')}"
                   to="/account/customer"
-                ><i class="bi bi-people fa-fw me-2" />Customer Record</router-link>
+                > <i class="bi bi-bullseye fa-fw me-2" />Customer Record</router-link>
               </li>
               <li class="nav-item">
                 <router-link
                   class="nav-link" :class="{active:matchRoute('/account/provisioning')}"
                   to="/account/provisioning"
-                ><i class="bi bi-gear fa-fw me-2" />Provisioning</router-link>
+                > <i class="bi bi-boxes fa-fw me-2" />Provisioning</router-link>
               </li>
               
               <li class="nav-item">
                 <router-link
                   class="nav-link" :class="{active:matchRoute('/account/feedback')}"
                   to="/account/feedback"
-                ><i class="bi bi-heart fa-fw me-2" />Feedback & Issues</router-link>
+                ><i class="bi bi-info-circle fa-fw me-2" />Feedback & Issues</router-link>
               </li>
              <!-- <li class="nav-item">
                 <router-link

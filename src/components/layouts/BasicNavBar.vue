@@ -3,6 +3,7 @@
 import { useUserStore } from '@/stores/user'
 import { useMsal } from '@/composables/useMsal'
 import { loginRequest } from '@/plugins/msal/msalConfig'
+import { Moon, Sunny } from '@element-plus/icons-vue';
 
 const { instance } = useMsal();
 
@@ -15,6 +16,7 @@ const { logout } = store
 // const isMobile = computed(() => width.value < 1200)
 const isDark = useDark({ valueDark: 'dark-mode', valueLight: 'light-mode' })
 const toggleDark = useToggle(isDark)
+const myTheme = ref(true)
 
 const isRegistrationPending = computed(() => isRegistering && isAuthenticated.value)
 
@@ -34,7 +36,7 @@ async function mockSignOut() {
 <template>
   <header class="navbar-light header-sticky">
     <!-- Logo Nav START -->
-    <nav class="navbar navbar-expand-xl pt-0" :class="{ 'bg-primary': !isDark }">
+    <nav class="navbar navbar-expand-xl navbar-force-custom pt-0" :class="{ 'bg-primary': !isDark }">
       <div class="container">
         <!-- Logo START -->
         <router-link class="navbar-brand" to="/">
@@ -262,13 +264,13 @@ async function mockSignOut() {
               </li>
               <li>
                 <router-link class="dropdown-item" to="/account/profile">
-                  <i class="bi bi-bookmark-check fa-fw me-2" />My
+                  <i class="bi bi-person fa-fw me-2" />My
                   Profile
                 </router-link>
               </li>
               <li>
                 <router-link class="dropdown-item" to="/account/customer">
-                  <i class="bi bi-gear fa-fw me-2" />Customer Record
+                  <i class="bi bi-bullseye fa-fw me-2"></i>Customer Record
                 </router-link>
               </li>
               <li>
@@ -291,12 +293,19 @@ async function mockSignOut() {
 
               <!-- Dark mode switch START -->
               <li>
-                <div id="darkModeSwitch" class="modeswitch-wrap">
-                  <div class="modeswitch-item" @click="toggleDark()">
-                    <div class="modeswitch-icon" />
-                  </div>
-                  <span>{{ isDark ? 'Dark mode' : 'Light mode' }}</span>
+                <div class="dropdown-item">
+                  <el-switch
+                  class="me-2"
+                  v-model="myTheme"
+                  inline-prompt
+                  @change="toggleDark()"
+                  :active-icon="Moon"
+                  :inactive-icon="Sunny"
+                />
+                <span>{{ isDark ? 'Dark mode' : 'Light mode' }}</span>
+
                 </div>
+                
               </li>
               <!-- Dark mode switch END -->
             </ul>
@@ -357,5 +366,14 @@ async function mockSignOut() {
 .locale-select {
   margin-left: 30px !important;
   width: 110px;
+}
+
+.navbar-expand-xl.navbar-force-custom .dropdown-toggle:after {
+    font-size: 1rem;
+    content: "";
+    border-top: 0.3em solid;
+    border-right: 0.3em solid transparent;
+    border-bottom: 0;
+    border-left: 0.3em solid transparent;
 }
 </style>

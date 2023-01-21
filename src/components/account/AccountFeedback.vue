@@ -1,4 +1,91 @@
 <script setup lang="ts">
+import { JiraMiddlewareApiClient } from '@/apis/glabs';
+import type { IUserAdminTable } from '@/interfaces';
+import { useUserStore } from '@/stores/user';
+import { handleAxiosError } from '@/utils/axios';
+import { notify } from '@kyvg/vue3-notification';
+import { useAxios } from '@vueuse/integrations/useAxios';
+import {
+  Refresh,
+  Menu
+} from '@element-plus/icons-vue'
+
+const userStore = useUserStore()
+const { userEmail } = storeToRefs(userStore)
+
+const issues = ref({} as {pageCount: Number, pageNumber: Number, results: any, totalResults: Number })
+//const issues = ref({} as any)
+
+const filterTableData = computed(() => issues.value?.results || [])
+const loadingTable = ref(true)
+
+async function fetchIssues(email: string) {
+  const jiraUrl = ref(`/issues?email=${email}`)
+  const { execute } = useAxios(JiraMiddlewareApiClient)
+  const result = await execute(jiraUrl.value, { method: "GET" });
+  if (result.isFinished.value) {
+    issues.value = result.data.value
+    loadingTable.value = false
+  }
+  if (result.error.value) {
+    notify({
+      title: 'Jira API',
+      text: `${handleAxiosError(
+        result.error.value,
+        "Impossible to retrieve the list of your service requests at the moment."
+      )}`,
+      duration: -1,
+      type: "error",
+    });
+  }
+}
+
+const columns = ref({} as IUserAdminTable)
+columns.value = {
+  ISSUEID: {
+    label: 'ID',
+    width: 'auto'
+  },
+  REQUESTOR: {
+    label: 'Requestor',
+    width: 'auto'
+  },
+  STATUS: {
+    label: 'Status',
+    width: 'auto'
+  },
+  SUMMARY: {
+    label: 'Summary',
+    width: 'auto'
+  },
+  TYPE: {
+    label: 'Type',
+    width: 'auto'
+  },
+
+}
+
+const currentPage = ref(1)
+const handleRowClick = () => { }
+
+const refresh = () => { }
+
+const handlePaginationSizeChange = () => { }
+
+const handlePaginationCurrentChange = () => { }
+
+const totalIssuesCount = computed(() => {
+  return issues.value?.totalResults || 0
+})
+
+const pageSize = ref(15)
+
+watchEffect(() => {
+  if (userEmail.value) {
+    fetchIssues(userEmail.value)
+  }
+})
+
 </script>
 
 <template>
@@ -12,398 +99,107 @@
     </div>
 
     <div class="card border">
-      <!-- Card header START -->
-      <div class="card-header border-bottom">
-        <h5 class="card-header-title">
-          Issues<span class="badge bg-primary bg-opacity-10 text-primary ms-2">5 issues</span>
-          <span class="badge bg-info bg-opacity-10 text-primary ms-2">20 closed</span>
-        </h5>
-      </div>
-      <!-- Card header END -->
 
-      <!-- Card body START -->
-      <div class="card-body">
-        <!-- Search and select START -->
-        <div class="row g-3 align-items-center justify-content-between mb-3">
-          <!-- Search -->
-          <div class="col-md-8">
-            <form class="rounded position-relative">
-              <input class="form-control pe-5" type="search" placeholder="Search" aria-label="Search">
-              <button class="btn border-0 px-3 py-0 position-absolute top-50 end-0 translate-middle-y" type="submit">
-                <i class="fa fa-search fs-6" />
-              </button>
-            </form>
-          </div>
-
-          <!-- Select option -->
-          <div class="col-md-3">
-            <!-- Short by filter -->
-            <form>
-              <select class="form-select js-choice" aria-label=".form-select-sm">
-                <option value="">
-                  Sort by
-                </option>
-                <option>Free</option>
-                <option>Newest</option>
-                <option>Oldest</option>
-              </select>
-            </form>
+      <section class="pt-4">
+        <div class="container position-relative pt-0 pb-3">
+          <div class="row">
+            <div class="col-xs-12 col-lg-10">
+              <h3 class="fs-3 text-primary">Drive Service Requests</h3>
+            </div>
           </div>
         </div>
-        <!-- Search and select END -->
 
-        <!-- Hotel room list START -->
-        <div class="table-responsive border-0">
-          <table class="table align-middle p-4 mb-0 table-hover table-shrink">
-            <!-- Table head -->
-            <thead class="table-light">
-              <tr>
-                <th scope="col" class="border-0 rounded-start">
-                  #
-                </th>
-                <th scope="col" class="border-0">
-                  Name
-                </th>
-                <th scope="col" class="border-0">
-                  Type
-                </th>
-                <th scope="col" class="border-0">
-                  Date
-                </th>
-                <th scope="col" class="border-0">
-                  Status
-                </th>
-                <th scope="col" class="border-0 rounded-end">
-                  Action
-                </th>
-              </tr>
-            </thead>
+        <div class="row justify-content-center">
+          <div class="col-lg-10 col-md-11 me-2">
+            <el-table v-loading="loadingTable" :data="filterTableData" :border="true" highlight-current-row stripe
+              @row-click="handleRowClick" :default-sort="{ prop: 'used', order: 'descending' }" style="width:100%">
+              <el-table-column type="expand">
+                <template #header>
+                  <el-button class="px-1 refresh-button" size="small" :icon="Refresh" @click="refresh()"></el-button>
+                </template>
+                <el-table-column v-for="(column, prop) in columns" :key="prop" :label="columns[prop].label"
+                  :prop="typeof prop == 'string' ? prop : ''" :width="columns[prop].width">
+                  <template #default="{ row }">
+                    <TagFormatter v-if="columns[prop].formatter == 'tagformatter'" :row="row" />
+                    <template v-else>
+                      {{ row[prop] }}
+                    </template>
+                  </template>
+                </el-table-column>
+              </el-table-column>
+            </el-table>
 
-            <!-- Table body START -->
-            <tbody class="border-top-0">
-              <!-- Table item -->
-              <tr>
-                <td>
-                  <h6 class="mb-0">
-                    01
-                  </h6>
-                </td>
-                <td>
-                  <h6 class="mb-0">
-                    <a href="#">Deluxe Pool View</a>
-                  </h6>
-                </td>
-                <td> With Breakfast </td>
-                <td>
-                  <h6 class="mb-0 fw-light">
-                    Nov 22 - 25
-                  </h6>
-                </td>
-                <td>
-                  <div class="badge text-bg-success">
-                    Booked
+            <div class="mt-4 row justify-content-center">
+              <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize"
+                :page-sizes="[10, 25, 50, 500]" :disabled=false :background=true
+                layout="total, sizes, prev, pager, next, jumper" :total="totalIssuesCount"
+                @size-change="handlePaginationSizeChange" @current-change="handlePaginationCurrentChange" />
+            </div>
+
+          </div>
+
+          <!-- <div class="col ms-2" style="max-width: 300px">
+            <div class="card ">
+              <div class="card-header border row px-0">
+                <div class="col-8">
+                  <h5 class="text-primary">Edit Tag</h5>
+                </div>
+                <div class="col-4">
+                  <el-button-group>
+                    <el-tooltip content="Add tag" placement="left">
+                      <el-button @click="handleTagAdd" type="primary" size="small" :icon="Plus" />
+                    </el-tooltip>
+                  </el-button-group>
+
+                </div>
+              </div>
+              <div class="card-body border row px-0">
+                <el-form ref="tagFormRef" :model="currentTag" :rules="rules" :disabled="disabledForm" class="row"
+                  label-position="top">
+                  <div class="col-xs-12 col-12">
+                    <el-form-item label="Tag Name" prop="name">
+                      <el-input v-model="currentTag.name" class="w-100 m-2" />
+                    </el-form-item>
                   </div>
-                </td>
 
-                <td>
-                  <a href="#" class="btn btn-sm btn-light mb-0">View</a>
-                </td>
-              </tr>
-
-              <!-- Table item -->
-              <tr>
-                <td>
-                  <h6 class="mb-0">
-                    02
-                  </h6>
-                </td>
-                <td>
-                  <h6 class="mb-0">
-                    <a href="#">Deluxe Pool View with Breakfast</a>
-                  </h6>
-                </td>
-                <td> Free Cancellation | Breakfast only </td>
-                <td>
-                  <h6 class="mb-0 fw-light">
-                    Nov 24 - 28
-                  </h6>
-                </td>
-                <td>
-                  <div class="badge text-bg-success">
-                    Booked
+                  <div class="col-xs-12 col-12">
+                    <el-form-item label="Tag Category" prop="category">
+                      <el-select class="w-100 m-2" v-model="currentTag.category" placeholder="Select">
+                        <el-option label="Business" value="Business"></el-option>
+                        <el-option label="Technical" value="Technical"></el-option>
+                      </el-select>
+                    </el-form-item>
                   </div>
-                </td>
-                <td>
-                  <a href="#" class="btn btn-sm btn-light mb-0">View</a>
-                </td>
-              </tr>
 
-              <!-- Table item -->
-              <tr>
-                <td>
-                  <h6 class="mb-0">
-                    03
-                  </h6>
-                </td>
-                <td>
-                  <h6 class="mb-0">
-                    <a href="#">Luxury Room with Balcony</a>
-                  </h6>
-                </td>
-                <td> Free Cancellation | Breakfast + Lunch/Dinner </td>
-                <td>
-                  <h6 class="mb-0 fw-light">
-                    Nov 24 - 28
-                  </h6>
-                </td>
-                <td>
-                  <div class="badge text-bg-info">
-                    Reserved
+                  <div class="col-xs-12 col-12">
+                    <el-form-item label="Tag Label" prop="label">
+                      <el-input v-model="currentTag.label" class="w-100 m-2" />
+                    </el-form-item>
                   </div>
-                </td>
-                <td>
-                  <a href="#" class="btn btn-sm btn-light mb-0">View</a>
-                </td>
-              </tr>
 
-              <!-- Table item -->
-              <tr>
-                <td>
-                  <h6 class="mb-0">
-                    04
-                  </h6>
-                </td>
-                <td>
-                  <h6 class="mb-0">
-                    <a href="#">Deluxe Room Twin Bed With Balcony</a>
-                  </h6>
-                </td>
-                <td> Free Cancellation </td>
-                <td>
-                  <h6 class="mb-0 fw-light">
-                    Nov 28 - 30
-                  </h6>
-                </td>
-                <td>
-                  <div class="badge text-bg-success">
-                    Booked
+                  <div class="pt-2 d-sm-flex justify-content-end">
+                    <el-form-item class="mb-0">
+                      <el-button v-show="editMode" type="primary" @click="editTagForm(tagFormRef)">Edit</el-button>
+                      <el-button v-show="!editMode" type="primary" @click="addTagForm(tagFormRef)">Add</el-button>
+                      <el-button @click="resetForm(tagFormRef)">Reset</el-button>
+                    </el-form-item>
                   </div>
-                </td>
 
-                <td>
-                  <a href="#" class="btn btn-sm btn-light mb-0">View</a>
-                </td>
-              </tr>
 
-              <!-- Table item -->
-              <tr>
-                <td>
-                  <h6 class="mb-0">
-                    05
-                  </h6>
-                </td>
-                <td>
-                  <h6 class="mb-0">
-                    <a href="#">Deluxe Room Twin Bed With Balcony</a>
-                  </h6>
-                </td>
-                <td> Free Cancellation | Breakfast only </td>
-                <td> - </td>
-                <td>
-                  <div class="badge text-bg-warning">
-                    Available
-                  </div>
-                </td>
-                <td>
-                  <a href="#" class="btn btn-sm btn-light mb-0">View</a>
-                </td>
-              </tr>
+                </el-form>
+              </div>
 
-              <!-- Table item -->
-              <tr>
-                <td>
-                  <h6 class="mb-0">
-                    06
-                  </h6>
-                </td>
-                <td>
-                  <h6 class="mb-0">
-                    <a href="#">Premium Room With Balcony</a>
-                  </h6>
-                </td>
-                <td> Free Cancellation | Breakfast only </td>
-                <td>
-                  <h6 class="mb-0 fw-light">
-                    Nov 14 - 18
-                  </h6>
-                </td>
-                <td>
-                  <div class="badge text-bg-danger">
-                    Cancel
-                  </div>
-                </td>
-                <td>
-                  <a href="#" class="btn btn-sm btn-light mb-0">View</a>
-                </td>
-              </tr>
 
-              <!-- Table item -->
-              <tr>
-                <td>
-                  <h6 class="mb-0">
-                    07
-                  </h6>
-                </td>
-                <td>
-                  <h6 class="mb-0">
-                    <a href="#">Deluxe Room King Bed with Balcony</a>
-                  </h6>
-                </td>
-                <td> Free Cancellation </td>
-                <td>
-                  <h6 class="mb-0 fw-light">
-                    Nov 28 - 30
-                  </h6>
-                </td>
-                <td>
-                  <div class="badge text-bg-info">
-                    Reserved
-                  </div>
-                </td>
+            </div>
+          </div> -->
 
-                <td>
-                  <a href="#" class="btn btn-sm btn-light mb-0">View</a>
-                </td>
-              </tr>
 
-              <!-- Table item -->
-              <tr>
-                <td>
-                  <h6 class="mb-0">
-                    08
-                  </h6>
-                </td>
-                <td>
-                  <h6 class="mb-0">
-                    <a href="#">Superior Room</a>
-                  </h6>
-                </td>
-                <td> With Breakfast </td>
-                <td>
-                  <h6 class="mb-0 fw-light">
-                    Nov 22 - 25
-                  </h6>
-                </td>
-                <td>
-                  <div class="badge text-bg-success">
-                    Booked
-                  </div>
-                </td>
-
-                <td>
-                  <a href="#" class="btn btn-sm btn-light mb-0">View</a>
-                </td>
-              </tr>
-
-              <!-- Table item -->
-              <tr>
-                <td>
-                  <h6 class="mb-0">
-                    09
-                  </h6>
-                </td>
-                <td>
-                  <h6 class="mb-0">
-                    <a href="#">Studio Suite King</a>
-                  </h6>
-                </td>
-                <td> Free Cancellation | Breakfast only </td>
-                <td>
-                  <h6 class="mb-0 fw-light">
-                    Nov 21 - 24
-                  </h6>
-                </td>
-                <td>
-                  <div class="badge text-bg-info">
-                    Reserved
-                  </div>
-                </td>
-
-                <td>
-                  <a href="#" class="btn btn-sm btn-light mb-0">View</a>
-                </td>
-              </tr>
-
-              <!-- Table item -->
-              <tr>
-                <td>
-                  <h6 class="mb-0">
-                    10
-                  </h6>
-                </td>
-                <td>
-                  <h6 class="mb-0">
-                    <a href="#">Rock Family Suite</a>
-                  </h6>
-                </td>
-                <td> Free Cancellation | Breakfast + Lunch/Dinner </td>
-                <td>
-                  <h6 class="mb-0 fw-light">
-                    Dec 02 - 06
-                  </h6>
-                </td>
-                <td>
-                  <div class="badge text-bg-success">
-                    Booked
-                  </div>
-                </td>
-
-                <td>
-                  <a href="#" class="btn btn-sm btn-light mb-0">View</a>
-                </td>
-              </tr>
-            </tbody>
-            <!-- Table body END -->
-          </table>
         </div>
-        <!-- Hotel room list END -->
-      </div>
-      <!-- Card body END -->
 
-      <!-- Card footer START -->
-      <div class="card-footer pt-0">
-        <!-- Pagination and content -->
-        <div class="d-sm-flex justify-content-sm-between align-items-sm-center">
-          <!-- Content -->
-          <p class="mb-sm-0 text-center text-sm-start">
-            Showing 1 to 8 of 20 entries
-          </p>
-          <!-- Pagination -->
-          <nav class="mb-sm-0 d-flex justify-content-center" aria-label="navigation">
-            <ul class="pagination pagination-sm pagination-primary-soft mb-0">
-              <li class="page-item disabled">
-                <a class="page-link" href="#" tabindex="-1">Prev</a>
-              </li>
-              <li class="page-item">
-                <a class="page-link" href="#">1</a>
-              </li>
-              <li class="page-item active">
-                <a class="page-link" href="#">2</a>
-              </li>
-              <li class="page-item disabled">
-                <a class="page-link" href="#">..</a>
-              </li>
-              <li class="page-item">
-                <a class="page-link" href="#">15</a>
-              </li>
-              <li class="page-item">
-                <a class="page-link" href="#">Next</a>
-              </li>
-            </ul>
-          </nav>
-        </div>
-      </div>
-      <!-- Card footer END -->
+
+      </section>
+
+
     </div>
   </div>
 </template>

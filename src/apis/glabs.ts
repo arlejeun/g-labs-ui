@@ -37,12 +37,21 @@ const GLabsApiClient = axios.create({
 
   const JiraMiddlewareApiClient = axios.create({
     baseURL: JIRA_MIDDLEWARE_API_URL,
-    timeout: 1000,
+    timeout: 10 * 1000,
     headers: {
       'Accept': 'application/json',
       'Authorization': 'Bearer ' + JIRA_TOKEN
     }
   });
+
+  JiraMiddlewareApiClient.interceptors.request.use((config: AxiosRequestConfig<any>) => {
+    const headers =  {
+      'Accept': 'application/json',
+      'Authorization': 'Bearer ' + JIRA_TOKEN
+    }
+    config.headers = {...headers}
+    return config
+  })
 
 
 export { GLabsApiClient, GLABS_STORAGE, GLABS_TOKEN, JiraMiddlewareApiClient }

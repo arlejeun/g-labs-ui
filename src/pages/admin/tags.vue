@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { ICategoryTag, TagQueryDTO } from "@/interfaces/workshop";
 import { useAdminStore } from "@/stores/admin";
-import { Filter, Plus, Search } from '@element-plus/icons-vue'
+import { Filter, Plus } from '@element-plus/icons-vue'
 import type { FormInstance } from "element-plus/es/components/form";
 import type { FormRules } from "element-plus/es/tokens/form";
 

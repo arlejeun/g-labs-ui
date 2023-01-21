@@ -13,7 +13,8 @@ import type {
   GCUserInfo,
   GCDeleteUser,
 } from "@/interfaces";
-import defaultAvatarUrl from "@/assets/images/avatar/01.jpg";
+// import defaultAvatarUrl from "@/assets/images/avatar/01.jpg";
+import { getAvatarUrl } from '@/utils/image'
 import { GLabsApiClient } from "@/apis/glabs";
 
 import { useAxios } from "@vueuse/integrations/useAxios";
@@ -58,7 +59,7 @@ export const useUserStore = defineStore("identity", () => {
       : "Anonymous"
   );
   const userEmail = computed(() => user.value?.email);
-  const avatarUrl = computed(() => user.value?.avatar_url || defaultAvatarUrl);
+  const avatarUrl = computed(() => user.value?.avatar_url || getAvatarUrl(userEmail.value));
   const isAdmin = computed(() => user.value?.is_admin);
   const getUserData = computed(() => `${user.value}`);
   const isStatusActive = computed(() => user.value?.status == "Active");
