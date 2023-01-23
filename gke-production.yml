@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: drive-frontend
-          image: us-west1-docker.pkg.dev/techacc-platform-development/drive/drive-frontend:development
+          image: us-west1-docker.pkg.dev/techacc-platform-production/drive/drive-frontend:latest
           imagePullPolicy: Always
           volumeMounts:
           - mountPath: "/mnt/certs/"
@@ -57,10 +57,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - drive-dev.genesys.com
+    - drive.genesys.com
     secretName: cert-drive-dev-wildcard-2023
   rules:
-  - host: drive-dev.genesys.com
+  - host: drive.genesys.com
     http:
       paths:
       - pathType: Prefix
