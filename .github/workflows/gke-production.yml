@@ -1,4 +1,4 @@
-name: Drive-Frontend GKE Development
+name: Drive-Frontend GKE Production
 
 on:
   push:
