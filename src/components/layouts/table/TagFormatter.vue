@@ -1,7 +1,5 @@
 <script setup lang="ts">import type { ITag } from '@/interfaces/workshop';
 
-
-
 const props = defineProps<{
   row: any
 }>()
@@ -13,6 +11,8 @@ const categories = computed(() => {
 const technical = computed(() => {
     return props.row?.tags?.filter((t: ITag) => t.category == 'Technical')
 })
+
+
 </script>
 
 <template>

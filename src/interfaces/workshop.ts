@@ -46,26 +46,58 @@ export interface IWorkshopsResponse extends basicServerResponse {
   rows: IWorkshop[]
 }
 
+export interface IWorkshopSettingsResponse extends basicServerResponse {
+  rows: IWorkshopSettings[]
+}
+
 export interface IWorkshop {
-  id: number,
+  id?: number,
   title: string,
+  description: string,
+  locale: string,
+  isPublished: boolean,
+  isProvisioned: boolean,
+  workshop_url?: string,
+  manifest?: string,
+  settings?: IWorkshopSettings
+}
+
+export interface IWorkshopSettings {
+  id: number,
   name: string,
   owner: string,
-  description: string,
-  active?: boolean,
   image_filename: string,
   level: number,
   duration: string,
-  provisioned: boolean,
-  modified_at: string,
-  workshop_url?: string,
-  manifest?: string,
   tags: ITag[],
   categories?: ITag[],
   environments?: IPlatform[],
   user_groups?: IWorkshopUserGroup[],
-  localizations: IWorkshopLocalizationForm[]
+  modified_at: string,
+  localizations?: any
 }
+
+
+// export interface IWorkshop {
+//   id: number,
+//   title: string,
+//   name: string,
+//   owner: string,
+//   description: string,
+//   active?: boolean,
+//   image_filename: string,
+//   level: number,
+//   duration: string,
+//   provisioned: boolean,
+//   modified_at: string,
+//   workshop_url?: string,
+//   manifest?: string,
+//   tags: ITag[],
+//   categories?: ITag[],
+//   environments?: IPlatform[],
+//   user_groups?: IWorkshopUserGroup[],
+//   localizations: IWorkshopLocalizationForm[]
+// }
 
 export interface IWorkshopUserGroup {
   id: number,
@@ -74,7 +106,7 @@ export interface IWorkshopUserGroup {
   created_at?: Date,
   updated_at?: Date
 }
-export interface IWorkshopForm extends IWorkshop {
+export interface IWorkshopForm extends IWorkshopSettings {
   groups: number[]
   techTags: number[],
   bizTags: number[],
@@ -180,7 +212,7 @@ export interface UsersQueryDTO extends BasicQueryDTO {
 export interface IWorkshopAdminTableElt {
   label: string,
   formatter?: string,
-  width?: number
+  width?: string | number
 }
 
 export interface IWorkshopAdminTable {

@@ -10,12 +10,7 @@ const { workshops } = storeToRefs(wStore)
 
 
 const availableWorkshops = computed(() => {
-	if (localization.value.length > 0 && localization.value != 'en-US') {
-		return workshops.value?.rows?.filter(ws => ws?.localizations?.some(loc => loc.locale == localization.value))
-	}
-	else {
-		return workshops.value?.rows
-	}	
+	return workshops.value?.rows?.filter(ws => ws.locale == localization.value)	|| []
 })
 
 </script>

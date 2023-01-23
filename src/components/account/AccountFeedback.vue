@@ -74,8 +74,10 @@ const handlePaginationSizeChange = () => { }
 
 const handlePaginationCurrentChange = () => { }
 
+//TODO: issue type
 const totalIssuesCount = computed(() => {
-  return issues.value?.totalResults || 0
+  //return issues.value?.totalResults || 0
+  return 0
 })
 
 const pageSize = ref(15)

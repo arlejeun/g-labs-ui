@@ -29,40 +29,39 @@ const applyTagFilter = (tag: ITag) => {
 }
 
 const catTags = computed(() => {
-  return props.workshop?.tags?.filter(x => x.category == 'Business')
+  return props.workshop?.settings?.tags?.filter(x => x.category == 'Business')
 })
 
 const techTags = computed(() => {
-  return props.workshop?.tags?.filter(x => x.category == 'Technical')
+  return props.workshop?.settings?.tags?.filter(x => x.category == 'Technical')
 })
 
 const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT
 
-function workshopDefaultName(workshop: IWorkshop) {
+// function workshopDefaultName(workshop: IWorkshop) {
 
-  if (workshop.name && workshop.name.length > 0) {
-    return workshop.name;
-  } else {
-    const idname = workshop.title.replace(/\s/g, '-')
-    return idname;
-  }
-}
+//   if (workshop.name && workshop.name.length > 0) {
+//     return workshop.name;
+//   } else {
+//     const idname = workshop.title.replace(/\s/g, '-')
+//     return idname;
+//   }
+// }
 
 
 function goToWorkshop(workshop: IWorkshop) {
-  if (workshop.name && workshop.active) {
-    router.push({name: 'workshops-all', params: {all: workshopDefaultName(workshop)}});
-    
+  if (workshop?.settings?.name && workshop?.isPublished) {
+    router.push({name: 'workshops-all', params: {all: workshop.settings.name}});
   }
 }
 
-const workshopLocalizedTitle = computed(() => props.workshop?.localizations?.find(loc => loc.locale == localization.value)?.title || props.workshop.title)
-const workshopLocalizedDesc = computed(() => props.workshop?.localizations?.find(loc => loc.locale == localization.value)?.description || props.workshop.description)
+const workshopLocalizedTitle = computed(() => props.workshop.title)
+const workshopLocalizedDesc = computed(() => props.workshop.description)
+const workshopLevel = computed(() => props.workshop?.settings?.level)
+const workshopDuration = computed(() => props.workshop?.settings?.duration)
 
 
-const workThumbnail = computed(() => `${WORKSHOPS_BASE}resources/images/${props.workshop.image_filename}`)
-
-const wsTitle = ref({})
+const workThumbnail = computed(() => `${WORKSHOPS_BASE}resources/images/${props.workshop?.settings?.image_filename}`)
 
 </script>
 
@@ -113,10 +112,10 @@ const wsTitle = ref({})
 
         <ul class="nav nav-divider mb-2 mb-sm-3">
           <li class="me-2"><i class="me-1 bi bi-stopwatch"></i>
-            <small>{{ workshop.duration }}</small>
+            <small>{{ workshopDuration }}</small>
           </li>
           <li class="ms-2"> <i class="me-1 bi bi-speedometer2"></i>
-            <small>Level: {{ workshop.level }}</small>
+            <small>Level: {{ workshopLevel }}</small>
 
           </li>
         </ul>
