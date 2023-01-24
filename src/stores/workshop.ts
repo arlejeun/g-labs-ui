@@ -35,7 +35,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
   //const workshops = ref([] as IWorkshop[]);
   const workshops = ref({} as IWorkshopsResponse);
   const workshopSettings = ref({} as IWorkshopSettingsResponse)
-  
+
   const editingWorkshops = ref(true)
   const workshopsQuery = ref({ page: 1, pageSize: 25 } as WsQueryDTO)
   const workshopMeta = ref({} as IWorkshop)
@@ -170,38 +170,33 @@ export const useWorkshopStore = defineStore("workshop", () => {
 
     ws.forEach((item: IWorkshopMenuItem) => {
       const loc = localization.value || "en-US";
-      if (
-        (loc == "en-US" && !item.locale) ||
-        localization.value === item.locale || item[loc as keyof IWorkshopMenuItem]
-      ) {
-        branch = {} as ITree;
-        let locItem = { ...item };
-        if (item[loc as keyof IWorkshopMenuItem]) {
-          locItem = item[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem;
-          locItem.menus = item.menus;
-        }
-        branch.index = [...(index || [])];
-        branch.label = locItem.name;
-        branch.body = locItem.body;
-        branch.chapter = !!locItem.chapter
-        branch.path = processPath(locItem.path);
-        branch.id = treeIndex.value;
-        branch.disabled = true;
-        treeIndex.value++;
-        branch.index.push(i);
-        workShopPathMap.value.push({
-          path: branch.path,
-          index: [...branch.index],
-          key: branch.id,
-          chapter: branch.index.length === 1 || (branch.index.length === 2 && branch.index[1] === 0)
-        });
-        if (locItem.menus && locItem.menus.length > 0) {
-          branch.children = [..._buildTree(locItem.menus, branch.index)];
-        }
-        result.push({ ...branch });
-        delete branch.children;
-        i++;
+      branch = {} as ITree;
+      let locItem = { ...item };
+      if (item[loc as keyof IWorkshopMenuItem]) {
+        locItem = item[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem;
+        locItem.menus = item.menus;
       }
+      branch.index = [...(index || [])];
+      branch.label = locItem.name;
+      branch.body = locItem.body;
+      branch.chapter = !!locItem.chapter
+      branch.path = processPath(locItem.path);
+      branch.id = treeIndex.value;
+      branch.disabled = true;
+      treeIndex.value++;
+      branch.index.push(i);
+      workShopPathMap.value.push({
+        path: branch.path,
+        index: [...branch.index],
+        key: branch.id,
+        chapter: branch.index.length === 1 || (branch.index.length === 2 && branch.index[1] === 0)
+      });
+      if (locItem.menus && locItem.menus.length > 0) {
+        branch.children = [..._buildTree(locItem.menus, branch.index)];
+      }
+      result.push({ ...branch });
+      delete branch.children;
+      i++;
     });
 
     return result;
@@ -405,7 +400,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
   };
 
 
-  
+
 
   const editWorkshop = (workshop: any) => {
     const index = workshops.value?.rows?.findIndex(x => x.id == workshop.id)
