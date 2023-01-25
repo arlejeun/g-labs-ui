@@ -70,7 +70,7 @@ jobs:
     - name: Env Secrets
       run: |-
         echo "Creating Kubernetes Secret for the glabs frontend"
-        sed -i "s|INSERT_MSAL_SCOPES|drive-api|g" "./src/plugins/msal/msalConfig.ts"
+        sed -i "s|https://glabsdev.onmicrosoft.com/drive-dev-api/drive.customers.read|https://glabsdev.onmicrosoft.com/drive-api/drive.customers.read|g" "./src/plugins/msal/msalConfig.ts"
         sed -i "s|INSERT_VITE_JIRA_TOKEN|${{ steps.secrets.outputs.glabs-jira-token }}|g" ".env.gke-production"
         sed -i "s|INSERT_OAUTH_ID|${{ steps.secrets.outputs.glabs-gc-oauth-client-id }}|g" ".env.gke-production"
         sed -i "s|INSERT_ANALYTICS_ID|${{ steps.secrets.outputs.glabs-google-analytics }}|g" ".env.gke-production"
