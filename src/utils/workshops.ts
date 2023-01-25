@@ -76,7 +76,7 @@ function regReplace(match: string, group: string, newVal: string, newVal1: strin
 
 export function processPath(path: string) {
   let res = path.substr(0, path.lastIndexOf("."));
-  res = res.substr(6);
+  res = res.substr(1);
   res = res.replaceAll(" ", "-");
   res = res.replaceAll("_index", "");
   res = res.replaceAll("_", "-");
