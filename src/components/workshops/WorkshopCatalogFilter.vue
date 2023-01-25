@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import type { WsFilter, WsFilterClient, WsQueryDTO } from '@/interfaces/workshop';
+import type { WsFilterCriteria } from '@/interfaces/workshop';
 import { useUserStore } from '@/stores/user';
 import {
-  Search, Menu, Plus, List, Filter
+	Search, Menu, Plus, List, Filter
 } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus/es/components/form';
 import type { FormRules } from 'element-plus/es/tokens/form';
 import router from '@/router';
 import { useAdminStore } from '@/stores/admin';
 import { useWorkshopStore } from '@/stores/workshop';
+import { environments } from '@/utils/gc'
 
 const store = useUserStore()
 const { isMobile, isAdmin } = storeToRefs(store)
@@ -18,12 +19,11 @@ const { tags: tagsLoV, businessTags: bizTagsLoV, technicalTags: techTagsLoV, use
 const { fetchTags } = adminStore
 
 const wStore = useWorkshopStore()
-const { workshops, workshopsQuery } = storeToRefs(wStore)
-const { loadWorkshops } = wStore
+const { workshopsCriteria } = storeToRefs(wStore)
 
 const showFilterCriteria = ref(false)
-const filterForm = ref({} as WsFilterClient)
-const filter = ref({} as WsFilter)
+const filterForm = ref({} as WsFilterCriteria)
+const filter = ref({} as WsFilterCriteria)
 
 
 const toggleFilterCriteria = () => {
@@ -63,39 +63,34 @@ const resetForm = (formEl: FormInstance | undefined) => {
 	formEl.resetFields()
 }
 
-const currentPage = ref(workshopsQuery.value.page || 1);
-const pageSize = ref(workshopsQuery.value.pageSize || 25)
-
-const query = computed((): WsQueryDTO => {
-	return {
-		searchString: filter.value.searchString,
-		tags: filter.value.tags || [],
-		page: currentPage.value,
-		pageSize: pageSize.value
-	}
-})
-
 const filterType = computed(() => {
-	return (filter.value?.tags?.length > 0 || (filter.value?.searchString && filter.value?.searchString?.length > 0)) ? 'warning': 'primary'
+	return (filter.value?.tags?.length > 0 || (filter.value?.searchString && filter.value?.searchString?.length > 0)) ? 'warning' : 'primary'
 })
 
 watchEffect(() => {
-		loadWorkshops(query.value)
+	//loadWorkshops(query.value)
+	if (!tagsLoV.value?.records) {
+		fetchTags({ page: 1, pageSize: 200 });
+	}
+	workshopsCriteria.value = filter.value
+	filterForm.value = filter.value
+
+	//changeWorkshopQuery(query.value)
 })
 
 </script>
 
 <template>
 
-<section class="pt-0 pb-4">
+	<section class="pt-0 pb-4">
 		<div class="container position-relative">
 			<div class="row">
 				<div class="col-xs-12 col-lg-9">
-					<h3 class="fs-3 text-primary mt-4">{{$t('workshops.title')}}</h3>
-					<p class="text-secondary">{{$t('workshops.desc')}}</p>
+					<h3 class="fs-3 text-primary mt-4">{{ $t('workshops.title') }}</h3>
+					<p class="text-secondary">{{ $t('workshops.desc') }}</p>
 				</div>
 				<div v-if="!isMobile" class="col pt-4">
-					<WorkshopGenesysEnvironment/>
+					<WorkshopGenesysEnvironment />
 				</div>
 			</div>
 
@@ -107,8 +102,8 @@ watchEffect(() => {
 					<div class="d-flex justify-content-between mt-2">
 						<!-- Filter collapse button -->
 
-						<el-input v-model="filterForm.searchString" @change="handleSearchChange" class="w-50" :placeholder="$t('workshops.searchFor')"
-							:prefix-icon="Search" />
+						<el-input v-model="filterForm.searchString" @change="handleSearchChange" class="w-50"
+							:placeholder="$t('workshops.searchFor')" :prefix-icon="Search" />
 
 
 						<!-- tabs -->
@@ -135,29 +130,29 @@ watchEffect(() => {
 
 				<div class="card card-body bg-light p-4 mt-4 z-index-9">
 
-					<el-form ref="filterFormRef" :model="filterForm" :rules="rules" class="row">
-						<div class="col-xs-12 col-md-9 col-lg-4">
+					<el-form ref="filterFormRef" :model="filterForm" :rules="rules" label-position="top" class="row">
+						<!-- <div class="col-xs-12 col-md-9 col-lg-4">
 							<label class="form-label">Search specific text</label>
 							<el-form-item prop="search_text">
 								<el-input v-model="filterForm.searchString" class="w-100 m-2" placeholder="Search for"
 									:prefix-icon="Search" />
 							</el-form-item>
 
-						</div>
-						<div class="col-xs-6 col-md-6 col-lg-4">
-							<label class="form-label">Categories</label>
-							<el-form-item prop="categories">
-								<el-select class="w-100 m-2" v-model="filterForm.categories" multiple collapse-tags
+						</div> -->
+						<div class="col-xs-6 col-md-6 col-lg-3">
+							<!-- <label class="form-label">Categories</label> -->
+							<el-form-item label="Categories" prop="categories">
+								<el-select class="w-100" v-model="filterForm.categories" multiple collapse-tags
 									collapse-tags-tooltip filterable :multiple-limit=3 placeholder="Select">
 									<el-option v-for="item in bizTagsLoV" :key="item.id" :label="item.name"
 										:value="item.id" />
 								</el-select>
 							</el-form-item>
 						</div>
-						<div class="col-xs-6 col-md-6 col-lg-4">
-							<label class="form-label">Tags</label>
-							<el-form-item prop="tags">
-								<el-select class="w-100 m-2" v-model="filterForm.tags" multiple collapse-tags
+						<div class="col-xs-6 col-md-6 col-lg-3">
+							<!-- <label class="form-label">Tags</label> -->
+							<el-form-item label="Tags" prop="tags">
+								<el-select class="w-100" v-model="filterForm.tags" multiple collapse-tags
 									collapse-tags-tooltip placeholder="Select" filterable :multiple-limit=5>
 									<el-option v-for="item in techTagsLoV" :key="item.id" :label="item.name"
 										:value="item.id" />
@@ -165,7 +160,32 @@ watchEffect(() => {
 							</el-form-item>
 						</div>
 
-						<div class="pt-2 d-sm-flex justify-content-end">
+						<div class="col-xs-6 col-md-6 col-lg-3">
+							<!-- <label class="form-label">Level</label> -->
+							<el-form-item label="Level" prop="levels">
+								<el-select class="w-100" v-model="filterForm.levels" multiple collapse-tags
+									collapse-tags-tooltip placeholder="Select" filterable :multiple-limit=2>
+									<el-option label="100" value="100"></el-option>
+									<el-option label="200" value="200"></el-option>
+									<el-option label="300" value="300"></el-option>
+									<el-option label="400" value="400"></el-option>
+									<el-option label="500" value="500"></el-option>
+								</el-select>
+							</el-form-item>
+						</div>
+
+						<div class="col-xs-6 col-md-6 col-lg-3">
+							<!-- <label class="form-label">Categories</label> -->
+							<el-form-item label="Environments" prop="environments">
+								<el-select class="w-100" v-model="filterForm.environments" collapse-tags
+									collapse-tags-tooltip filterable placeholder="Select">
+									<el-option v-for="item in environments" :key="item.id" :label="item.name"
+										:value="item.id" />
+								</el-select>
+							</el-form-item>
+						</div>
+
+						<div class="d-sm-flex justify-content-end">
 							<el-form-item class="mb-0">
 								<el-button type="primary" @click="submitForm(filterFormRef)">Apply filter</el-button>
 								<el-button @click="resetForm(filterFormRef)">Reset</el-button>

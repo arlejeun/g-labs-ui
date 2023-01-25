@@ -7,7 +7,6 @@ import {
 import type { FormInstance } from 'element-plus/es/components/form';
 import type { FormRules } from 'element-plus/es/tokens/form';
 import router from '@/router';
-import { useAdminStore } from '@/stores/admin';
 import { useWorkshopStore } from '@/stores/workshop';
 
 const store = useUserStore()
@@ -15,16 +14,13 @@ const { isMobile } = storeToRefs(store)
 
 const wStore = useWorkshopStore()
 const { workshops, workshopsQuery } = storeToRefs(wStore)
-const { loadWorkshops } = wStore
 
 /** Pagination */
 const handleSizeChange = (val: number) => {
 	workshopsQuery.value = {...workshopsQuery.value, pageSize: val}
-	loadWorkshops(workshopsQuery.value)
 }
 const handleCurrentChange = (val: number) => {
 	workshopsQuery.value = {...workshopsQuery.value, page: val}
-	loadWorkshops(workshopsQuery.value)
 }
 
 const currentPage = ref(workshopsQuery.value?.page || 1)

@@ -8,11 +8,9 @@ import { useWorkshopStore } from '@/stores/workshop';
 import { useUserStore } from '@/stores/user';
 
 const wStore = useWorkshopStore()
-const { workshopsQuery } = storeToRefs(wStore)
-const { loadWorkshops } = wStore
+const { workshopsCriteria } = storeToRefs(wStore)
 
 const store = useUserStore()
-const { localization } = storeToRefs(store)
 
 const props = defineProps({
   workshop: {
@@ -23,9 +21,14 @@ const props = defineProps({
 
 const applyTagFilter = (tag: ITag) => {
   const tagFilter = []
-  tagFilter[0] = tag.id.toString()
-  const query = {...workshopsQuery.value, tags: tagFilter}
-  loadWorkshops(query)
+  tagFilter[0] = tag.id
+  //loadWorkshops(query)
+  if (tag.category == 'Business') {
+    workshopsCriteria.value.categories = [...tagFilter]
+  } else {
+    workshopsCriteria.value.tags = [...tagFilter]
+  }
+  
 }
 
 const catTags = computed(() => {

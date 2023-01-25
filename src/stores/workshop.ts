@@ -11,7 +11,8 @@ import type {
   IWorkshopsResponse,
   ITag,
   IWorkshopForm,
-  IWorkshopSettingsResponse
+  IWorkshopSettingsResponse,
+  WsFilterCriteria
 } from "@/interfaces/workshop";
 import { GLabsApiClient } from "@/apis/glabs";
 import { useStorage } from '@vueuse/core'
@@ -38,6 +39,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
   
   const editingWorkshops = ref(true)
   const workshopsQuery = ref({ page: 1, pageSize: 25 } as WsQueryDTO)
+  const workshopsCriteria = ref({} as WsFilterCriteria)
   const workshopMeta = ref({} as IWorkshop)
 
   const workshopTree = ref([] as ITree[]);
@@ -425,6 +427,19 @@ export const useWorkshopStore = defineStore("workshop", () => {
     }
   }
 
+  // const changeWorkshopQuery = async (query: WsQueryDTO) => {
+  //   let myQuery = Object.assign({ active: true }, { ...query })
+  //   let result, queryParams;
+  //   queryParams = `page=${myQuery.page}&pageSize=${myQuery.pageSize}&active=${myQuery.active}`;
+  //   if (myQuery.searchString) {
+  //     queryParams += `&searchString=${myQuery.searchString}`
+  //   }
+  //   if (myQuery?.tags && myQuery?.tags?.length > 0) {
+  //     queryParams += `&tags=${myQuery?.tags?.join(',')}`
+  //   }
+  //   workshopsQuery.value = { ...myQuery }
+  // }
+  
   const loadWorkshops = async (query: WsQueryDTO) => {
     const { execute } = useAxios(GLabsApiClient);
     let myQuery = Object.assign({ active: true }, { ...query })
@@ -436,12 +451,15 @@ export const useWorkshopStore = defineStore("workshop", () => {
     if (myQuery?.tags && myQuery?.tags?.length > 0) {
       queryParams += `&tags=${myQuery?.tags?.join(',')}`
     }
+    if (myQuery?.levels && myQuery?.levels?.length > 0) {
+      queryParams += `&levels=${myQuery?.levels?.join(',')}`
+    }
 
     result = await execute(`/workshops?${queryParams}`, {
       method: "GET"
     });
     if (result.isFinished.value && !result.error.value) {
-      workshopsQuery.value = { ...myQuery }
+      //workshopsQuery.value = { ...myQuery }
       workshops.value = { ...result?.data?.value };
     }
     if (result.error.value) {
@@ -624,6 +642,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
     workshops,
     workshopSettings,
     workshopsQuery,
+    workshopsCriteria,
     workshopTree,
     workshopTreeKey,
     workShopPathMap,

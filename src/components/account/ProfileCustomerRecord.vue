@@ -216,6 +216,9 @@ const removeIdentifier = ((identifier: IDriveIdentifier, idx: number) => {
 
     <div class="vstack gap-4">
 
+      <el-alert title="Customer Record" type="info"
+        description="Your customer information is required to be identified and personalize your experience with the Genesys Cloud demos organization. Within Drive, many of the demonstrations use a 'Demonstration Customer' to give the demo a realistic interaction. Below you can set the contact information, email, and social media of that 'Demonstration Customer'. Note that this customer info is just used within Drive and should not be reflective of real customers."
+        show-icon close-text="Gotcha" />
 
       <!-- Personal info START -->
       <div class="card border">

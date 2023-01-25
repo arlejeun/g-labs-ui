@@ -35,8 +35,8 @@ watchEffect(() => {
       console.log(userForm.value)
     } else {
       //keep user reactivty of the profile of me user
-      //userForm.value = myUser.value
-      userForm.value = { ...myUser.value }
+      userForm.value = myUser.value
+      //userForm.value = { ...myUser.value }
       console.log(userForm.value)
     }
   }
@@ -159,7 +159,7 @@ const resetForm = (formEl: FormInstance | undefined) => {
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="Relation with Genesys" prop="type">
-                  <el-select v-model="userForm.type" filterable>
+                  <el-select v-model="userForm.type" filterable :disabled="!admin">
                     <el-option label="Prospect" value="Prospect"></el-option>
                     <el-option label="Partner" value="Partner"></el-option>
                     <el-option label="Customer" value="Customer"></el-option>
@@ -196,7 +196,7 @@ const resetForm = (formEl: FormInstance | undefined) => {
             <el-row :gutter="20">
               <el-col :span="12">
                 <el-form-item label="Email" prop="email">
-                  <el-input v-model="userForm.email" />
+                  <el-input v-model="userForm.email" :disabled="!admin"/>
                 </el-form-item>
               </el-col>
               <el-col :span="12">

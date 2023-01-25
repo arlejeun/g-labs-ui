@@ -24,3 +24,15 @@ export const getPureCloudSkill2 = () => {
 
 export const regionOptions = [{ "label": "APAC", "value": "APAC" }, { "label": "CANADA", "value": "CANADA" }, { "label": "EMEA", "value": "EMEA" }, { "label": "LATAM", "value": "LATAM" }, { "label": "SCO US West", "value": "NA_USW" }, { "label": "SCO - US Central", "value": "NA_USC" }, { "label": "SCO - US East", "value": "NA_USE" }, { "label": "SCO - Velocity", "value": "NA_VELOCITY" }, { "label": "SCO - Architects", "value": "NA_ARCHITECTS" }, { "label": "SCO - Government", "value": "NA_GOVERNMENT" }, { "label": "US East", "value": "USE" }, { "label": "US Central", "value": "USC" }, { "label": "US West", "value": "USW" }]
 export const partnerRegionOptions = [{ "label": "APAC Partner", "value": "APAC_Partner" }, { "label": "Canada Partner", "value": "Canada_Partner" }, { "label": "EMEA Partner", "value": "EMEA_Partner" }, { "label": "LATAM Partner", "value": "LATAM_Partner" }, { "label": "US Partner", "value": "US_Partner" }]
+
+
+export const environments = [
+  {
+    id: 1,
+    name: 'purecloudnow',
+  },
+  {
+    id: 2,
+    name: '3rd party org',
+  },
+];

@@ -175,14 +175,27 @@ export enum WS {
 
 export interface WsFilter {
   searchString?: string,
-  tags: string[],
+  tags: number[],
   active?: boolean,
-
+  levels?: number[]
 }
 
 export interface WsFilterClient {
   searchString?: string,
-  categories: string[],
+  categories: number[],
+  tags: number[]
+}
+
+export interface WsFilterCriteria {
+  searchString?: string,
+  categories: number[],
+  tags: number[],
+  environments: number[],
+  levels: number[]
+}
+
+export interface WsFilterParams {
+  searchString?: string,
   tags: string[]
 }
 export interface BasicQueryDTO {

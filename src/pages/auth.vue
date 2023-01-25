@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { useUserStore } from '@/stores/user'
 import { useNotification } from '@kyvg/vue3-notification';
-import wsClientService from '@/services/socketio.service'
 
 const { notify}  = useNotification()
 

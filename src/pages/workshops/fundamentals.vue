@@ -13,10 +13,6 @@ const { gsysCloudClient } = storeToRefs(workspaceStore)
 const { refreshEnvironment } = workspaceStore
 const routeHash = useRouteHash()
 
-const adminStore = useAdminStore()
-const { tags: tagsLoV, businessTags: bizTagsLoV, technicalTags: techTagsLoV, userGroups: userGroupsLoV } = storeToRefs(adminStore)
-const { fetchTags } = adminStore
-
 
 watchEffect(async () => {
 	//Environments
@@ -26,23 +22,21 @@ watchEffect(async () => {
 		routeHash.value = ''
 		refreshEnvironment()
 	}
+
 })
 
 
 onMounted(() => {
-	if (!tagsLoV.value?.records) {
-		fetchTags({ page: 1, pageSize: 200 });
-	}
+	// race condition
+	// if (!tagsLoV.value?.records) {
+	// 	fetchTags({ page: 1, pageSize: 200 });
+	// }
 })
 
 
 </script>
 
 <template>
-
-<!-- <p>Loading: {{ isLoading.toString() }}</p>
-  <p>Finished: {{ isFinished.toString() }}</p>
-  <p>Error: {{ error?.toString() }}</p> -->
 
 	<WorkshopCatalogFilter/>	
 	<WorkshopCatalog />
