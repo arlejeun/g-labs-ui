@@ -3,7 +3,7 @@ import type { ITree } from '@/interfaces/workshop'
 import router from '@/router';
 import { useUserStore } from '@/stores/user';
 import { useWorkshopStore } from '@/stores/workshop';
-import { sendWorkshopEvent } from "@/services/analytics";
+import { esWorkshopPreview } from "@/services/analytics";
 
 const wStore = useWorkshopStore()
 const { workshopTree, workshopProgress, workshopTreeKey, urlParam, wsId } = storeToRefs(wStore)
@@ -39,7 +39,7 @@ onBeforeRouteUpdate(async (to, from) => {
   const newPath = to.path.replace(`/workshops/${wsId.value}/`, '')
   setTreeIndexByPath(newPath.startsWith('./') ? newPath.substring(2) : newPath);
   treeRef.value?.setCurrentKey(workshopTreeKey.value, true);
-  sendWorkshopEvent();
+  esWorkshopPreview();
 })
 
 const setNewCurrentKey = () => {

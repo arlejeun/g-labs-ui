@@ -20,6 +20,7 @@ import { useAxios } from "@vueuse/integrations/useAxios";
 import { useNotification } from "@kyvg/vue3-notification";
 import { handleAxiosError } from "@/utils/axios";
 import { useUserStore } from "@/stores/user";
+import { esWorkshopEndChapter, esWorkshopEndCourse } from "@/services/analytics";
 import { processPath, processPage } from "@/utils/workshops"
 import type { Ref } from "vue";
 
@@ -415,6 +416,12 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const nextStep = () => {
     if (!workshopProgress.value.includes(treeIndex.value)) {
       workshopProgress.value.push(treeIndex.value)
+      let chIdxes = workShopPathMap.value.filter(item => {
+        return item.index[0] == workShopPathMap.value[treeIndex.value].index[0]
+      })
+      if (chIdxes.every((el) => { return workshopProgress.value.includes(el.key) })) {
+        esWorkshopEndChapter()
+      }
     }
     if (treeIndex.value < workShopPathMap.value.length) {
       treeIndex.value++
@@ -434,7 +441,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
   //   }
   //   workshopsQuery.value = { ...myQuery }
   // }
-  
+
   const loadWorkshops = async (query: WsQueryDTO) => {
     const { execute } = useAxios(GLabsApiClient);
     let myQuery = Object.assign({ active: true }, { ...query })

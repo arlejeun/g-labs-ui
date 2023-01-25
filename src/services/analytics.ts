@@ -6,7 +6,20 @@ import { WS, type IWsBreadcrumb } from '@/interfaces/workshop';
 
 const WORKSHOP_URL = 'https://analytics.drive-dev.genesys.com/event'
 
-export const sendWorkshopEvent = () => {
+
+export const esWorkshopEndChapter = () => {
+  esWorkshopEvent('chapter-completed')
+}
+
+export const esWorkshopEndCourse = () => {
+  esWorkshopEvent('course-completed')
+}
+
+export const esWorkshopPreview = () => {
+  esWorkshopEvent('preview')
+}
+
+export const esWorkshopEvent = (ws_action: string = 'preview') => {
 
   const wStore = useWorkshopStore()
   const { workshopCreadcrub, workshopName } = storeToRefs(wStore)
@@ -33,7 +46,7 @@ export const sendWorkshopEvent = () => {
     name: workshopName.value,
     chapter: (workshopCreadcrub.value[WS.Chapter] as IWsBreadcrumb)?.title || '',
     section: (workshopCreadcrub.value[WS.Section] as IWsBreadcrumb)?.title || '',
-    action: 'pageview',
+    action: ws_action,
     locale: localization.value || 'en-US',
     activeenv: user.value.active_org_id || 'unknown',
   }
