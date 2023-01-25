@@ -12,7 +12,8 @@ import type {
   ITag,
   IWorkshopForm,
   IWorkshopSettingsResponse,
-  WsFilterCriteria
+  WsFilterCriteria,
+  IWorkshopSettings
 } from "@/interfaces/workshop";
 import { GLabsApiClient } from "@/apis/glabs";
 import { useStorage } from '@vueuse/core'
@@ -35,13 +36,13 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const { notify } = useNotification();
 
   //const workshops = ref([] as IWorkshop[]);
-  const workshops = ref({} as IWorkshopsResponse);
+  const workshops = ref({page:1, records: 0, rows: []} as IWorkshopsResponse);
   const workshopSettings = ref({} as IWorkshopSettingsResponse)
 
   const editingWorkshops = ref(true)
   const workshopsQuery = ref({ page: 1, pageSize: 25 } as WsQueryDTO)
   const workshopsCriteria = ref({} as WsFilterCriteria)
-  const workshopMeta = ref({} as IWorkshop)
+  const workshopMeta = ref({} as IWorkshopSettings)
 
   const workshopTree = ref([] as ITree[]);
   const workshopTreeKey = ref(0);
@@ -296,6 +297,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
   };
 
   const addWorkshop = async (ws: IWorkshopForm) => {
+    // No localization for adding settings
 
     const { execute } = useAxios(GLabsApiClient);
     const { techTags, bizTags, groups, envs, ...wsEdit } = ws;
@@ -318,7 +320,9 @@ export const useWorkshopStore = defineStore("workshop", () => {
       data: wsEditDTO,
     });
     if (result.isFinished.value && !result.error.value) {
-      workshops.value?.rows?.push(result.data.value);
+      workshopMeta.value = {...result.data.value}
+      workshopSettings.value?.rows?.push(workshopMeta.value);
+
       notify({
         title: "Workshop API",
         text: "Your workshop metadata was created successfully",
@@ -444,9 +448,9 @@ export const useWorkshopStore = defineStore("workshop", () => {
 
   const loadWorkshops = async (query: WsQueryDTO) => {
     const { execute } = useAxios(GLabsApiClient);
-    let myQuery = Object.assign({ active: true }, { ...query })
+    let myQuery = Object.assign({ published: query.showAll ? false: true }, { ...query })
     let result, queryParams;
-    queryParams = `page=${myQuery.page}&pageSize=${myQuery.pageSize}&active=${myQuery.active}`;
+    queryParams = `page=${myQuery.page}&pageSize=${myQuery.pageSize}&published=${myQuery.published}`;
     if (myQuery.searchString) {
       queryParams += `&searchString=${myQuery.searchString}`
     }
@@ -455,6 +459,9 @@ export const useWorkshopStore = defineStore("workshop", () => {
     }
     if (myQuery?.levels && myQuery?.levels?.length > 0) {
       queryParams += `&levels=${myQuery?.levels?.join(',')}`
+    }
+    if (myQuery?.environments && myQuery?.environments > 0) {
+      queryParams += `&environments=${myQuery?.environments}`
     }
 
     result = await execute(`/workshops?${queryParams}`, {
@@ -481,7 +488,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
     const { execute } = useAxios(GLabsApiClient);
     let myQuery = Object.assign({ active: true }, { ...query })
     let result, queryParams;
-    queryParams = `page=${myQuery.page}&pageSize=${myQuery.pageSize}&active=${myQuery.active}`;
+    queryParams = `page=${myQuery.page}&pageSize=${myQuery.pageSize}&published=${myQuery.active}`;
     if (myQuery.searchString) {
       queryParams += `&searchString=${myQuery.searchString}`
     }

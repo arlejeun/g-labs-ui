@@ -2,7 +2,7 @@
 import type { WsFilterCriteria } from '@/interfaces/workshop';
 import { useUserStore } from '@/stores/user';
 import {
-	Search, Menu, Plus, List, Filter
+	Search, Menu, Plus, List, Filter, Check, Close
 } from '@element-plus/icons-vue'
 import type { FormInstance } from 'element-plus/es/components/form';
 import type { FormRules } from 'element-plus/es/tokens/form';
@@ -12,7 +12,7 @@ import { useWorkshopStore } from '@/stores/workshop';
 import { environments } from '@/utils/gc'
 
 const store = useUserStore()
-const { isMobile, isAdmin } = storeToRefs(store)
+const { isMobile, isAdmin, userEmail } = storeToRefs(store)
 
 const adminStore = useAdminStore()
 const { tags: tagsLoV, businessTags: bizTagsLoV, technicalTags: techTagsLoV, userGroups: userGroupsLoV } = storeToRefs(adminStore)
@@ -24,7 +24,7 @@ const { workshopsCriteria } = storeToRefs(wStore)
 const showFilterCriteria = ref(false)
 const filterForm = ref({} as WsFilterCriteria)
 const filter = ref({} as WsFilterCriteria)
-
+const mySearch = ref('')
 
 const toggleFilterCriteria = () => {
 	showFilterCriteria.value = !showFilterCriteria.value
@@ -43,7 +43,9 @@ const rules = reactive<FormRules>({
 })
 
 const handleSearchChange = () => {
+
 	const mergeTags = [...filterForm.value.categories, ...filterForm.value.tags]
+	filterForm.value.searchString = mySearch.value
 	filter.value = { ...filterForm.value, tags: mergeTags }
 }
 
@@ -69,11 +71,16 @@ const filterType = computed(() => {
 
 watchEffect(() => {
 	//loadWorkshops(query.value)
-	if (!tagsLoV.value?.records) {
-		fetchTags({ page: 1, pageSize: 200 });
+	if (userEmail.value) {
+		if (tagsLoV.value?.records == 0) {
+			fetchTags({ page: 1, pageSize: 200 });
+		}
+		workshopsCriteria.value = filter.value
+		filterForm.value = filter.value
 	}
-	workshopsCriteria.value = filter.value
-	filterForm.value = filter.value
+	else {
+		console.log('Waiting for user authentication')
+	}
 
 	//changeWorkshopQuery(query.value)
 })
@@ -102,7 +109,7 @@ watchEffect(() => {
 					<div class="d-flex justify-content-between mt-2">
 						<!-- Filter collapse button -->
 
-						<el-input v-model="filterForm.searchString" @change="handleSearchChange" class="w-50"
+						<el-input v-model="mySearch" @change="handleSearchChange" class="w-50"
 							:placeholder="$t('workshops.searchFor')" :prefix-icon="Search" />
 
 
@@ -177,11 +184,25 @@ watchEffect(() => {
 						<div class="col-xs-6 col-md-6 col-lg-3">
 							<!-- <label class="form-label">Categories</label> -->
 							<el-form-item label="Environments" prop="environments">
-								<el-select class="w-100" v-model="filterForm.environments" collapse-tags
-									collapse-tags-tooltip filterable placeholder="Select">
+								<el-select class="w-100" v-model="filterForm.environments" multiple collapse-tags
+									collapse-tags-tooltip filterable placeholder="Select" :multiple-limit=1>
 									<el-option v-for="item in environments" :key="item.id" :label="item.name"
 										:value="item.id" />
 								</el-select>
+							</el-form-item>
+						</div>
+
+						<div v-if="isAdmin" class="col-xs-6 col-md-6 col-lg-3">
+							<!-- <label class="form-label">Categories</label> -->
+							<el-form-item label="Show all" prop="showAll">
+								<el-switch
+									v-model="filterForm.showAll"
+									class="mt-2"
+									style="margin-left: 24px"
+									inline-prompt
+									:active-icon="Check"
+									:inactive-icon="Close"
+								/>
 							</el-form-item>
 						</div>
 
