@@ -22,12 +22,13 @@ import { useNotification } from "@kyvg/vue3-notification";
 import { handleAxiosError } from "@/utils/axios";
 import { useUserStore } from "@/stores/user";
 import { esWorkshopEndChapter, esWorkshopEndCourse } from "@/services/analytics";
-import { processPath, processPage } from "@/utils/workshops"
+import { processPath, processPage, updateUserProgress, getUserProgress } from "@/utils/workshops"
+
 import type { Ref } from "vue";
 
 const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT;
 const store = useUserStore();
-const { localization } = storeToRefs(store);
+const { localization, userId } = storeToRefs(store);
 
 export const useWorkshopStore = defineStore("workshop", () => {
   const route = useRoute();
@@ -36,7 +37,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const { notify } = useNotification();
 
   //const workshops = ref([] as IWorkshop[]);
-  const workshops = ref({page:1, records: 0, rows: []} as IWorkshopsResponse);
+  const workshops = ref({ page: 1, records: 0, rows: [] } as IWorkshopsResponse);
   const workshopSettings = ref({} as IWorkshopSettingsResponse)
 
   const editingWorkshops = ref(true)
@@ -51,6 +52,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const workshopName = ref("");
   //TODO: Should be renamed workshopManifest
   const workshop = ref([] as IWorkshopMenuItem[]);
+  const workshopId = ref(0)
   const page_index = ref([0, 0] as number[]);
   const treeIndex = ref(0);
 
@@ -115,7 +117,8 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const nextButtonName = computed(() => {
     let res = 'Next'
     if (treeIndex.value == workShopPathMap.value.length - 1) {
-      if (workShopPathMap.value.length == workshopProgress.value.length - 1 &&
+      if (workShopPathMap.value.length == workshopProgress.value.length ||
+        workShopPathMap.value.length == workshopProgress.value.length - 1 &&
         !workshopProgress.value.includes(workShopPathMap.value.length - 1)) {
         res = 'Course is completed!'
       }
@@ -258,6 +261,23 @@ export const useWorkshopStore = defineStore("workshop", () => {
       if (result.isFinished.value && !result.error.value) {
         const resData = result.data.value;
         workshopName.value = wsId.value;
+        workshopId.value = resData.id
+        const getProgress = () => {
+          if (userId.value) {
+            getUserProgress(workshopId.value, userId.value).then((res) => {
+              if (!result.error.value && res.data.value.completed_pages) {
+                workshopProgress.value = JSON.parse(res.data.value.completed_pages)
+              }
+            })
+            updateUserProgress(workshopId.value, userId.value, {
+              recent_at: new Date().toISOString()
+            })
+          }
+          else {
+            setTimeout(() => { getProgress() }, 200)
+          }
+        }
+        getProgress()
         let mnf = resData.localizations[0].manifest;
         mnf = mnf.replaceAll('\\"', "\\$");
         mnf = mnf.replaceAll('"', '"');
@@ -315,7 +335,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
       data: wsEditDTO,
     });
     if (result.isFinished.value && !result.error.value) {
-      workshopMeta.value = {...result.data.value}
+      workshopMeta.value = { ...result.data.value }
       workshopSettings.value?.rows?.push(workshopMeta.value);
 
       notify({
@@ -415,6 +435,13 @@ export const useWorkshopStore = defineStore("workshop", () => {
   const nextStep = () => {
     if (!workshopProgress.value.includes(treeIndex.value)) {
       workshopProgress.value.push(treeIndex.value)
+      let payload = {
+        completed_pages: JSON.stringify(workshopProgress.value)
+      } as any
+      if (workshopProgress.value.length === workShopPathMap.value.length) {
+        payload.completed_at = new Date().toISOString()
+      }
+      updateUserProgress(workshopId.value, userId.value, payload)
       let chIdxes = workShopPathMap.value.filter(item => {
         return item.index[0] == workShopPathMap.value[treeIndex.value].index[0]
       })
@@ -443,7 +470,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
 
   const loadWorkshops = async (query: WsQueryDTO) => {
     const { execute } = useAxios(GLabsApiClient);
-    let myQuery = Object.assign({ published: query.showAll ? false: true }, { ...query })
+    let myQuery = Object.assign({ published: query.showAll ? false : true }, { ...query })
     let result, queryParams;
     queryParams = `page=${myQuery.page}&pageSize=${myQuery.pageSize}&published=${myQuery.published}`;
     if (myQuery.searchString) {

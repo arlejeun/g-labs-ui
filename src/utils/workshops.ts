@@ -1,6 +1,8 @@
 import type { IShortCode } from "@/interfaces/workshop";
 import sanitizeHtml from "sanitize-html";
 import MarkdownIt from 'markdown-it';
+import { GLabsApiClient } from "@/apis/glabs";
+import { useAxios } from "@vueuse/integrations/useAxios";
 let workshopName = ''
 
 const md = new MarkdownIt();
@@ -108,6 +110,21 @@ export function processPage(text: string, wsName: string) {
   });
 
   return res
+}
+
+export async function updateUserProgress(workshop_id: number, user_id: number, payload: any) {
+  const { execute } = useAxios(GLabsApiClient);
+  return await execute(`workshops/${workshop_id.toString()}/user/${user_id.toString()}`, {
+    method: "POST",
+    data: payload
+  });
+}
+
+export async function getUserProgress(workshop_id: number, user_id: number) {
+  const { execute } = useAxios(GLabsApiClient);
+  return await execute(`workshops/${workshop_id.toString()}/user/${user_id.toString()}`, {
+    method: "GET"
+  });
 }
 
 /*
