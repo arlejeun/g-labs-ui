@@ -9,18 +9,10 @@ import type { IWorkshopForm } from '@/interfaces/workshop';
 const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
 
-const workspaceStore = useWorkspaceStore()
-const { isTokenActive, gsysCloudClient } = storeToRefs(workspaceStore)
-const { refreshEnvironment } = workspaceStore
-const routeHash = useRouteHash()
-
 const wStore = useWorkshopStore()
-const { workshops } = storeToRefs(wStore)
-const { loadWorkshops } = wStore 
+const { workshops, workshopMeta } = storeToRefs(wStore)
+//const { loadWorkshops } = wStore 
 
-
-const formatter = 'YYYY-MM-DD HH:mm:ss:SSS'
-const formatted = useDateFormat(useNow(), formatter)
 const store = useUserStore()
 const { isMobile } = storeToRefs(store)
 
@@ -29,6 +21,7 @@ drawerSize.value = isMobile.value ? '85%':'45%'
 
 
 watchEffect(async () => {
+
 })
 
 const form = ref({} as IWorkshopForm)
@@ -45,8 +38,7 @@ const form = ref({} as IWorkshopForm)
 			<div class="row">
 				<h3 class="fs-3 text-primary mt-4">Add Workshop</h3>
 			</div>
-			<workshop-form :editMode="false"></workshop-form>
-
+			<WorkshopForm :workshop="workshopMeta" :editMode="false"></WorkshopForm>
 		</div>
 	</section>
 

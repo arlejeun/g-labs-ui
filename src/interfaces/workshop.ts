@@ -203,7 +203,8 @@ export interface WsFilter {
   tags: number[],
   showAll?: boolean,
   environments?: number
-  levels?: number[]
+  levels?: number[],
+  locale?: string
 }
 export interface WsQueryDTO extends WsFilter, BasicQueryDTO {
 }

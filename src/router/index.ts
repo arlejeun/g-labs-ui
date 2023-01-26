@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, isNavigationFailure } from 'vue-router'
 import { setupLayouts } from 'virtual:generated-layouts'
 import generatedRoutes from 'virtual:generated-pages'
 import { useUserStore } from '@/stores/user'
@@ -51,7 +51,10 @@ router.beforeEach((to, from, next) => {
   next()
 })
 
-router.afterEach(() => {
+router.afterEach((to, from, failure) => {
+  if (isNavigationFailure(failure)) {
+    console.log('failed navigation', failure)
+  }
   NProgress.done()
 })
 

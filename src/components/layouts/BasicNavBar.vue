@@ -321,8 +321,13 @@ async function mockSignOut() {
         <!-- Profile and Notification START -->
 
         <ul v-if="!isAuthenticated" class="nav flex-row align-items-center list-unstyled ms-xl-auto">
-          <li @click.stop.prevent="mockSignIn" class="nav-item"> <a class="nav-link text-white fw-bolder"><i
-                class="bi bi-box-arrow-in-right me-2"></i>Sign In</a></li>
+          <li @click.stop.prevent="mockSignIn" class="nav-item"> 
+            <!-- <el-button text @click.stop.prevent="mockSignIn" class="nav-link text-white fw-bolder"><i
+                class="bi bi-box-arrow-in-right me-2"></i>Sign In</el-button> -->
+            <a class="nav-link text-white fw-bolder activable"><i
+                class="bi bi-box-arrow-in-right me-2"></i>Sign In
+            </a>
+          </li>
           <!-- Button -->
           <!-- <li class="nav-item ms-3 d-none d-sm-block">
             <a class="btn btn-sm btn-primary-soft mb-0" href="#"><i class="bi bi-lightning-charge"></i> Upgrade now</a>
@@ -330,7 +335,7 @@ async function mockSignOut() {
         </ul>
 
         <ul v-if="isAuthenticated && !isActive" class="nav flex-row align-items-center list-unstyled ms-xl-auto">
-          <li @click.stop.prevent="mockSignOut" class="nav-item"> <a class="nav-link text-white fw-bolder"><i
+          <li @click.stop.prevent="mockSignOut" class="nav-item"> <a class="nav-link text-white fw-bolder activable"><i
                 class="bi bi-box-arrow-in-right me-2"></i>Sign Out</a></li>
           <!-- Button -->
           <!-- <li class="nav-item ms-3 d-none d-sm-block">
@@ -366,6 +371,10 @@ async function mockSignOut() {
 .locale-select {
   margin-left: 30px !important;
   width: 110px;
+}
+
+.nav-link.activable {
+  cursor: pointer;
 }
 
 .navbar-expand-xl.navbar-force-custom .dropdown-toggle:after {

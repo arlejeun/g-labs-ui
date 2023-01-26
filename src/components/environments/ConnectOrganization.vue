@@ -15,6 +15,16 @@ const { setLoginURL, resetInfo, refreshEnvironment } = workspaceStore
 const GLABS_APP_URL = import.meta.env.VITE_GLABS_APP_URL
 const GLABS_CLOUD_OAUTH_CLIENT_ID = import.meta.env.VITE_GLABS_CLOUD_OAUTH_CLIENT_ID
 
+const computedUserRoles = computed(() => {
+  let response: (string | undefined) []
+  if (activeOrgSummary.value?.userRole && activeOrgSummary.value?.userRole?.length > 0) {
+    response = [...new Set(activeOrgSummary.value.userRole)]
+  } else {
+    response = []
+  }
+  return response
+})
+
 const regions = [
   {
     value: 'us-east-1',
@@ -93,7 +103,7 @@ watch(
   })
 
 
-onMounted(() => {
+watchEffect(() => {
   if (gsysCloudClient.value?.access_token != '' && !genesysUser.value?.email) {
     refreshEnvironment()
   }
@@ -165,7 +175,7 @@ const loginWithGenesysCloud = () => {
                       }}
                   </li>
                   <li><b>roles:</b>
-                    <el-tag class="px-3 mx-1" v-for="(role) in activeOrgSummary.userRole">{{ role }}</el-tag>
+                    <el-tag class="px-3 mx-1" v-for="(role, item) in computedUserRoles" :key="item">{{ role }}</el-tag>
                   </li>
                 </ul>
 

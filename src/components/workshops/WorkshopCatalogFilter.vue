@@ -14,6 +14,15 @@ import { environments } from '@/utils/gc'
 const store = useUserStore()
 const { isMobile, isAdmin, userEmail } = storeToRefs(store)
 
+const props = 
+  defineProps<{
+    level?: number,
+    category?: number,
+	tag?: number,
+  }>();
+
+const { level, category, tag } = toRefs(props)
+
 const adminStore = useAdminStore()
 const { tags: tagsLoV, businessTags: bizTagsLoV, technicalTags: techTagsLoV, userGroups: userGroupsLoV } = storeToRefs(adminStore)
 const { fetchTags } = adminStore
@@ -76,6 +85,9 @@ watchEffect(() => {
 			fetchTags({ page: 1, pageSize: 200 });
 		}
 		workshopsCriteria.value = filter.value
+		if (level?.value) {
+		 	workshopsCriteria.value?.levels?.push(level.value)
+		}
 		filterForm.value = filter.value
 	}
 	else {

@@ -93,15 +93,15 @@ export const useUserStore = defineStore("identity", () => {
         router.replace("/registration#profile");
         status.value = "RegistrationProfile";
         // registrationStep.value = 0;
-        notify({
-          title: "Registration",
-          text: `${handleAxiosError(
-            result.error.value,
-            "No active profile was found with your email account. You can register with this account if you have not done the request before."
-          )}`,
-          duration: -1,
-          type: "info",
-        });
+        // notify({
+        //   title: "Registration",
+        //   text: `${handleAxiosError(
+        //     result.error.value,
+        //     "No active profile was found with your email account. You can register with this account if you have not done the request before."
+        //   )}`,
+        //   duration: -1,
+        //   type: "info",
+        // });
       } else if (
         result.error.value?.response?.data?.message ==
         "User not active - status=RegistrationProfile"
@@ -109,15 +109,15 @@ export const useUserStore = defineStore("identity", () => {
         router.replace("/registration#customer");
         registrationStep.value = 1;
         status.value = "RegistrationCustomer";
-        notify({
-          title: "Account Validation",
-          text: `${handleAxiosError(
-            result.error.value,
-            "Your account is under review from Genesys Teams."
-          )}`,
-          duration: -1,
-          type: "info",
-        });
+        // notify({
+        //   title: "Account Validation",
+        //   text: `${handleAxiosError(
+        //     result.error.value,
+        //     "Your account is under review from Genesys Teams."
+        //   )}`,
+        //   duration: -1,
+        //   type: "info",
+        // });
       } else if (
         result.error.value?.response?.data?.message ==
         "User not active - status=RegistrationCustomer"
@@ -125,15 +125,15 @@ export const useUserStore = defineStore("identity", () => {
         router.replace("/registration#activation");
         registrationStep.value = 2;
         status.value = "RegistrationOrganization";
-        notify({
-          title: "Account Validation",
-          text: `${handleAxiosError(
-            result.error.value,
-            "Your account is under review from Genesys Teams."
-          )}`,
-          duration: -1,
-          type: "info",
-        });
+        // notify({
+        //   title: "Account Validation",
+        //   text: `${handleAxiosError(
+        //     result.error.value,
+        //     "Your account is under review from Genesys Teams."
+        //   )}`,
+        //   duration: -1,
+        //   type: "info",
+        // });
       } else {
         notify({
           title: "Identification Error",

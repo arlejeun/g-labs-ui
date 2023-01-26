@@ -29,6 +29,7 @@ const convertFilterCriteria = (): WsQueryDTO => {
 		showAll: workshopsCriteria.value?.showAll,
 		page: workshopsQuery.value.page,
 		pageSize: workshopsQuery.value.pageSize,
+		locale: localization.value,
 	} as WsQueryDTO
 }
 

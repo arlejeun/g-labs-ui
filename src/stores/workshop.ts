@@ -463,6 +463,9 @@ export const useWorkshopStore = defineStore("workshop", () => {
     if (myQuery?.environments && myQuery?.environments > 0) {
       queryParams += `&environments=${myQuery?.environments}`
     }
+    if (myQuery?.locale) {
+      queryParams += `&locale=${myQuery?.locale}`
+    }
 
     result = await execute(`/workshops?${queryParams}`, {
       method: "GET"

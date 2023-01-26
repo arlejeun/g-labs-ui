@@ -42,7 +42,7 @@ const query = computed((): WsQueryDTO => {
 		searchString: search.value,
 		page: currentPage.value,
 		pageSize: pageSize.value,
-		active: false,
+		showAll: true,
 		tags: []
 	}
 })
@@ -56,7 +56,7 @@ const loading = ref(true)
 
 const search = ref('')
 const disabledForm = ref(true)
-const editMode = ref(true)
+const editMode = ref(false)
 
 const filterTableData = computed(() =>
 	workshopSettings.value?.rows?.filter(
@@ -107,7 +107,7 @@ const columns = ref({} as IWorkshopAdminTable)
 columns.value = {
 	id: {
 		label: 'ID',
-		width: 'auto'
+		width: '60'
 	},
 	name: {
 		label: 'Name',
@@ -224,7 +224,7 @@ onMounted(() => {
 					</div>
 					</template>
 
-					<div class="card-body row px-0">
+					<div class="card-body row my-4 px-0">
 						<WorkshopForm :workshop="currentWorkshop" :edit-mode="editMode"></WorkshopForm>
 					</div>
 

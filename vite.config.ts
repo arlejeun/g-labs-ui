@@ -1,6 +1,5 @@
 import { URL, fileURLToPath } from "node:url";
 import { defineConfig, loadEnv } from "vite";
-import { resolve, dirname } from 'node:path';
 import type { UserConfig} from "vite"
 import type { ServerOptions as ServerOptions } from 'node:https';
 

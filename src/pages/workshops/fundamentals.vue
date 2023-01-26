@@ -1,18 +1,15 @@
 <script setup lang="ts">
-import { useWorkshopStore } from '@/stores/workshop'
 import { useWorkspaceStore } from '@/stores/workspace';
 import { getParameterByName } from '@/utils/string'
 import { useRouteHash } from '@vueuse/router';
-import { useUserStore } from '@/stores/user';
-import { useAdminStore } from '@/stores/admin';
 
-const userStore = useUserStore()
 
 const workspaceStore = useWorkspaceStore()
 const { gsysCloudClient } = storeToRefs(workspaceStore)
 const { refreshEnvironment } = workspaceStore
 const routeHash = useRouteHash()
 
+const fundamentalsLevel = ref(100)
 
 watchEffect(async () => {
 	//Environments
@@ -22,7 +19,6 @@ watchEffect(async () => {
 		routeHash.value = ''
 		refreshEnvironment()
 	}
-
 })
 
 
@@ -38,7 +34,7 @@ onMounted(() => {
 
 <template>
 
-	<WorkshopCatalogFilter/>	
+	<WorkshopCatalogFilter :level="fundamentalsLevel"/>	
 	<WorkshopCatalog />
 	<WorkshopPagination />
 
