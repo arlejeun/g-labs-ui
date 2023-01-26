@@ -173,13 +173,8 @@ export const useWorkshopStore = defineStore("workshop", () => {
     let i = 0;
 
     ws.forEach((item: IWorkshopMenuItem) => {
-      const loc = localization.value || "en-US";
       branch = {} as ITree;
-      let locItem = { ...item };
-      if (item[loc as keyof IWorkshopMenuItem]) {
-        locItem = item[loc as keyof IWorkshopMenuItem] as IWorkshopMenuItem;
-        locItem.menus = item.menus;
-      }
+      const locItem = { ...item };
       branch.index = [...(index || [])];
       branch.label = locItem.name;
       branch.body = locItem.body;
