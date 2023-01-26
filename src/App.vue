@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
-import { useSocketStore } from '@/stores/socket'
-import socketioService from './services/socketio.service';
+//import { useSocketStore } from '@/stores/socket'
+//import socketioService from './services/socketio.service';
 
 import { useI18n } from 'vue-i18n'
 import { useUserStore } from './stores/user';
@@ -18,12 +18,12 @@ watch(localization,(newVal) => { //watch the getter
   immediate:true
 });
 
-const { notifyUser } = useSocketStore()
-socketioService.setupSocketConnection(notifyUser)
+// const { notifyUser } = useSocketStore()
+// socketioService.setupSocketConnection(notifyUser)
 
-onBeforeUnmount(() => {
-  socketioService.disconnect()
-})
+// onBeforeUnmount(() => {
+//   socketioService.disconnect()
+// })
 
 </script>
 

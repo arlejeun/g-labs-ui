@@ -10,7 +10,7 @@ const { isMobile } = storeToRefs(userStore)
 const wStore = useWorkshopStore()
 const { workshopCreadcrub } = storeToRefs(wStore)
 
-const router = useRouter()
+// const router = useRouter()
 
 // const gotoPath = () => {
 //   router.push({ path: workshopChapter.value.path })

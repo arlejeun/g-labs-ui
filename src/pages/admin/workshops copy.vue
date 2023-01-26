@@ -1,30 +1,31 @@
 <script lang="ts" setup>
-import TagFormatter from "@/components/testing/TagFormatter.vue";
-import DateTimeFormatter from "@/components/testing/DateTimeFormatter.vue";
-import type { IWorkshop, IWorkshopAdminTable, WsQueryDTO } from "@/interfaces/workshop";
+import TagFormatter from "@/components/layouts/table/TagFormatter.vue";
+import EnvFormatter from "@/components/layouts/table/EnvFormatter.vue";
+
+import type { IWorkshop, IWorkshopAdminTable, IWorkshopSettings, WsQueryDTO } from "@/interfaces/workshop";
 import { useWorkshopStore } from "@/stores/workshop";
 import { Filter, Plus } from '@element-plus/icons-vue'
 
 const wsStore = useWorkshopStore()
-const { workshops } = storeToRefs(wsStore)
-const { loadWorkshops, removeWorkshop, provisionWorkshop } = wsStore
+const { workshops, workshopSettings } = storeToRefs(wsStore)
+const { loadWorkshopSettings, removeWorkshop, provisionWorkshop } = wsStore
 
 
 /** Pagination */
 const handlePaginationSizeChange = (val: number) => {
-	loadWorkshops(query.value)
+	loadWorkshopSettings(query.value)
 }
 const handlePaginationCurrentChange = (val: number) => {
-	loadWorkshops(query.value)
+	loadWorkshopSettings(query.value)
 }
 const handleServerSearch = (val: string) => {
 	if (val.length > 1) {
 		filterActive.value = true
-		loadWorkshops(query.value)
+		loadWorkshopSettings(query.value)
 	} else {
 		filterActive.value = false
 		if (val == '') {
-			loadWorkshops(query.value)
+			loadWorkshopSettings(query.value)
 		}
 	}
 
@@ -41,31 +42,31 @@ const query = computed((): WsQueryDTO => {
 		searchString: search.value,
 		page: currentPage.value,
 		pageSize: pageSize.value,
-		active: false,
+		showAll: true,
 		tags: []
 	}
 })
 
 const totalRecords = computed(() => {
-	return workshops.value.records || 0
+	return workshopSettings.value.records || 0
 })
 
-const currentWorkshop = ref({} as IWorkshop)
+const currentWorkshop = ref({} as IWorkshopSettings)
 const loading = ref(true)
 
 const search = ref('')
 const disabledForm = ref(true)
-const editMode = ref(true)
+const editMode = ref(false)
 
 const filterTableData = computed(() =>
-	workshops.value?.rows?.filter(
+	workshopSettings.value?.rows?.filter(
 		(data) =>
 			!search.value ||
 			data.name.toLowerCase().includes(search.value.toLowerCase()) ||
-			data.title.toLowerCase().includes(search.value.toLowerCase())
+			data.name.toLowerCase().includes(search.value.toLowerCase())
 	)
 )
-const handleProvision = (index: number, row: IWorkshop) => {
+const handleProvision = (index: number, row: IWorkshopSettings) => {
 	provisionWorkshop(row.owner, row.name)
 	disabledForm.value = false
 }
@@ -73,16 +74,16 @@ const handleProvision = (index: number, row: IWorkshop) => {
 // const handleActivate = (index: number, row: ICategoryTag) => {
 // 	disabledForm.value = false
 // }
-const handleEdit = (index: number, row: IWorkshop) => {
+const handleEdit = (index: number, row: IWorkshopSettings) => {
 	disabledForm.value = false
 	editMode.value = true
 }
 
-const handleDelete = (index: number, row: IWorkshop) => {
+const handleDelete = (index: number, row: IWorkshopSettings) => {
 	removeWorkshop(row.id)
 }
 
-const handleRowClick = (row: IWorkshop) => {
+const handleRowClick = (row: IWorkshopSettings) => {
 	currentWorkshop.value = row
 }
 
@@ -90,7 +91,7 @@ const handleWorkshopAdd = () => {
 	//currentWorkshop.value = { id: 0, name: '', owner: '', title: '', description: '' }
 	disabledForm.value = false
 	editMode.value = false
-	currentWorkshop.value = {} as IWorkshop 
+	currentWorkshop.value = {} as IWorkshopSettings 
 }
 
 
@@ -106,27 +107,37 @@ const columns = ref({} as IWorkshopAdminTable)
 columns.value = {
 	id: {
 		label: 'ID',
-		width: 50
-	},
-	owner: {
-		label: 'Owner',
-		width: 150
+		width: '60'
 	},
 	name: {
 		label: 'Name',
-		width: 250
+		width: 'auto'
+	},
+	owner: {
+		label: 'Owner',
+		width: 'auto'
+	},
+	environments: {
+		label: 'Environments',
+		width: 'auto',
+		formatter: 'envFormatter'
+	},
+	user_groups: {
+		label: 'User Groups',
+		width: 'auto',
+		formatter: 'envFormatter'
 	},
 	tags: {
 		label: 'Tags',
-		width: 250,
-		formatter: 'tagformatter'
+		width: 'auto',
+		formatter: 'tagFormatter'
 	},
 
 }
 
 onMounted(() => {
-	loadWorkshops(query.value)
-	if (workshops.value.records > 0) {
+	loadWorkshopSettings(query.value)
+	if (workshopSettings.value.records > 0) {
 		loading.value = false
 	}
 
@@ -155,7 +166,8 @@ onMounted(() => {
 						:prop="typeof prop == 'string' ? prop: ''" 
 						:width="columns[prop].width">
 						<template #default="{ row }">
-							<TagFormatter v-if="columns[prop].formatter == 'tagformatter'" :row="row" />
+							<TagFormatter v-if="columns[prop].formatter == 'tagFormatter'" :row="row" />
+							<EnvFormatter v-else-if="columns[prop].formatter == 'envFormatter'" :row="row" :prop="prop" />
 							<template v-else>
 								{{ row[prop] }}
 							</template>
@@ -212,7 +224,7 @@ onMounted(() => {
 					</div>
 					</template>
 
-					<div class="card-body row px-0">
+					<div class="card-body row my-4 px-0">
 						<WorkshopForm :workshop="currentWorkshop" :edit-mode="editMode"></WorkshopForm>
 					</div>
 

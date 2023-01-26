@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { WsFilterCriteria, WsQueryDTO } from '@/interfaces/workshop';
+import type { WsQueryDTO } from '@/interfaces/workshop';
 import { useUserStore } from '@/stores/user';
 import { useWorkshopStore } from '@/stores/workshop';
 
 const store = useUserStore()
-const { localization } = storeToRefs(store)
+const { userEmail, localization } = storeToRefs(store)
 
 const wStore = useWorkshopStore()
 const { workshops, workshopsQuery, workshopsCriteria } = storeToRefs(wStore)
@@ -25,8 +25,11 @@ const convertFilterCriteria = (): WsQueryDTO => {
 		tags: [...criteriaCategories.value, ...criteriaTags.value],
 		searchString: workshopsCriteria.value?.searchString,
 		levels: workshopsCriteria.value?.levels,
+		environments: workshopsCriteria.value?.environments,
+		showAll: workshopsCriteria.value?.showAll,
 		page: workshopsQuery.value.page,
 		pageSize: workshopsQuery.value.pageSize,
+		locale: localization.value,
 	} as WsQueryDTO
 }
 
@@ -35,8 +38,12 @@ const availableWorkshops = computed(() => {
 })
 
 watchEffect(() => {
-	myWorkshopQuery.value = convertFilterCriteria()
-	loadWorkshops(myWorkshopQuery.value)
+	if (userEmail.value) {
+		myWorkshopQuery.value = convertFilterCriteria()
+		loadWorkshops(myWorkshopQuery.value)
+	} else {
+		console.log('Waiting for user authentication - Catalog')
+	}
 })
 
 </script>

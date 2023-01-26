@@ -11,7 +11,7 @@ import { ArrowDown, ArrowDownBold, ArrowLeftBold, Plus, Remove, CirclePlus, Circ
 const props = defineProps({
   editMode: {
     type: Boolean,
-    required: true
+    required: false
   },
   workshop: {
     type: Object as PropType<IWorkshopSettings>,
@@ -24,7 +24,7 @@ const userStore = useUserStore()
 const { user, isAdmin } = storeToRefs(userStore)
 
 const adminStore = useAdminStore()
-const { tags: tagsLoV, businessTags: bizTagsLoV, technicalTags: techTagsLoV, userGroups: userGroupsLoV } = storeToRefs(adminStore)
+const { businessTags: bizTagsLoV, technicalTags: techTagsLoV, userGroups: userGroupsLoV } = storeToRefs(adminStore)
 const { fetchTags, fetchUserGroups } = adminStore
 
 const wStore = useWorkshopStore()
@@ -39,6 +39,9 @@ const toggleLocaleSection = () => {
   showLocaleSection.value = !showLocaleSection.value
 }
 
+const existingWorkshopId = computed(() => {
+  return props.workshop?.id
+} )
 const formLocalizations = computed(() => { return filterAvailableLocales(form.value?.localizations) })
 const localizationsCount = computed(() => form.value?.localizations?.length)
 
@@ -330,7 +333,7 @@ onMounted(() => {
 
 
 
-            <div class="row justify-content-between pt-3 pb-3 px-0">
+            <div v-show="existingWorkshopId" class="row justify-content-between pt-3 pb-3 px-0">
               <div class="col">
                 <h5 class="">Localizations</h5>
               </div>
@@ -345,10 +348,6 @@ onMounted(() => {
                 </el-button-group>
 
               </div>
-            </div>
-
-            <div v-show="showLocaleSection">
-
               <div class="mt-1 mb-3 pt-2 d-sm-flex justify-content-start">
                 <el-dropdown @command="handleCommand">
                   <span class="el-dropdown-link">
@@ -359,19 +358,15 @@ onMounted(() => {
                   <template #dropdown>
                     <el-dropdown-menu>
                       <el-dropdown-item v-for="loc in formLocalizations" :icon="CirclePlusFilled"
-                        :command="loc">{{loc}}</el-dropdown-item>
-                      </el-dropdown-menu>
+                        :command="loc">{{ loc }}</el-dropdown-item>
+                    </el-dropdown-menu>
                   </template>
                 </el-dropdown>
-                <!-- <el-form-item>
-                  <el-button text type="primary" @click="addLocalization(workshopFormRef)">Add localization</el-button>
-                  <el-select v-model="addLocaleInput" placeholder="en-US">
-                    <el-option v-for="option in formLocalizations" :key="option" :label="option"
-                      :value="option"></el-option>
-                  </el-select>
-                </el-form-item> -->
 
               </div>
+            </div>
+
+            <div v-show="showLocaleSection">
 
               <div v-for="loc in form.localizations" :key="loc.locale">
                 <div class="py-0 d-sm-flex justify-content-end">
@@ -385,276 +380,11 @@ onMounted(() => {
 
               </div>
 
-              <!-- <el-form ref="localeFormRef" :model="localesForm" :rules="localeRules" label-width="120px"
-                  label-position="top" class="" status-icon>
-                  <el-row :gutter="20">
-                    <el-col :xs="18" :span="18">
-                      <el-form-item label="localization">
-                        <el-select class="w-100" v-model="loc.locale" placeholder="Localization">
-                          <el-option v-for="option in formLocalizations" :key="option" :label="option"
-                            :value="option"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="6" :span="6">
-                      <el-form-item label="Active">
-                        <el-switch v-model="loc.isPublished" />
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :span="24">
-                      <el-form-item label="title">
-                        <el-input v-model="loc.title" />
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-                  <el-row :gutter="20">
-                    <el-col :xs="24" :span="24">
-                      <el-form-item label="Description" prop="desc">
-                        <el-input :rows="3" type="textarea" v-model="loc.description" />
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-
-                  <div class="pt-2 d-sm-flex justify-content-end">
-                    <el-form-item>
-                      <el-button @click="resetForm(workshopFormRef)">Reset</el-button>
-                      <el-button type="primary" v-show="!editMode" @click="addForm(workshopFormRef)">Add</el-button>
-                      <el-button type="primary" v-show="editMode" @click="saveSettingsForm(workshopFormRef)">Save
-                        changes</el-button>
-                    </el-form-item>
-                  </div>
-
-                </el-form> -->
-
             </div>
 
 
 
           </div>
-
-
-          <!-- <el-divider v-show="form.isProvisioned"></el-divider>
-
-              <div v-show="form.isProvisioned" class="row justify-content-between pb-3 px-0">
-                <div class="col">
-                  <h6 class="">Publication & Localization</h6>
-                </div>
-                <div class="col-2">
-                  <el-button-group>
-                    <el-button v-show="showPublishSection" @click="togglePublishSection()" size="small"><el-icon>
-                        <ArrowDownBold />
-                      </el-icon></el-button>
-                    <el-button v-show="!showPublishSection" @click="togglePublishSection()" size="small"><el-icon>
-                        <ArrowLeftBold />
-                      </el-icon></el-button>
-                  </el-button-group>
-
-                </div>
-              </div>
-
-              <div v-show="showPublishSection">
-
-                <el-divider v-show="form.isProvisioned "></el-divider>
-
-                <el-row :gutter="20">
-                  <el-col :xs="24" :span="24">
-                    <el-form-item label="Workshop Title" prop="title">
-                      <el-input v-model="form.title" />
-                    </el-form-item>
-                  </el-col>
-                  <el-col :xs="6" :span="6">
-                      <el-form-item label="Active">
-                        <el-switch v-model="form.isPublished" :disabled="!form.isProvisioned"/>
-                      </el-form-item>
-                    </el-col>
-                </el-row>
-                
-                <el-row :gutter="20">
-                  <el-col :xs="24" :span="24">
-                    <el-form-item label="Description" prop="desc">
-                      <el-input :rows="3" type="textarea" v-model="form.description" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-
-                <el-divider></el-divider>
-
-              </div> -->
-
-
-
-          <!-- <el-form ref="workshopFormRef" :model="form" :rules="workshopRules" label-width="120px" label-position="top"
-              class="demo-ruleForm" status-icon>
-
-              <div class="row justify-content-between pb-3 px-0">
-                <div class="col">
-                  <h6 class="">Settings</h6>
-                </div>
-                <div class="col-2">
-                  <el-button-group>
-                    <el-button v-show="showInfoSection" @click="toggleInfoSection()" size="small"><el-icon>
-                        <ArrowDownBold />
-                      </el-icon></el-button>
-                    <el-button v-show="!showInfoSection" @click="toggleInfoSection()" size="small"><el-icon>
-                        <ArrowLeftBold />
-                      </el-icon></el-button>
-                  </el-button-group>
-
-                </div>
-              </div>
-
-              <div v-if="form.localizations.length > 0">
-                <div v-show="showInfoSection">
-
-
-                  <el-row :gutter="20">
-                    <el-col :xs="24" :span="12">
-                      <el-form-item label="Workshop Owner" prop="owner">
-                        <el-input v-model="form.localizations.title" />
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="24" :span="12">
-                      <el-form-item label="Workshop Name" prop="settings.name">
-                        <el-input v-model="form.settings.name" />
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="18" :span="12">
-                      <el-form-item label="Level" prop="level">
-                        <el-select class="w-100" v-model="form.level" multiple filterable placeholder="Level Beginner 100">
-                          <el-option label=100 value=100></el-option>
-                          <el-option label=200 value=200></el-option>
-                          <el-option label=300 value=300></el-option>
-                          <el-option label=400 value=400></el-option>
-                          <el-option label=500 value=500></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="6" :span="12">
-                      <el-form-item label="Duration" prop="duration">
-                        <el-input v-model="form.settings.duration" />
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-
-                  <el-row :gutter="20">
-                    <el-col :xs="24" :span="24">
-                      <el-form-item label="Image filename" prop="image_filename">
-                        <el-input v-model="form.settings.image_filename" />
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-
-
-                
-                  <el-row :gutter="20">
-                    <el-col :xs="24" :span="24">
-
-                      <el-form-item class="ws-100" label="Supported platforms" prop="platforms">
-                        <el-select class="w-100" v-model="form.envs" multiple filterable placeholder="Platforms">
-                          <el-option v-for="option in environments" :key="option.id" :label="option.name"
-                            :value="option.id"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-
-                  <el-row :gutter="20">
-                    <el-col :xs="18" :span="18">
-                      <el-form-item label="User Groups">
-                        <el-select class="w-100" v-model="form.groups" multiple filterable placeholder="User Groups">
-                          <el-option v-for="option in userGroupsLoV.rows" :key="option.id" :label="option.name"
-                            :value="option.id"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                    <el-col :xs="6" :span="6">
-                      <el-form-item label="Active">
-                        <el-switch v-model="form.isPublished" :disabled="!form.isProvisioned"/>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-
-
-                  <el-row>
-                    <el-col :xs="24" :span="24">
-                      <el-form-item label="Categories">
-                        <el-select class="w-100" v-model="form.bizTags" multiple filterable placeholder="Business Goals">
-                          <el-option v-for="option in bizTagsLoV" :key="option.id" :label="option.label"
-                            :value="option.id"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-
-                  </el-row>
-
-                  <el-row>
-                    <el-col :xs="24" :span="24">
-                      <el-form-item label="Tags">
-                        <el-select class="w-100" v-model="form.techTags" multiple filterable placeholder="Technical Tags">
-                          <el-option v-for="option in techTagsLoV" :key="option.id" :label="option.label"
-                            :value="option.id"></el-option>
-                        </el-select>
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
-
-                </div>
-              </div>
-
-              <el-divider v-show="form.isProvisioned"></el-divider>
-
-              <div v-show="form.isProvisioned" class="row justify-content-between pb-3 px-0">
-                <div class="col">
-                  <h6 class="">Publication & Localization</h6>
-                </div>
-                <div class="col-2">
-                  <el-button-group>
-                    <el-button v-show="showPublishSection" @click="togglePublishSection()" size="small"><el-icon>
-                        <ArrowDownBold />
-                      </el-icon></el-button>
-                    <el-button v-show="!showPublishSection" @click="togglePublishSection()" size="small"><el-icon>
-                        <ArrowLeftBold />
-                      </el-icon></el-button>
-                  </el-button-group>
-
-                </div>
-              </div>
-
-              <div v-show="showPublishSection">
-
-                <el-divider v-show="form.isProvisioned"></el-divider>
-
-                <el-row :gutter="20">
-                  <el-col :xs="24" :span="24">
-                    <el-form-item label="Workshop Title" prop="title">
-                      <el-input v-model="form.title" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                
-                <el-row :gutter="20">
-                  <el-col :xs="24" :span="24">
-                    <el-form-item label="Description" prop="desc">
-                      <el-input :rows="3" type="textarea" v-model="form.description" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-
-                <el-divider></el-divider>
-
-              </div>
-
-              <div class="pt-2 d-sm-flex justify-content-end">
-                <el-form-item>
-                  <el-button @click="resetForm(workshopFormRef)">Reset</el-button>
-                  <el-button type="primary" v-show="!editMode" @click="addForm(workshopFormRef)">Add</el-button>
-                  <el-button type="primary" v-show="editMode" @click="submitForm(workshopFormRef)">Save changes</el-button>
-                </el-form-item>
-              </div>
-
-            </el-form> -->
-
-          <!-- Form END -->
 
 
         </div>

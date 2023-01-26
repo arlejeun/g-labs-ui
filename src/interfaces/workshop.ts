@@ -173,13 +173,6 @@ export enum WS {
 }
 
 
-export interface WsFilter {
-  searchString?: string,
-  tags: number[],
-  active?: boolean,
-  levels?: number[]
-}
-
 export interface WsFilterClient {
   searchString?: string,
   categories: number[],
@@ -190,8 +183,9 @@ export interface WsFilterCriteria {
   searchString?: string,
   categories: number[],
   tags: number[],
-  environments: number[],
-  levels: number[]
+  environments: number,
+  levels: number[],
+  showAll: boolean
 }
 
 export interface WsFilterParams {
@@ -203,6 +197,15 @@ export interface BasicQueryDTO {
   pageSize: number
 }
 
+
+export interface WsFilter {
+  searchString?: string,
+  tags: number[],
+  showAll?: boolean,
+  environments?: number
+  levels?: number[],
+  locale?: string
+}
 export interface WsQueryDTO extends WsFilter, BasicQueryDTO {
 }
 export interface TagQueryDTO extends BasicQueryDTO {

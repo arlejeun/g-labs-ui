@@ -1,23 +1,17 @@
 <script setup lang="ts">
 import BasicFooter from '@/components/layouts/BasicFooter.vue';
 import { useUserStore } from '@/stores/user'
-import { BrowserAuthError, InteractionRequiredAuthError, InteractionStatus, InteractionType } from '@azure/msal-browser'
+import { InteractionRequiredAuthError, InteractionStatus } from '@azure/msal-browser'
 import { watch } from 'vue'
 import { loginRequest } from '@/plugins/msal/msalConfig'
-import { GLabsApiClient, GLABS_STORAGE, GLABS_TOKEN } from '@/apis/glabs'
-import type { IDriveUser } from '@/interfaces';
-import { useNotification } from "@kyvg/vue3-notification";
+import { GLABS_STORAGE, GLABS_TOKEN } from '@/apis/glabs'
 
-
-const { notify } = useNotification()
 
 const userStore = useUserStore()
 const { fetchUser } = userStore
 
 const isAuthenticated = useIsAuthenticated()
-const { instance, accounts, inProgress } = useMsal();
-
-
+const { instance, inProgress } = useMsal();
 
 
 const state = reactive({
@@ -31,7 +25,7 @@ async function getProfileData() {
       await instance.acquireTokenRedirect(loginRequest);
     }
     console.log(e)
-    // throw e;
+    throw e;
   });
 
   if (inProgress.value === InteractionStatus.None) {
@@ -44,7 +38,8 @@ async function getProfileData() {
 }
 
 //Refresh token every 30min
-const { start } = useTimeoutFn(renewSilentToken, 1000 * 60 * 30)
+//const { start } = useTimeoutFn(renewSilentToken, 1000 * 60 * 30)
+const { start } = useTimeoutFn(renewSilentToken, 1000 * 60 * 10)
 
 
 async function renewSilentToken() {
