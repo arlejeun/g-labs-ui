@@ -60,6 +60,15 @@ defineExpose({ setNewCurrentKey })
 </template>
 
 <style>
+.el-tree-node__content {
+  height: unset;
+  display: flex;
+}
+
+.el-tree-node {
+  white-space: unset;
+}
+
 .dark .nav-tree .el-tree-node__content:hover {
   background-color: var(--bs-primary-rgb);
   color: white;
