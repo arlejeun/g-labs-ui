@@ -32,5 +32,6 @@ const { workshopCreadcrub } = storeToRefs(wStore)
 <style>
 .el-breadcrumb__item {
   cursor: pointer;
+  font-size: 16px;
 }
 </style>
