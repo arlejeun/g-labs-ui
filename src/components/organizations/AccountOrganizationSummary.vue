@@ -124,8 +124,8 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 <template>
 
   <div class="card border mt-1 mb-2">
-    <div class="card-header bg-light-soft d-md-flex justify-content-md-between align-items-center">
-      <div class="d-flex align-items-center">
+    <div class="card-header bg-light-soft d-md-flex justify-content-md-between align-items-center row">
+      <div class="d-flex align-items-center col">
         <div class="icon-sm rounded-circle flex-shrink-0"
           :class="{ 'bg-success': isActive && assigned, 'bg-warning': inProgress && assigned, 'bg-light': !assigned }">
         </div>
@@ -139,7 +139,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         </div>
       </div>
 
-      <div class="mt-2 ms-2 mt-md-0">
+      <div class="mt-2 ms-2 mt-md-0 col-auto">
         <el-button v-if="!inProgress && !isActive" @click="dialogDivisionFormVisible = true"
           type="primary">Provision</el-button>
         <el-button v-if="isActive || inProgress" @click="toggleSettings" bg text type="primary">Settings</el-button>

@@ -2,7 +2,7 @@
 
 import type { FormInstance, FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
-import { useCountryStore } from '@/stores/country'
+import { useOptionsStore } from '@/stores/options'
 import type { IDriveUser, IDriveUserSettings } from '@/interfaces';
 
 const userStore = useUserStore()
@@ -26,7 +26,7 @@ watchEffect(() => {
 })
 
 
-const countryStore = useCountryStore()
+const countryStore = useOptionsStore()
 const { countries } = storeToRefs(countryStore)
 const { fetchCountries, selectCountry } = countryStore
 

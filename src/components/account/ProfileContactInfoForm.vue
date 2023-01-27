@@ -2,7 +2,7 @@
 
 import type { FormInstance, FormRules } from 'element-plus'
 import { useUserStore } from '@/stores/user'
-import { useCountryStore } from '@/stores/country'
+import { useOptionsStore } from '@/stores/options'
 import type { IDriveUser } from '@/interfaces';
 
 const userStore = useUserStore()
@@ -20,7 +20,7 @@ const props = withDefaults(
 
 const { user: myUser, admin } = toRefs(props)
 const userForm = ref({} as IDriveUser)
-const countryStore = useCountryStore()
+const countryStore = useOptionsStore()
 const { countries } = storeToRefs(countryStore)
 const { fetchCountries, selectCountry } = countryStore
 

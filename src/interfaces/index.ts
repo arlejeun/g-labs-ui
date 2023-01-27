@@ -22,6 +22,7 @@ export interface IDriveGenericUser {
   job_function: string;
   company: string;
   status: string;
+  type: 'Internal' | 'Partner' | 'Unknown' | 'Customer' | 'Prospect'
   date_created: string;
   country_id: number;
   date_updated: string;
@@ -39,7 +40,7 @@ export interface IDriveGenericUser {
     | IDriveUserSettingsDTO
     | IDriveCustomer
     | ITag[]
-    | IDriveCustomerRegistration;
+    | IDriveCustomerRegistration
 }
 
 export interface IDriveRegistrationUser extends IDriveGenericUser {
@@ -213,8 +214,8 @@ export interface IDriveProfileActivity {
   hollow?: boolean;
 }
 
-export interface IGenesysCloudRegion {
-  [x: string]: string;
+export interface IGenesysCollection {
+  [x: string]: string[];
 }
 
 export interface IDriveCountry {
@@ -250,4 +251,32 @@ export interface GCDeleteUser {
   org_name: string,
   email: string,
   username: string
+}
+
+export interface IJiraOptionsFIelds {
+  relationships: string[],
+  regions: string[],
+  products: IGenesysCollection
+}
+
+export interface IJiraForm {
+  title: string
+  relationship: string
+  region: string
+  platform: string
+  product: string
+  business: string
+  requestType: string
+  demoScript?: string
+  reason?: string
+  description?: string
+  customer: string
+}
+
+export interface IJiraFields {
+  ISSUEID: string
+  REQUESTOR: string
+  STATUS: string
+  SUMMARY: string
+  TYPE: string
 }

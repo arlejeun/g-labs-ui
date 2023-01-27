@@ -24,8 +24,6 @@ import { useUserStore } from "@/stores/user";
 import { esWorkshopEndChapter, esWorkshopEndCourse } from "@/services/analytics";
 import { processPath, processPage, updateUserProgress, getUserProgress } from "@/utils/workshops"
 
-import type { Ref } from "vue";
-
 const WORKSHOPS_BASE = import.meta.env.VITE_GLABS_GCP_CONTENT;
 const store = useUserStore();
 const { localization, userId } = storeToRefs(store);
@@ -274,10 +272,11 @@ export const useWorkshopStore = defineStore("workshop", () => {
             })
           }
           else {
-            setTimeout(() => { getProgress() }, 200)
+            setTimeout(() => { getProgress() }, 200)         
           }
         }
-        getProgress()
+        //TODO: @uncleash implement with backend service
+        //getProgress()
         let mnf = resData.localizations[0].manifest;
         mnf = mnf.replaceAll('\\"', "\\$");
         mnf = mnf.replaceAll('"', '"');
@@ -441,7 +440,8 @@ export const useWorkshopStore = defineStore("workshop", () => {
       if (workshopProgress.value.length === workShopPathMap.value.length) {
         payload.completed_at = new Date().toISOString()
       }
-      updateUserProgress(workshopId.value, userId.value, payload)
+      //TODO: @uncleash Implement with backend services
+      //updateUserProgress(workshopId.value, userId.value, payload)
       let chIdxes = workShopPathMap.value.filter(item => {
         return item.index[0] == workShopPathMap.value[treeIndex.value].index[0]
       })

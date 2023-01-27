@@ -9,7 +9,7 @@ const { gsysCloudClient } = storeToRefs(workspaceStore)
 const { refreshEnvironment } = workspaceStore
 const routeHash = useRouteHash()
 
-const fundamentalsLevel = ref(100)
+const fundamentalsLevel = ref("100")
 
 watchEffect(async () => {
 	//Environments

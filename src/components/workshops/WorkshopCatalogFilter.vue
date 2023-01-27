@@ -16,7 +16,7 @@ const { isMobile, isAdmin, userEmail } = storeToRefs(store)
 
 const props = 
   defineProps<{
-    level?: number,
+    level?: string,
     category?: number,
 	tag?: number,
   }>();
@@ -52,8 +52,8 @@ const rules = reactive<FormRules>({
 })
 
 const handleSearchChange = () => {
-
-	const mergeTags = [...filterForm.value.categories, ...filterForm.value.tags]
+	//const mergeLevels = [...[level?.value], ...filterForm.value?.levels]
+	const mergeTags = [...filterForm.value?.categories, ...filterForm.value?.tags]
 	filterForm.value.searchString = mySearch.value
 	filter.value = { ...filterForm.value, tags: mergeTags }
 }
@@ -75,20 +75,33 @@ const resetForm = (formEl: FormInstance | undefined) => {
 }
 
 const filterType = computed(() => {
-	return (filter.value?.tags?.length > 0 || (filter.value?.searchString && filter.value?.searchString?.length > 0)) ? 'warning' : 'primary'
+	return (filter.value?.tags?.length > 0 || filter.value?.categories?.length > 0 || filter.value?.levels?.length > 0 || 
+		(filter.value?.searchString && filter.value?.searchString?.length > 0)) ? 'warning' : 'primary'
+})
+
+const testFilter = computed(() => {
+	if (level && level.value) {
+		filter.value = {...filter.value, levels: [level.value]}
+	}
+	return filter.value || {}
 })
 
 watchEffect(() => {
 	//loadWorkshops(query.value)
 	if (userEmail.value) {
-		if (tagsLoV.value?.records == 0) {
+		if (!tagsLoV.value?.records) {
 			fetchTags({ page: 1, pageSize: 200 });
 		}
-		workshopsCriteria.value = filter.value
-		if (level?.value) {
-		 	workshopsCriteria.value?.levels?.push(level.value)
-		}
-		filterForm.value = filter.value
+		
+		//workshopsCriteria.value = filter.value
+		workshopsCriteria.value = testFilter.value
+		
+		// if (level?.value && workshopsCriteria.value.levels) {
+		// 	//handleSearchChange()
+		//  	workshopsCriteria.value?.levels?.push(level.value)
+		// }
+		//filterForm.value = filter.value
+		filterForm.value = testFilter.value
 	}
 	else {
 		console.log('Waiting for user authentication')

@@ -184,7 +184,7 @@ export interface WsFilterCriteria {
   categories: number[],
   tags: number[],
   environments: number,
-  levels: number[],
+  levels: string[],
   showAll: boolean
 }
 
@@ -203,7 +203,7 @@ export interface WsFilter {
   tags: number[],
   showAll?: boolean,
   environments?: number
-  levels?: number[],
+  levels?: string[],
   locale?: string
 }
 export interface WsQueryDTO extends WsFilter, BasicQueryDTO {

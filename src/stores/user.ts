@@ -12,10 +12,11 @@ import type {
   IUserGroupsDTO,
   GCUserInfo,
   GCDeleteUser,
+  IJiraFields,
 } from "@/interfaces";
 // import defaultAvatarUrl from "@/assets/images/avatar/01.jpg";
 import { getAvatarUrl } from '@/utils/image'
-import { GLabsApiClient } from "@/apis/glabs";
+import { GLabsApiClient, JiraMiddlewareApiClient } from "@/apis/glabs";
 
 import { useAxios } from "@vueuse/integrations/useAxios";
 import { useNotification } from "@kyvg/vue3-notification";
@@ -42,6 +43,12 @@ export const useUserStore = defineStore("identity", () => {
   const orgs = ref([] as IDriveOrg[]);
   const localization = useStorage('localization', 'en-US', localStorage)
   const isMobile = computed(() => width.value < 750)
+  
+  const issues = ref({} as {pageCount: number, pageNumber: number, results: IJiraFields[], totalResults: number })
+  const issuesInProgress = ref(false)
+  const showIssueForm = ref(false)
+
+
 
   // computed properties vue composition of store
   const getCustomerProfile = computed(() => {
@@ -430,6 +437,27 @@ export const useUserStore = defineStore("identity", () => {
   }
 }
 
+async function fetchIssues(email: string) {
+  const jiraUrl = ref(`/customer/issues?email=${email}`)
+  const { execute } = useAxios(JiraMiddlewareApiClient)
+  const result = await execute(jiraUrl.value, { method: "GET" });
+  if (result.isFinished.value) {
+    issues.value = result.data.value
+  }
+  if (result.error.value) {
+    notify({
+      title: 'Jira API',
+      text: `${handleAxiosError(
+        result.error.value,
+        "Impossible to retrieve the list of your service requests at the moment."
+      )}`,
+      duration: -1,
+      type: "error",
+    });
+  }
+  issuesInProgress.value = false
+}
+
 
   // async function createOrgProfile(org: any) {
   //   const { execute } = useAxios(GLabsApiClient);
@@ -599,10 +627,11 @@ export const useUserStore = defineStore("identity", () => {
     userUpdateInProgress,
     orgsUpdateInProgress,
     registrationStep,
-    //registrationUser,
+    issues,
+    issuesInProgress,
+    showIssueForm,
     localization,
     isMobile,
-    //setUserRegistration,
     createUserProfile,
     updateUserProfile,
     removeUserProfile,
@@ -616,6 +645,7 @@ export const useUserStore = defineStore("identity", () => {
     activateUserProvisioning,
     provisionGCUser,
     deprovisionGCUser,
+    fetchIssues,
     logout,
   };
 

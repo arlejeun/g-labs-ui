@@ -1,44 +1,16 @@
 <script setup lang="ts">
-import { JiraMiddlewareApiClient } from '@/apis/glabs';
 import type { IUserAdminTable } from '@/interfaces';
 import { useUserStore } from '@/stores/user';
-import { handleAxiosError } from '@/utils/axios';
-import { notify } from '@kyvg/vue3-notification';
-import { useAxios } from '@vueuse/integrations/useAxios';
 import {
   Refresh,
-  Menu
 } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
-const { userEmail } = storeToRefs(userStore)
+const { userEmail, issuesInProgress, issues, showIssueForm } = storeToRefs(userStore)
+const { fetchIssues } = userStore
 
-const issues = ref({} as {pageCount: Number, pageNumber: Number, results: any, totalResults: Number })
-//const issues = ref({} as any)
 
 const filterTableData = computed(() => issues.value?.results || [])
-const loadingTable = ref(true)
-
-async function fetchIssues(email: string) {
-  const jiraUrl = ref(`/issues?email=${email}`)
-  const { execute } = useAxios(JiraMiddlewareApiClient)
-  const result = await execute(jiraUrl.value, { method: "GET" });
-  if (result.isFinished.value) {
-    issues.value = result.data.value
-    loadingTable.value = false
-  }
-  if (result.error.value) {
-    notify({
-      title: 'Jira API',
-      text: `${handleAxiosError(
-        result.error.value,
-        "Impossible to retrieve the list of your service requests at the moment."
-      )}`,
-      duration: -1,
-      type: "error",
-    });
-  }
-}
 
 const columns = ref({} as IUserAdminTable)
 columns.value = {
@@ -50,16 +22,16 @@ columns.value = {
     label: 'Requestor',
     width: 'auto'
   },
-  STATUS: {
-    label: 'Status',
-    width: 'auto'
-  },
   SUMMARY: {
     label: 'Summary',
     width: 'auto'
   },
   TYPE: {
     label: 'Type',
+    width: 'auto'
+  },
+  STATUS: {
+    label: 'Status',
     width: 'auto'
   },
 
@@ -76,17 +48,23 @@ const handlePaginationCurrentChange = () => { }
 
 //TODO: issue type
 const totalIssuesCount = computed(() => {
-  //return issues.value?.totalResults || 0
-  return 0
+  return issues.value?.totalResults || 0
 })
 
-const pageSize = ref(15)
+const toggleIssueForm = () => {
+  showIssueForm.value = !showIssueForm.value
+}
+
+const pageSize = ref(50)
 
 watchEffect(() => {
   if (userEmail.value) {
+    issuesInProgress.value = true
     fetchIssues(userEmail.value)
   }
 })
+
+
 
 </script>
 
@@ -100,25 +78,29 @@ watchEffect(() => {
       </button>
     </div>
 
-    <div class="card border">
+    <div class="card">
 
       <section class="pt-4">
         <div class="container position-relative pt-0 pb-3">
           <div class="row">
-            <div class="col-xs-12 col-lg-10">
+            <div class="col-xs-10 col-lg-10">
               <h3 class="fs-3 text-primary">Drive Service Requests</h3>
+            </div>
+            <div class="col-xs-2 col-lg-2">
+              <el-button @click="toggleIssueForm()" type="primary">New idea / Issue?</el-button>
             </div>
           </div>
         </div>
 
-        <div class="row justify-content-center">
-          <div class="col-lg-10 col-md-11 me-2">
-            <el-table v-loading="loadingTable" :data="filterTableData" :border="true" highlight-current-row stripe
-              @row-click="handleRowClick" :default-sort="{ prop: 'used', order: 'descending' }" style="width:100%">
-              <el-table-column type="expand">
-                <template #header>
-                  <el-button class="px-1 refresh-button" size="small" :icon="Refresh" @click="refresh()"></el-button>
-                </template>
+        <div class="container-fluid justify-content-center">
+          <div v-show="showIssueForm" class="row">
+            <ProfileFeedbackForm></ProfileFeedbackForm>
+          </div>
+          <div class="row">
+            <div class="col-lg-12 col-md-12">
+              <el-table v-loading="issuesInProgress" :data="filterTableData" :border="true" highlight-current-row stripe
+                @row-click="handleRowClick" :default-sort="{ prop: 'used', order: 'descending' }" style="width:100%">
+               
                 <el-table-column v-for="(column, prop) in columns" :key="prop" :label="columns[prop].label"
                   :prop="typeof prop == 'string' ? prop : ''" :width="columns[prop].width">
                   <template #default="{ row }">
@@ -128,76 +110,25 @@ watchEffect(() => {
                     </template>
                   </template>
                 </el-table-column>
-              </el-table-column>
-            </el-table>
 
-            <div class="mt-4 row justify-content-center">
-              <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize"
-                :page-sizes="[10, 25, 50, 500]" :disabled=false :background=true
-                layout="total, sizes, prev, pager, next, jumper" :total="totalIssuesCount"
-                @size-change="handlePaginationSizeChange" @current-change="handlePaginationCurrentChange" />
+              </el-table>
+
+            </div>
+          </div>
+          <div class="row justify-content-end mt-4">
+            <div class="col-auto align-self-end">
+              <el-button class="refresh-button pt-0" size="small" :icon="Refresh" @click="refresh()"></el-button>
+            </div>
+            <div class="col-auto">
+              <el-pagination small layout="total, prev, pager, next" :total="totalIssuesCount" :page-size="pageSize" />
+              <!-- <el-pagination v-model:current-page="currentPage" :page-size="pageSize" :disabled=true
+                    layout="total, sizes, prev, pager, next" :total="totalIssuesCount"
+                    /> -->
             </div>
 
           </div>
 
-          <!-- <div class="col ms-2" style="max-width: 300px">
-            <div class="card ">
-              <div class="card-header border row px-0">
-                <div class="col-8">
-                  <h5 class="text-primary">Edit Tag</h5>
-                </div>
-                <div class="col-4">
-                  <el-button-group>
-                    <el-tooltip content="Add tag" placement="left">
-                      <el-button @click="handleTagAdd" type="primary" size="small" :icon="Plus" />
-                    </el-tooltip>
-                  </el-button-group>
-
-                </div>
-              </div>
-              <div class="card-body border row px-0">
-                <el-form ref="tagFormRef" :model="currentTag" :rules="rules" :disabled="disabledForm" class="row"
-                  label-position="top">
-                  <div class="col-xs-12 col-12">
-                    <el-form-item label="Tag Name" prop="name">
-                      <el-input v-model="currentTag.name" class="w-100 m-2" />
-                    </el-form-item>
-                  </div>
-
-                  <div class="col-xs-12 col-12">
-                    <el-form-item label="Tag Category" prop="category">
-                      <el-select class="w-100 m-2" v-model="currentTag.category" placeholder="Select">
-                        <el-option label="Business" value="Business"></el-option>
-                        <el-option label="Technical" value="Technical"></el-option>
-                      </el-select>
-                    </el-form-item>
-                  </div>
-
-                  <div class="col-xs-12 col-12">
-                    <el-form-item label="Tag Label" prop="label">
-                      <el-input v-model="currentTag.label" class="w-100 m-2" />
-                    </el-form-item>
-                  </div>
-
-                  <div class="pt-2 d-sm-flex justify-content-end">
-                    <el-form-item class="mb-0">
-                      <el-button v-show="editMode" type="primary" @click="editTagForm(tagFormRef)">Edit</el-button>
-                      <el-button v-show="!editMode" type="primary" @click="addTagForm(tagFormRef)">Add</el-button>
-                      <el-button @click="resetForm(tagFormRef)">Reset</el-button>
-                    </el-form-item>
-                  </div>
-
-
-                </el-form>
-              </div>
-
-
-            </div>
-          </div> -->
-
-
         </div>
-
 
       </section>
 
@@ -207,5 +138,7 @@ watchEffect(() => {
 </template>
 
 <style>
-
+.refresh-button {
+  border: 0
+}
 </style>

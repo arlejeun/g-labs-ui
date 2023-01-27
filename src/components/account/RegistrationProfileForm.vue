@@ -2,7 +2,7 @@
 
 import type { FormInstance, FormRules, ElProgress } from 'element-plus'
 import { useUserStore } from '@/stores/user'
-import { useCountryStore } from '@/stores/country'
+import { useOptionsStore } from '@/stores/options'
 
 const props = defineProps(['account'])
 const myUser = ref(props.account)
@@ -10,7 +10,7 @@ const myUser = ref(props.account)
 const userStore = useUserStore()
 const { createUserProfile } = userStore
 
-const countryStore = useCountryStore()
+const countryStore = useOptionsStore()
 const { countries } = storeToRefs(countryStore)
 const { fetchCountries, selectCountry } = countryStore
 
