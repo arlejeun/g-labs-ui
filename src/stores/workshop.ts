@@ -275,8 +275,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
             setTimeout(() => { getProgress() }, 200)         
           }
         }
-        //TODO: @uncleash implement with backend service
-        //getProgress()
+        getProgress()
         let mnf = resData.localizations[0].manifest;
         mnf = mnf.replaceAll('\\"', "\\$");
         mnf = mnf.replaceAll('"', '"');
@@ -441,7 +440,7 @@ export const useWorkshopStore = defineStore("workshop", () => {
         payload.completed_at = new Date().toISOString()
       }
       //TODO: @uncleash Implement with backend services
-      //updateUserProgress(workshopId.value, userId.value, payload)
+      updateUserProgress(workshopId.value, userId.value, payload)
       let chIdxes = workShopPathMap.value.filter(item => {
         return item.index[0] == workShopPathMap.value[treeIndex.value].index[0]
       })
