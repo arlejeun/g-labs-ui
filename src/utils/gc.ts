@@ -30,9 +30,11 @@ export const environments = [
   {
     id: 1,
     name: 'purecloudnow',
+    label: 'Genesys Managed Demos'
   },
   {
     id: 2,
     name: '3rd party org',
+    label: 'Bring Your Own Org'
   },
 ];

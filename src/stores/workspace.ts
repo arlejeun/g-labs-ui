@@ -17,17 +17,30 @@ export const useWorkspaceStore = defineStore("workspace", () => {
   const genesysApiUrl = computed(() => { return genesysLoginUrl.value.replace('login','api')})
   const isTokenActive = computed(() => gsysCloudClient.value.access_token != '')
   const hasAdminPermission = computed(() => genesysUserPermissions.value);
+  const getOrgName = computed(() =>  genesysOrg.value?.name || 'Not available')
+  const isOrgActivated = computed(() => genesysUser.value?.email && genesysUser.value?.email?.length > 0)
   const activeOrgSummary = computed(() => {
+    
     return {
-      orgName: genesysOrg.value?.name || 'Not available',
+      orgName: getOrgName.value,
       orgId: genesysOrg.value?.id || 'Not available',
-      userEmail: genesysUser.value?.email,
-      userStatus: genesysUser.value?.state,
-      userRole: genesysUserPermissions.value?.grants?.map(grant => grant?.role?.name),
-      userAvatarPath: genesysUser.value?.images?.[0]?.imageUri
+      orgCategory: decodeOrgCategory(isOrgActivated.value, getOrgName.value),
+      genesysEmail: genesysUser.value?.email,
+      genesysStatus: genesysUser.value?.state,
+      genesysRole: genesysUserPermissions.value?.grants?.map(grant => grant?.role?.name),
+      //genesysAvatarPath: genesysUser.value?.images?.[0]?.imageUri
     }
   }
   )
+
+  const decodeOrgCategory = (isActive: boolean | undefined | "", gcOrgName: string | undefined): number => {
+    // return 0 if not activated
+    // else return 1 if pcn or 2 if bring our own
+    if (!isActive) return 0
+    else {
+      return gcOrgName == 'PureCloudNow'? 1: 2
+    }
+  }
 
   function setupUserToken(token: string) {
     gsysCloudClient.value.access_token = token
@@ -78,6 +91,9 @@ export const useWorkspaceStore = defineStore("workspace", () => {
 
   async function resetInfo() {
     gsysCloudClient.value.access_token = ''
+    genesysUser.value = undefined
+    genesysOrg.value = undefined
+    genesysUserPermissions.value = undefined
   }
 
   async function refreshEnvironment () {
@@ -101,6 +117,7 @@ export const useWorkspaceStore = defineStore("workspace", () => {
     genesysLoginUrl,
     gsysCloudClient,
     activeOrgSummary,
+    isOrgActivated,
     getActiveOrg,
     getActiveUser,
     getActiveUserPermissions,

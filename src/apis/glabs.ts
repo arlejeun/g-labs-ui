@@ -49,7 +49,7 @@ const GLabsApiClient = axios.create({
       'Accept': 'application/json',
       'Authorization': 'Bearer ' + JIRA_TOKEN
     }
-    config.headers = {...headers}
+    config.headers = {...config.headers, ...headers}
     return config
   })
 

@@ -38,7 +38,7 @@ import 'nprogress'
 // Import Fontawesome
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { fas } from '@fortawesome/free-solid-svg-icons'
+import { faWarning, faBomb } from '@fortawesome/free-solid-svg-icons'
 
 // import MazPhoneNumberInput from 'maz-ui/components/MazPhoneNumberInput'
 // import 'maz-ui/css/main.css'
@@ -47,12 +47,12 @@ import router from './router'
 import App from '@/App.vue'
 import i18n from './i18n'
 
-library.add(fas)
+library.add(faWarning, faBomb)
 
 const app = createApp(App)
 //app.use(ElementPlus)
 
-app.component('fa', FontAwesomeIcon)
+app.component('font-awesome-icon', FontAwesomeIcon)
 //app.component('MazPhoneNumberInput', MazPhoneNumberInput)
 //app.component('EasyDataTable', Vue3EasyDataTable);
 

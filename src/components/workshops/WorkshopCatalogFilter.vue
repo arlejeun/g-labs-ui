@@ -10,6 +10,7 @@ import router from '@/router';
 import { useAdminStore } from '@/stores/admin';
 import { useWorkshopStore } from '@/stores/workshop';
 import { environments } from '@/utils/gc'
+import { useWorkspaceStore } from '@/stores/workspace';
 
 const store = useUserStore()
 const { isMobile, isAdmin, userEmail } = storeToRefs(store)
@@ -29,6 +30,9 @@ const { fetchTags } = adminStore
 
 const wStore = useWorkshopStore()
 const { workshopsCriteria } = storeToRefs(wStore)
+
+const workspaceStore = useWorkspaceStore()
+const { activeOrgSummary } = storeToRefs(workspaceStore)
 
 const showFilterCriteria = ref(false)
 const filterForm = ref({} as WsFilterCriteria)
@@ -75,13 +79,19 @@ const resetForm = (formEl: FormInstance | undefined) => {
 }
 
 const filterType = computed(() => {
-	return (filter.value?.tags?.length > 0 || filter.value?.categories?.length > 0 || filter.value?.levels?.length > 0 || 
+	const envFilter = filter.value.environments
+	return (filter.value?.tags?.length > 0 || filter.value?.categories?.length > 0 || 
+	filter.value?.levels?.length > 0 || filter.value?.environments > 0 ||
 		(filter.value?.searchString && filter.value?.searchString?.length > 0)) ? 'warning' : 'primary'
 })
 
 const testFilter = computed(() => {
 	if (level && level.value) {
 		filter.value = {...filter.value, levels: [level.value]}
+	}
+	if (activeOrgSummary.value.orgCategory > 0) {
+
+		filter.value = {...filter.value, environments: activeOrgSummary.value.orgCategory}
 	}
 	return filter.value || {}
 })
@@ -176,7 +186,7 @@ watchEffect(() => {
 							<el-form-item label="Categories" prop="categories">
 								<el-select class="w-100" v-model="filterForm.categories" multiple collapse-tags
 									collapse-tags-tooltip filterable :multiple-limit=3 placeholder="Select">
-									<el-option v-for="item in bizTagsLoV" :key="item.id" :label="item.name"
+									<el-option v-for="item in bizTagsLoV" :key="item.id" :label="item.label"
 										:value="item.id" />
 								</el-select>
 							</el-form-item>
@@ -209,9 +219,9 @@ watchEffect(() => {
 						<div class="col-xs-6 col-md-6 col-lg-3">
 							<!-- <label class="form-label">Categories</label> -->
 							<el-form-item label="Environments" prop="environments">
-								<el-select class="w-100" v-model="filterForm.environments" multiple collapse-tags
-									collapse-tags-tooltip filterable placeholder="Select" :multiple-limit=1>
-									<el-option v-for="item in environments" :key="item.id" :label="item.name"
+								<el-select class="w-100" v-model="filterForm.environments" collapse-tags
+									collapse-tags-tooltip :clearable=true filterable placeholder="Select">
+									<el-option v-for="item in environments" :key="item.id" :label="item.label"
 										:value="item.id" />
 								</el-select>
 							</el-form-item>
